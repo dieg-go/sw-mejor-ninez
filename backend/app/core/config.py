@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     DEBUG: bool = False
 
     DB_HOST: str = "localhost"
-    DB_PORT: int = 5432
+    DB_PORT: int = 5433
     DB_USER: str = "postgres"
     DB_PASSWORD: str = "postgres"
     DB_NAME: str = "sw_mejor_ninez"

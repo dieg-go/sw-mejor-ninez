@@ -32,6 +32,8 @@ pnpm dev
 | Lint | `pnpm lint` | `frontend/` |
 | Backend dev | `uvicorn main:app --reload` | `backend/` |
 | Backend tests | `pytest` | `backend/` |
+| Create migration | `python -m alembic revision --autogenerate -m "description"` | `backend/` |
+| Apply migrations | `python -m alembic upgrade head` | `backend/` |
 
 ## Tech Stack
 
@@ -127,3 +129,5 @@ frontend/
 8. **UUID primary keys** — all tables use `uuid.UUID` with `default_factory=uuid.uuid4`. When creating records, omit the PK and let the factory generate it. In API routes, use `uuid.UUID` for path parameters: `/nna/{id_nna}` with `id_nna: uuid.UUID`.
 
 9. **`tiene_antecedentes_penales`** on `AdultoSignificativo` is a denormalized boolean that duplicates the existence check on `AntecedentesPenales`. Keep it updated when adding/removing criminal records.
+
+10. **Alembic** — use `python -m alembic` (not bare `alembic`, it's not on PATH). `--autogenerate` requires a running PostgreSQL (Docker), otherwise just create blank revisions. The initial migration uses `SQLModel.metadata.create_all()` / `drop_all()` rather than hand-written DDL.
