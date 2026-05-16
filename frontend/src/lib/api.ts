@@ -28,7 +28,19 @@ export interface NNA {
   region: string | null;
 }
 
-export type NNACreate = Omit<NNA, "id_nna">;
+export interface NNACreate {
+  nombre?: string | null;
+  run?: string | null;
+  fecha_nacimiento?: string | null;
+  sexo?: string | null;
+  etnia_declarada?: string | null;
+  nacionalidad?: string | null;
+  domicilio?: string | null;
+  poblacion_o_villa?: string | null;
+  comuna?: string | null;
+  region?: string | null;
+}
+
 export type NNAUpdate = Partial<NNACreate>;
 
 export interface AdultoSignificativo {
@@ -41,7 +53,15 @@ export interface AdultoSignificativo {
   tiene_antecedentes_penales: boolean;
 }
 
-export type AdultoSignificativoCreate = Omit<AdultoSignificativo, "id_adulto_significativo">;
+export interface AdultoSignificativoCreate {
+  nombre?: string | null;
+  fecha_nacimiento?: string | null;
+  run?: string | null;
+  direccion?: string | null;
+  numero_telefono?: string | null;
+  tiene_antecedentes_penales?: boolean;
+}
+
 export type AdultoSignificativoUpdate = Partial<AdultoSignificativoCreate>;
 
 export interface HistorialConsumoNNA {

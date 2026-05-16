@@ -107,7 +107,7 @@ frontend/
 - **Tailwind v4** uses the `@import "tailwindcss"` CSS directive (not `@tailwind base/components/utilities`). Theme is configured in CSS via `@theme inline {}` and CSS custom properties.
 - **Dark mode** uses `prefers-color-scheme` media query in globals.css; no class-based toggle yet.
 - **Path alias**: `@/` maps to `src/` — import as `@/app/...`, `@/components/...`, etc.
-- **No components, hooks, or utilities yet** — project is in early scaffolding phase.
+- **shadcn/ui** components are the default UI toolkit (radix-nova style: `npx shadcn@next add`). Use shadcn `<Button>`, `<Input>`, `<Select>`, `<Table>`, `<Card>`, `<Tabs>`, `<Badge>` etc. instead of raw HTML elements. Only use raw `<input>`/`<button>`/`<select>` when shadcn components do not cover the use case. This improves accessibility and ensures consistent styling via Tailwind classes.
 - **ESLint** is flat config only. To add custom rules, modify `eslint.config.mjs` using the `defineConfig` pattern.
 
 ## Gotchas
