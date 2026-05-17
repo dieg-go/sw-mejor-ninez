@@ -69,6 +69,14 @@ export default function RootLayout({
                     </NavigationMenuItem>
                     <NavigationMenuItem>
                       <NavigationMenuLink
+                        href="/nuevo-caso"
+                        className="text-sm text-muted-foreground hover:text-foreground"
+                      >
+                        + Nuevo caso
+                      </NavigationMenuLink>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                      <NavigationMenuLink
                         href="/nna"
                         className="text-sm text-muted-foreground hover:text-foreground"
                       >

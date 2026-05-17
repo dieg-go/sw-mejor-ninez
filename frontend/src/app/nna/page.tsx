@@ -61,7 +61,7 @@ export default function NNAListPage() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold">NNA</h1>
         <Button asChild>
-          <Link href="/nna/nuevo">+ Nuevo NNA</Link>
+          <Link href="/nuevo-caso">+ Nuevo caso</Link>
         </Button>
       </div>
 

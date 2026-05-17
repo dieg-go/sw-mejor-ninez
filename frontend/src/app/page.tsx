@@ -10,9 +10,14 @@ export default function Home() {
       <p className="text-muted-foreground mb-8 text-center max-w-md">
         Sistema de gestión para el programa de protección de niños, niñas y adolescentes.
       </p>
-      <Button asChild>
-        <Link href="/nna">Ver registro NNA</Link>
-      </Button>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <Button asChild>
+          <Link href="/nuevo-caso">+ Nuevo caso</Link>
+        </Button>
+        <Button variant="outline" asChild>
+          <Link href="/nna">Ver registro NNA</Link>
+        </Button>
+      </div>
     </div>
   );
 }
