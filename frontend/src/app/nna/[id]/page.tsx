@@ -2,7 +2,7 @@
 
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeftIcon } from "lucide-react";
 import { api, type NNA } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +22,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
+import { Empty } from "@/components/ui/empty";
+import {
+  Field,
+  FieldLabel,
+  FieldGroup,
+} from "@/components/ui/field";
 
 function InfoRow({ label, value }: { label: string; value: string | null }) {
   return (
@@ -32,14 +40,10 @@ function InfoRow({ label, value }: { label: string; value: string | null }) {
   );
 }
 
-function EmptyState() {
-  return <p className="text-sm text-muted-foreground py-4">Sin registros.</p>;
-}
-
-function LoadingBlock() {
+function TabSpinner() {
   return (
     <div className="flex items-center gap-2 text-sm text-muted-foreground py-4">
-      <Loader2 className="size-4 animate-spin" /> Cargando...
+      <Spinner /> Cargando...
     </div>
   );
 }
@@ -65,7 +69,7 @@ export default function NNADetailPage({
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+        <Spinner className="size-6" />
       </div>
     );
   }
@@ -76,7 +80,8 @@ export default function NNADetailPage({
         <p className="text-destructive">{error || "NNA no encontrado"}</p>
         <Button variant="outline" asChild className="mt-4">
           <Link href="/nna">
-            <ArrowLeft className="mr-2 size-4" /> Volver
+            <ArrowLeftIcon />
+            Volver
           </Link>
         </Button>
       </div>
@@ -87,7 +92,8 @@ export default function NNADetailPage({
     <div className="max-w-5xl mx-auto px-4 py-8">
       <Button variant="ghost" asChild className="-ml-2 mb-4">
         <Link href="/nna">
-          <ArrowLeft className="mr-2 size-4" /> Volver al listado
+          <ArrowLeftIcon />
+          Volver al listado
         </Link>
       </Button>
 
@@ -162,6 +168,7 @@ export default function NNADetailPage({
 function IngresoTab({ idNna }: { idNna: string }) {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
     api.antecedenteIngreso
@@ -170,14 +177,79 @@ function IngresoTab({ idNna }: { idNna: string }) {
       .finally(() => setLoading(false));
   }, [idNna]);
 
-  if (loading) return <LoadingBlock />;
-  if (data.length === 0) return <EmptyState />;
+  if (loading) return <TabSpinner />;
 
   return (
-    <div className="space-y-4">
-      {data.map((ingreso: any) => (
-        <IngresoCard key={ingreso.id_antecedente_ingreso} ingreso={ingreso} />
-      ))}
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">
+          {data.length} ingreso{data.length !== 1 && "s"}
+        </p>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowForm((v) => !v)}
+        >
+          {showForm ? "Cancelar" : "+ Agregar ingreso"}
+        </Button>
+      </div>
+
+      {showForm && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Nuevo antecedente de ingreso</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <FieldGroup>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <Field>
+                  <FieldLabel>Fecha de ingreso</FieldLabel>
+                  <Input type="date" />
+                </Field>
+                <Field>
+                  <FieldLabel>Quién solicita</FieldLabel>
+                  <Input placeholder="Nombre o entidad" />
+                </Field>
+                <Field>
+                  <FieldLabel>Tribunal</FieldLabel>
+                  <Input placeholder="Tribunal" />
+                </Field>
+                <Field>
+                  <FieldLabel>Materia</FieldLabel>
+                  <Input placeholder="Materia" />
+                </Field>
+                <Field>
+                  <FieldLabel>RIT</FieldLabel>
+                  <Input placeholder="Código RIT" />
+                </Field>
+                <Field>
+                  <FieldLabel>RUC</FieldLabel>
+                  <Input placeholder="Código RUC" />
+                </Field>
+                <Field>
+                  <FieldLabel>Fecha causa</FieldLabel>
+                  <Input type="date" />
+                </Field>
+              </div>
+              <label className="flex items-center gap-2 text-sm">
+                <input type="checkbox" className="rounded" />
+                Orden tribunal
+              </label>
+              <Button size="sm">Guardar (test)</Button>
+            </FieldGroup>
+          </CardContent>
+        </Card>
+      )}
+
+      {data.length === 0 && !showForm ? (
+        <Empty>
+          <p className="text-muted-foreground text-sm">Sin registros.</p>
+        </Empty>
+      ) : (
+        data.map((ingreso: any) => (
+          <IngresoCard key={ingreso.id_antecedente_ingreso} ingreso={ingreso} />
+        ))
+      )}
     </div>
   );
 }
@@ -213,9 +285,9 @@ function IngresoCard({ ingreso }: { ingreso: any }) {
           {ingreso.codigo_ruc && <> | RUC: {ingreso.codigo_ruc}</>}
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="flex flex-col gap-4">
         {!loaded ? (
-          <LoadingBlock />
+          <TabSpinner />
         ) : (
           <>
             <div>
@@ -227,7 +299,7 @@ function IngresoCard({ ingreso }: { ingreso: any }) {
                   Sin causales registradas.
                 </p>
               ) : (
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   {causales.map((c: any) => (
                     <div
                       key={c.id_registro_causales}
@@ -260,7 +332,7 @@ function IngresoCard({ ingreso }: { ingreso: any }) {
                   Sin derechos registrados.
                 </p>
               ) : (
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   {derechos.map((d: any) => (
                     <div
                       key={d.id_registro_derecho_vulnerado}
@@ -294,7 +366,7 @@ function DocTab({ idNna }: { idNna: string }) {
       .finally(() => setLoaded(true));
   }, [idNna]);
 
-  if (!loaded) return <LoadingBlock />;
+  if (!loaded) return <TabSpinner />;
   if (docs.length === 0) return null;
 
   return (
@@ -302,7 +374,7 @@ function DocTab({ idNna }: { idNna: string }) {
       <h4 className="text-sm font-medium mb-2 border-b pb-1">
         Documentación de ingreso
       </h4>
-      <div className="space-y-2">
+      <div className="flex flex-col gap-2">
         {docs.map((d: any) => (
           <div
             key={d.id_documentacion}
@@ -338,8 +410,14 @@ function ConsumoTab({ idNna }: { idNna: string }) {
       .finally(() => setLoading(false));
   }, [idNna]);
 
-  if (loading) return <LoadingBlock />;
-  if (data.length === 0) return <EmptyState />;
+  if (loading) return <TabSpinner />;
+  if (data.length === 0) {
+    return (
+      <Empty>
+        <p className="text-muted-foreground text-sm">Sin registros.</p>
+      </Empty>
+    );
+  }
 
   return (
     <Table>
@@ -386,11 +464,17 @@ function DiscapacidadTab({ idNna }: { idNna: string }) {
       .finally(() => setLoading(false));
   }, [idNna]);
 
-  if (loading) return <LoadingBlock />;
-  if (data.length === 0) return <EmptyState />;
+  if (loading) return <TabSpinner />;
+  if (data.length === 0) {
+    return (
+      <Empty>
+        <p className="text-muted-foreground text-sm">Sin registros.</p>
+      </Empty>
+    );
+  }
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col gap-3">
       {data.map((d: any) => (
         <Card key={d.id_discapacidad}>
           <CardContent className="pt-4">
@@ -430,52 +514,57 @@ function InstrumentosTab({ idNna }: { idNna: string }) {
       .finally(() => setLoading(false));
   }, [idNna]);
 
-  if (loading) return <LoadingBlock />;
-  if (e2p.length === 0 && pmf.length === 0 && ncfas.length === 0)
-    return <EmptyState />;
-
-  function InstrumentoSection({
-    label,
-    items,
-  }: {
-    label: string;
-    items: any[];
-  }) {
-    if (items.length === 0) return null;
+  if (loading) return <TabSpinner />;
+  if (e2p.length === 0 && pmf.length === 0 && ncfas.length === 0) {
     return (
-      <div>
-        <h4 className="text-sm font-medium mb-2">{label}</h4>
-        <div className="space-y-2">
-          {items.map((i: any) => (
-            <Card key={i.id_instrumento} size="sm">
-              <CardContent className="pt-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Badge variant="outline" className="mb-1">
-                      {i.resultado || "Pendiente"}
-                    </Badge>
-                    <p className="text-xs text-muted-foreground">
-                      {i.observacion || "Sin observaciones"}
-                    </p>
-                  </div>
-                  <div className="text-xs text-muted-foreground text-right">
-                    <p>Evaluado: {i.fecha_evaluacion || "—"}</p>
-                    <p>Próxima: {i.fecha_proxima_evaluacion || "—"}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
+      <Empty>
+        <p className="text-muted-foreground text-sm">Sin registros.</p>
+      </Empty>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <InstrumentoSection label="E2P" items={e2p} />
       <InstrumentoSection label="PMF" items={pmf} />
       <InstrumentoSection label="NCFAS" items={ncfas} />
+    </div>
+  );
+}
+
+function InstrumentoSection({
+  label,
+  items,
+}: {
+  label: string;
+  items: any[];
+}) {
+  if (items.length === 0) return null;
+  return (
+    <div>
+      <h4 className="text-sm font-medium mb-2">{label}</h4>
+      <div className="flex flex-col gap-2">
+        {items.map((i: any) => (
+          <Card key={i.id_instrumento}>
+            <CardContent className="pt-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Badge variant="outline" className="mb-1">
+                    {i.resultado || "Pendiente"}
+                  </Badge>
+                  <p className="text-xs text-muted-foreground">
+                    {i.observacion || "Sin observaciones"}
+                  </p>
+                </div>
+                <div className="text-xs text-muted-foreground text-right">
+                  <p>Evaluado: {i.fecha_evaluacion || "—"}</p>
+                  <p>Próxima: {i.fecha_proxima_evaluacion || "—"}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
@@ -491,8 +580,14 @@ function HistorialTab({ idNna }: { idNna: string }) {
       .finally(() => setLoading(false));
   }, [idNna]);
 
-  if (loading) return <LoadingBlock />;
-  if (data.length === 0) return <EmptyState />;
+  if (loading) return <TabSpinner />;
+  if (data.length === 0) {
+    return (
+      <Empty>
+        <p className="text-muted-foreground text-sm">Sin registros.</p>
+      </Empty>
+    );
+  }
 
   return (
     <Table>
@@ -533,13 +628,19 @@ function GestionTab({ idNna }: { idNna: string }) {
       .finally(() => setLoading(false));
   }, [idNna]);
 
-  if (loading) return <LoadingBlock />;
-  if (data.length === 0) return <EmptyState />;
+  if (loading) return <TabSpinner />;
+  if (data.length === 0) {
+    return (
+      <Empty>
+        <p className="text-muted-foreground text-sm">Sin registros.</p>
+      </Empty>
+    );
+  }
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col gap-3">
       {data.map((g: any) => (
-        <Card key={g.id_gestion_busqueda} size="sm">
+        <Card key={g.id_gestion_busqueda}>
           <CardContent className="pt-4">
             <div className="flex items-center justify-between mb-2">
               <h4 className="font-medium text-sm">{g.tipo_gestion}</h4>
@@ -568,8 +669,14 @@ function InformesTab({ idNna }: { idNna: string }) {
       .finally(() => setLoading(false));
   }, [idNna]);
 
-  if (loading) return <LoadingBlock />;
-  if (data.length === 0) return <EmptyState />;
+  if (loading) return <TabSpinner />;
+  if (data.length === 0) {
+    return (
+      <Empty>
+        <p className="text-muted-foreground text-sm">Sin registros.</p>
+      </Empty>
+    );
+  }
 
   return (
     <Table>
@@ -612,13 +719,19 @@ function SaludTab({ idNna }: { idNna: string }) {
       .finally(() => setLoading(false));
   }, [idNna]);
 
-  if (loading) return <LoadingBlock />;
-  if (data.length === 0) return <EmptyState />;
+  if (loading) return <TabSpinner />;
+  if (data.length === 0) {
+    return (
+      <Empty>
+        <p className="text-muted-foreground text-sm">Sin registros.</p>
+      </Empty>
+    );
+  }
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col gap-3">
       {data.map((s: any) => (
-        <Card key={s.id_antecedente_salud} size="sm">
+        <Card key={s.id_antecedente_salud}>
           <CardContent className="pt-4">
             <dl className="grid grid-cols-2 gap-3">
               <InfoRow label="Establecimiento" value={s.establecimiento} />
@@ -647,13 +760,19 @@ function EscolarTab({ idNna }: { idNna: string }) {
       .finally(() => setLoading(false));
   }, [idNna]);
 
-  if (loading) return <LoadingBlock />;
-  if (data.length === 0) return <EmptyState />;
+  if (loading) return <TabSpinner />;
+  if (data.length === 0) {
+    return (
+      <Empty>
+        <p className="text-muted-foreground text-sm">Sin registros.</p>
+      </Empty>
+    );
+  }
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col gap-3">
       {data.map((e: any) => (
-        <Card key={e.id_antecedente_escolar} size="sm">
+        <Card key={e.id_antecedente_escolar}>
           <CardContent className="pt-4">
             <dl className="grid grid-cols-2 gap-3">
               <InfoRow
@@ -685,11 +804,17 @@ function FamiliarTab({ idNna }: { idNna: string }) {
       .finally(() => setLoading(false));
   }, [idNna]);
 
-  if (loading) return <LoadingBlock />;
-  if (data.length === 0) return <EmptyState />;
+  if (loading) return <TabSpinner />;
+  if (data.length === 0) {
+    return (
+      <Empty>
+        <p className="text-muted-foreground text-sm">Sin registros.</p>
+      </Empty>
+    );
+  }
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       {data.map((f: any) => (
         <FamiliarCard key={f.id_antecedente_familiar} familiar={f} />
       ))}
@@ -718,11 +843,11 @@ function FamiliarCard({ familiar }: { familiar: any }) {
       </CardHeader>
       <CardContent>
         {!loaded ? (
-          <LoadingBlock />
+          <TabSpinner />
         ) : entorno.length === 0 ? (
           <p className="text-sm text-muted-foreground">Sin entorno familiar registrado.</p>
         ) : (
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             {entorno.map((e: any) => (
               <div
                 key={e.id_entorno_familiar}

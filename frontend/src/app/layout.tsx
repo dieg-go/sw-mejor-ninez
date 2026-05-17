@@ -55,14 +55,14 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <header className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+            <header className="border-b bg-background">
               <div className="max-w-5xl mx-auto px-4 h-12 flex items-center justify-between">
                 <NavigationMenu>
                   <NavigationMenuList>
                     <NavigationMenuItem>
                       <NavigationMenuLink
                         href="/"
-                        className="text-sm font-semibold text-zinc-900 dark:text-zinc-100"
+                        className="text-sm font-semibold"
                       >
                         SW Mejor Niñez
                       </NavigationMenuLink>
@@ -70,7 +70,7 @@ export default function RootLayout({
                     <NavigationMenuItem>
                       <NavigationMenuLink
                         href="/nna"
-                        className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+                        className="text-sm text-muted-foreground hover:text-foreground"
                       >
                         NNA
                       </NavigationMenuLink>
@@ -78,7 +78,7 @@ export default function RootLayout({
                     <NavigationMenuItem>
                       <NavigationMenuLink
                         href="/adultos"
-                        className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+                        className="text-sm text-muted-foreground hover:text-foreground"
                       >
                         Adultos
                       </NavigationMenuLink>

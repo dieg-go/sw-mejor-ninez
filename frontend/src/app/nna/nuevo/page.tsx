@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, CalendarIcon, Loader2 } from "lucide-react";
+import { ArrowLeftIcon, CalendarIcon } from "lucide-react";
 import { api, type NNACreate } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -21,6 +22,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Spinner } from "@/components/ui/spinner";
+import {
+  Field,
+  FieldLabel,
+  FieldGroup,
+  FieldError,
+} from "@/components/ui/field";
 import { cn } from "@/lib/utils";
 
 export default function NewNNAPage() {
@@ -74,9 +82,9 @@ export default function NewNNAPage() {
       <div className="mb-6">
         <Link
           href="/nna"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
-          <ArrowLeft className="size-4" />
+          <ArrowLeftIcon />
           Volver
         </Link>
       </div>
@@ -86,140 +94,150 @@ export default function NewNNAPage() {
           <CardTitle>Nuevo NNA</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium">Nombre</label>
-                <Input
-                  value={form.nombre ?? ""}
-                  onChange={setField("nombre")}
-                  placeholder="Nombre completo"
-                />
+          <form onSubmit={handleSubmit}>
+            <FieldGroup>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Field>
+                  <FieldLabel htmlFor="nombre">Nombre</FieldLabel>
+                  <Input
+                    id="nombre"
+                    value={form.nombre ?? ""}
+                    onChange={setField("nombre")}
+                    placeholder="Nombre completo"
+                  />
+                </Field>
+
+                <Field>
+                  <FieldLabel htmlFor="run">RUN</FieldLabel>
+                  <Input
+                    id="run"
+                    value={form.run ?? ""}
+                    onChange={setField("run")}
+                    placeholder="12.345.678-9"
+                  />
+                </Field>
+
+                <Field>
+                  <FieldLabel>Fecha de Nacimiento</FieldLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !date && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon data-icon="inline-start" />
+                        {date
+                          ? date.toLocaleDateString("es-CL")
+                          : "Seleccionar fecha"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={date}
+                        onSelect={setDate}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </Field>
+
+                <Field>
+                  <FieldLabel htmlFor="sexo">Sexo</FieldLabel>
+                  <Select
+                    value={form.sexo ?? ""}
+                    onValueChange={(v) =>
+                      setForm((prev) => ({ ...prev, sexo: v }))
+                    }
+                  >
+                    <SelectTrigger id="sexo">
+                      <SelectValue placeholder="Seleccionar" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="Masculino">Masculino</SelectItem>
+                        <SelectItem value="Femenino">Femenino</SelectItem>
+                        <SelectItem value="No especificado">No especificado</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </Field>
+
+                <Field>
+                  <FieldLabel htmlFor="etnia">Etnia Declarada</FieldLabel>
+                  <Input
+                    id="etnia"
+                    value={form.etnia_declarada ?? ""}
+                    onChange={setField("etnia_declarada")}
+                    placeholder="Etnia"
+                  />
+                </Field>
+
+                <Field>
+                  <FieldLabel htmlFor="nacionalidad">Nacionalidad</FieldLabel>
+                  <Input
+                    id="nacionalidad"
+                    value={form.nacionalidad ?? ""}
+                    onChange={setField("nacionalidad")}
+                    placeholder="Nacionalidad"
+                  />
+                </Field>
+
+                <Field className="sm:col-span-2">
+                  <FieldLabel htmlFor="domicilio">Domicilio</FieldLabel>
+                  <Input
+                    id="domicilio"
+                    value={form.domicilio ?? ""}
+                    onChange={setField("domicilio")}
+                    placeholder="Dirección"
+                  />
+                </Field>
+
+                <Field>
+                  <FieldLabel htmlFor="poblacion">Población o Villa</FieldLabel>
+                  <Input
+                    id="poblacion"
+                    value={form.poblacion_o_villa ?? ""}
+                    onChange={setField("poblacion_o_villa")}
+                    placeholder="Población o villa"
+                  />
+                </Field>
+
+                <Field>
+                  <FieldLabel htmlFor="comuna">Comuna</FieldLabel>
+                  <Input
+                    id="comuna"
+                    value={form.comuna ?? ""}
+                    onChange={setField("comuna")}
+                    placeholder="Comuna"
+                  />
+                </Field>
+
+                <Field>
+                  <FieldLabel htmlFor="region">Región</FieldLabel>
+                  <Input
+                    id="region"
+                    value={form.region ?? ""}
+                    onChange={setField("region")}
+                    placeholder="Región"
+                  />
+                </Field>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium">RUN</label>
-                <Input
-                  value={form.run ?? ""}
-                  onChange={setField("run")}
-                  placeholder="12.345.678-9"
-                />
+              {error && <FieldError>{error}</FieldError>}
+
+              <div className="flex items-center gap-3 pt-2">
+                <Button type="submit" disabled={saving}>
+                  {saving && <Spinner data-icon="inline-start" />}
+                  {saving ? "Guardando..." : "Guardar"}
+                </Button>
+                <Button variant="outline" asChild>
+                  <Link href="/nna">Cancelar</Link>
+                </Button>
               </div>
-
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium">Fecha de Nacimiento</label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !date && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 size-4" />
-                      {date
-                        ? date.toLocaleDateString("es-CL")
-                        : "Seleccionar fecha"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={date}
-                      onSelect={setDate}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium">Sexo</label>
-                <Select
-                  value={form.sexo ?? ""}
-                  onValueChange={(v) =>
-                    setForm((prev) => ({ ...prev, sexo: v }))
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccionar" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Masculino">Masculino</SelectItem>
-                    <SelectItem value="Femenino">Femenino</SelectItem>
-                    <SelectItem value="No especificado">No especificado</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium">Etnia Declarada</label>
-                <Input
-                  value={form.etnia_declarada ?? ""}
-                  onChange={setField("etnia_declarada")}
-                  placeholder="Etnia"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium">Nacionalidad</label>
-                <Input
-                  value={form.nacionalidad ?? ""}
-                  onChange={setField("nacionalidad")}
-                  placeholder="Nacionalidad"
-                />
-              </div>
-
-              <div className="sm:col-span-2 space-y-1.5">
-                <label className="text-sm font-medium">Domicilio</label>
-                <Input
-                  value={form.domicilio ?? ""}
-                  onChange={setField("domicilio")}
-                  placeholder="Dirección"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium">Población o Villa</label>
-                <Input
-                  value={form.poblacion_o_villa ?? ""}
-                  onChange={setField("poblacion_o_villa")}
-                  placeholder="Población o villa"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium">Comuna</label>
-                <Input
-                  value={form.comuna ?? ""}
-                  onChange={setField("comuna")}
-                  placeholder="Comuna"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium">Región</label>
-                <Input
-                  value={form.region ?? ""}
-                  onChange={setField("region")}
-                  placeholder="Región"
-                />
-              </div>
-            </div>
-
-            {error && (
-              <p className="text-sm text-destructive">{error}</p>
-            )}
-
-            <div className="flex items-center gap-3 pt-2">
-              <Button type="submit" disabled={saving}>
-                {saving && <Loader2 className="size-4 animate-spin" />}
-                {saving ? "Guardando..." : "Guardar"}
-              </Button>
-              <Button variant="outline" asChild>
-                <Link href="/nna">Cancelar</Link>
-              </Button>
-            </div>
+            </FieldGroup>
           </form>
         </CardContent>
       </Card>

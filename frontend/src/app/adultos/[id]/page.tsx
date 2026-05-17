@@ -2,7 +2,7 @@
 
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeftIcon } from "lucide-react";
 import { api, type AdultoSignificativo } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +22,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Spinner } from "@/components/ui/spinner";
+import { Empty } from "@/components/ui/empty";
 
 function InfoRow({ label, value }: { label: string; value: string | null }) {
   return (
@@ -32,14 +34,47 @@ function InfoRow({ label, value }: { label: string; value: string | null }) {
   );
 }
 
-function EmptyState() {
-  return <p className="text-sm text-muted-foreground py-4">Sin registros.</p>;
-}
-
-function LoadingBlock() {
+function TabSpinner() {
   return (
     <div className="flex items-center gap-2 text-sm text-muted-foreground py-4">
-      <Loader2 className="size-4 animate-spin" /> Cargando...
+      <Spinner /> Cargando...
+    </div>
+  );
+}
+
+function InstrumentoSection({
+  label,
+  items,
+}: {
+  label: string;
+  items: any[];
+}) {
+  if (items.length === 0) return null;
+  return (
+    <div>
+      <h4 className="text-sm font-medium mb-2">{label}</h4>
+      <div className="flex flex-col gap-2">
+        {items.map((i: any) => (
+          <Card key={i.id_instrumento}>
+            <CardContent className="pt-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Badge variant="outline" className="mb-1">
+                    {i.resultado || "Pendiente"}
+                  </Badge>
+                  <p className="text-xs text-muted-foreground">
+                    {i.observacion || "Sin observaciones"}
+                  </p>
+                </div>
+                <div className="text-xs text-muted-foreground text-right">
+                  <p>Evaluado: {i.fecha_evaluacion || "—"}</p>
+                  <p>Próxima: {i.fecha_proxima_evaluacion || "—"}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
@@ -65,7 +100,7 @@ export default function AdultoDetailPage({
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+        <Spinner className="size-6" />
       </div>
     );
   }
@@ -76,7 +111,8 @@ export default function AdultoDetailPage({
         <p className="text-destructive">{error || "Adulto no encontrado"}</p>
         <Button variant="outline" asChild className="mt-4">
           <Link href="/adultos">
-            <ArrowLeft className="mr-2 size-4" /> Volver
+            <ArrowLeftIcon />
+            Volver
           </Link>
         </Button>
       </div>
@@ -87,7 +123,8 @@ export default function AdultoDetailPage({
     <div className="max-w-5xl mx-auto px-4 py-8">
       <Button variant="ghost" asChild className="-ml-2 mb-4">
         <Link href="/adultos">
-          <ArrowLeft className="mr-2 size-4" /> Volver al listado
+          <ArrowLeftIcon />
+          Volver al listado
         </Link>
       </Button>
 
@@ -146,8 +183,14 @@ function ConsumoTab({ idAdulto }: { idAdulto: string }) {
       .finally(() => setLoading(false));
   }, [idAdulto]);
 
-  if (loading) return <LoadingBlock />;
-  if (data.length === 0) return <EmptyState />;
+  if (loading) return <TabSpinner />;
+  if (data.length === 0) {
+    return (
+      <Empty>
+        <p className="text-muted-foreground text-sm">Sin registros.</p>
+      </Empty>
+    );
+  }
 
   return (
     <Table>
@@ -188,11 +231,17 @@ function DiscapacidadTab({ idAdulto }: { idAdulto: string }) {
       .finally(() => setLoading(false));
   }, [idAdulto]);
 
-  if (loading) return <LoadingBlock />;
-  if (data.length === 0) return <EmptyState />;
+  if (loading) return <TabSpinner />;
+  if (data.length === 0) {
+    return (
+      <Empty>
+        <p className="text-muted-foreground text-sm">Sin registros.</p>
+      </Empty>
+    );
+  }
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col gap-3">
       {data.map((d: any) => (
         <Card key={d.id_discapacidad}>
           <CardContent className="pt-4">
@@ -223,13 +272,19 @@ function PenalesTab({ idAdulto }: { idAdulto: string }) {
       .finally(() => setLoading(false));
   }, [idAdulto]);
 
-  if (loading) return <LoadingBlock />;
-  if (data.length === 0) return <EmptyState />;
+  if (loading) return <TabSpinner />;
+  if (data.length === 0) {
+    return (
+      <Empty>
+        <p className="text-muted-foreground text-sm">Sin registros.</p>
+      </Empty>
+    );
+  }
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col gap-3">
       {data.map((a: any) => (
-        <Card key={a.id_antecedentes_penales} size="sm">
+        <Card key={a.id_antecedentes_penales}>
           <CardContent className="pt-4">
             <Badge variant="destructive" className="mb-2">
               Antecedente penal
@@ -262,49 +317,17 @@ function InstrumentosTab({ idAdulto }: { idAdulto: string }) {
       .finally(() => setLoading(false));
   }, [idAdulto]);
 
-  if (loading) return <LoadingBlock />;
-  if (e2p.length === 0 && pmf.length === 0 && ncfas.length === 0)
-    return <EmptyState />;
-
-  function InstrumentoSection({
-    label,
-    items,
-  }: {
-    label: string;
-    items: any[];
-  }) {
-    if (items.length === 0) return null;
+  if (loading) return <TabSpinner />;
+  if (e2p.length === 0 && pmf.length === 0 && ncfas.length === 0) {
     return (
-      <div>
-        <h4 className="text-sm font-medium mb-2">{label}</h4>
-        <div className="space-y-2">
-          {items.map((i: any) => (
-            <Card key={i.id_instrumento} size="sm">
-              <CardContent className="pt-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Badge variant="outline" className="mb-1">
-                      {i.resultado || "Pendiente"}
-                    </Badge>
-                    <p className="text-xs text-muted-foreground">
-                      {i.observacion || "Sin observaciones"}
-                    </p>
-                  </div>
-                  <div className="text-xs text-muted-foreground text-right">
-                    <p>Evaluado: {i.fecha_evaluacion || "—"}</p>
-                    <p>Próxima: {i.fecha_proxima_evaluacion || "—"}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
+      <Empty>
+        <p className="text-muted-foreground text-sm">Sin registros.</p>
+      </Empty>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <InstrumentoSection label="E2P" items={e2p} />
       <InstrumentoSection label="PMF" items={pmf} />
       <InstrumentoSection label="NCFAS" items={ncfas} />
