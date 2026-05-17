@@ -62,6 +62,8 @@ interface AdultoEntry {
   numero_telefono: string;
   tiene_antecedentes_penales: boolean;
   antecedentes: AntecedenteAdulto[];
+  parentesco: string;
+  es_adulto_responsable: boolean;
 }
 interface ConsumoEntry {
   nombre_sustancia: string;
@@ -277,7 +279,6 @@ function StepNNA({ data, onData, onNext }: { data: WizardData; onData: (d: Wizar
             </Field>
           </div>
           <div className="flex items-center justify-end gap-3 pt-2">
-            <Button variant="ghost" onClick={onNext}>Saltar <ArrowRightIcon /></Button>
             <Button onClick={onNext}>Siguiente <ArrowRightIcon /></Button>
           </div>
         </FieldGroup>
@@ -394,10 +395,7 @@ function StepIngreso({ data, onData, onBack, onNext }: { data: WizardData; onDat
 
           <div className="flex items-center justify-between gap-3 pt-2">
             <Button variant="outline" onClick={onBack}><ArrowLeftIcon /> Anterior</Button>
-            <div className="flex gap-3">
-              <Button variant="ghost" onClick={onNext}>Saltar <ArrowRightIcon /></Button>
-              <Button onClick={onNext}>Siguiente <ArrowRightIcon /></Button>
-            </div>
+            <Button onClick={onNext}>Siguiente <ArrowRightIcon /></Button>
           </div>
         </FieldGroup>
       </CardContent>
@@ -441,10 +439,7 @@ function StepDocs({ data, onData, onBack, onNext }: { data: WizardData; onData: 
 
           <div className="flex items-center justify-between gap-3 pt-2">
             <Button variant="outline" onClick={onBack}><ArrowLeftIcon /> Anterior</Button>
-            <div className="flex gap-3">
-              <Button variant="ghost" onClick={onNext}>Saltar <ArrowRightIcon /></Button>
-              <Button onClick={onNext}>Siguiente <ArrowRightIcon /></Button>
-            </div>
+            <Button onClick={onNext}>Siguiente <ArrowRightIcon /></Button>
           </div>
         </FieldGroup>
       </CardContent>
@@ -457,7 +452,7 @@ function StepDocs({ data, onData, onBack, onNext }: { data: WizardData; onData: 
 function StepAdultos({ data, onData, onBack, onNext }: { data: WizardData; onData: (d: WizardData) => void; onBack: () => void; onNext: () => void }) {
   const addAdulto = () => onData({
     ...data,
-    adultos: [...data.adultos, { nombre: "", run: "", fecha_nacimiento: null, direccion: "", numero_telefono: "", tiene_antecedentes_penales: false, antecedentes: [] }],
+    adultos: [...data.adultos, { nombre: "", run: "", fecha_nacimiento: null, direccion: "", numero_telefono: "", tiene_antecedentes_penales: false, antecedentes: [], parentesco: "", es_adulto_responsable: false }],
   });
 
   return (
@@ -505,12 +500,24 @@ function StepAdultos({ data, onData, onBack, onNext }: { data: WizardData; onDat
                     const as = [...data.adultos]; as[i] = { ...as[i], numero_telefono: e.target.value }; onData({ ...data, adultos: as });
                   }} placeholder="+569..." />
                 </Field>
+                <Field>
+                  <FieldLabel>Parentesco con el NNA</FieldLabel>
+                  <Input value={a.parentesco} onChange={(e) => {
+                    const as = [...data.adultos]; as[i] = { ...as[i], parentesco: e.target.value }; onData({ ...data, adultos: as });
+                  }} placeholder="Madre / Padre / Tío..." />
+                </Field>
               </div>
               <label className="flex items-center gap-2 text-sm mt-3">
                 <Checkbox checked={a.tiene_antecedentes_penales} onCheckedChange={(v) => {
                   const as = [...data.adultos]; as[i] = { ...as[i], tiene_antecedentes_penales: !!v }; onData({ ...data, adultos: as });
                 }} />
                 Tiene antecedentes penales
+              </label>
+              <label className="flex items-center gap-2 text-sm mt-2">
+                <Checkbox checked={a.es_adulto_responsable} onCheckedChange={(v) => {
+                  const as = [...data.adultos]; as[i] = { ...as[i], es_adulto_responsable: !!v }; onData({ ...data, adultos: as });
+                }} />
+                Es adulto responsable
               </label>
               {a.tiene_antecedentes_penales && (
                 <div className="mt-3 pl-4 border-l-2">
@@ -544,10 +551,7 @@ function StepAdultos({ data, onData, onBack, onNext }: { data: WizardData; onDat
 
           <div className="flex items-center justify-between gap-3 pt-2">
             <Button variant="outline" onClick={onBack}><ArrowLeftIcon /> Anterior</Button>
-            <div className="flex gap-3">
-              <Button variant="ghost" onClick={onNext}>Saltar <ArrowRightIcon /></Button>
-              <Button onClick={onNext}>Siguiente <ArrowRightIcon /></Button>
-            </div>
+            <Button onClick={onNext}>Siguiente <ArrowRightIcon /></Button>
           </div>
         </FieldGroup>
       </CardContent>
@@ -578,11 +582,11 @@ function StepAntecedentes({ data, onData, onBack, onNext }: { data: WizardData; 
           {/* Salud */}
           <div className="border rounded-lg p-4">
             <h4 className="text-sm font-medium mb-3">Salud</h4>
+            <label className="flex items-center gap-2 text-sm mb-3">
+              <Checkbox checked={data.salud.inscrito_en_consultorio} onCheckedChange={(v) => onData({ ...data, salud: { ...data.salud, inscrito_en_consultorio: !!v } })} />
+              Inscrito en consultorio
+            </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <label className="flex items-center gap-2 text-sm">
-                <Checkbox checked={data.salud.inscrito_en_consultorio} onCheckedChange={(v) => onData({ ...data, salud: { ...data.salud, inscrito_en_consultorio: !!v } })} />
-                Inscrito en consultorio
-              </label>
               <Field>
                 <FieldLabel>Establecimiento</FieldLabel>
                 <Input value={data.salud.establecimiento} onChange={(e) => onData({ ...data, salud: { ...data.salud, establecimiento: e.target.value } })} placeholder="CESFAM / Hospital" />
@@ -597,11 +601,11 @@ function StepAntecedentes({ data, onData, onBack, onNext }: { data: WizardData; 
           {/* Escolar */}
           <div className="border rounded-lg p-4">
             <h4 className="text-sm font-medium mb-3">Escolaridad</h4>
+            <label className="flex items-center gap-2 text-sm mb-3">
+              <Checkbox checked={data.escolar.escolarizado} onCheckedChange={(v) => onData({ ...data, escolar: { ...data.escolar, escolarizado: !!v } })} />
+              Escolarizado
+            </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <label className="flex items-center gap-2 text-sm">
-                <Checkbox checked={data.escolar.escolarizado} onCheckedChange={(v) => onData({ ...data, escolar: { ...data.escolar, escolarizado: !!v } })} />
-                Escolarizado
-              </label>
               <Field>
                 <FieldLabel>Establecimiento</FieldLabel>
                 <Input value={data.escolar.establecimiento} onChange={(e) => onData({ ...data, escolar: { ...data.escolar, establecimiento: e.target.value } })} placeholder="Nombre del establecimiento" />
@@ -686,10 +690,7 @@ function StepAntecedentes({ data, onData, onBack, onNext }: { data: WizardData; 
 
           <div className="flex items-center justify-between gap-3 pt-2">
             <Button variant="outline" onClick={onBack}><ArrowLeftIcon /> Anterior</Button>
-            <div className="flex gap-3">
-              <Button variant="ghost" onClick={onNext}>Saltar <ArrowRightIcon /></Button>
-              <Button onClick={onNext}>Siguiente <ArrowRightIcon /></Button>
-            </div>
+            <Button onClick={onNext}>Siguiente <ArrowRightIcon /></Button>
           </div>
         </FieldGroup>
       </CardContent>
@@ -763,7 +764,12 @@ function StepReview({
             <section>
               <h4 className="text-sm font-medium mb-2">Adultos ({data.adultos.length})</h4>
               <div className="flex flex-wrap gap-1">
-                {data.adultos.map((a, i) => <Badge key={i} variant="secondary">{a.nombre || "Sin nombre"}</Badge>)}
+                {data.adultos.map((a, i) => (
+                  <Badge key={i} variant="secondary">
+                    {a.nombre || "Sin nombre"}{a.parentesco ? ` (${a.parentesco})` : ""}
+                    {a.es_adulto_responsable ? " · Responsable" : ""}
+                  </Badge>
+                ))}
               </div>
             </section>
           )}
@@ -876,20 +882,30 @@ export default function NuevoCasoPage() {
         });
       }
 
-      // 4. Create Adultos
-      for (const a of data.adultos) {
-        const adulto = await api.adultos.create({
-          nombre: a.nombre || null,
-          run: a.run || null,
-          fecha_nacimiento: fmt(a.fecha_nacimiento),
-          direccion: a.direccion || null,
-          numero_telefono: a.numero_telefono || null,
-          tiene_antecedentes_penales: a.tiene_antecedentes_penales,
+      // 4. Create Adultos + link to NNA via EntornoFamiliar
+      if (data.adultos.length > 0) {
+        const fam = await api.antecedenteFamiliar.create(idNna, {
+          fecha_antecedente_familiar: new Date().toISOString().split("T")[0],
         });
-        for (const ant of a.antecedentes) {
-          await api.antecedentesPenales.create(adulto.id_adulto_significativo, {
-            descripcion: ant.descripcion || null,
+        for (const a of data.adultos) {
+          const adulto = await api.adultos.create({
+            nombre: a.nombre || null,
+            run: a.run || null,
+            fecha_nacimiento: fmt(a.fecha_nacimiento),
+            direccion: a.direccion || null,
+            numero_telefono: a.numero_telefono || null,
+            tiene_antecedentes_penales: a.tiene_antecedentes_penales,
           });
+          await api.entornoFamiliar.create(fam.id_antecedente_familiar, {
+            id_adulto_significativo: adulto.id_adulto_significativo,
+            parentesco: a.parentesco || null,
+            es_adulto_responsable: a.es_adulto_responsable,
+          });
+          for (const ant of a.antecedentes) {
+            await api.antecedentesPenales.create(adulto.id_adulto_significativo, {
+              descripcion: ant.descripcion || null,
+            });
+          }
         }
       }
 
