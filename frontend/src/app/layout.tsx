@@ -7,6 +7,7 @@ import {
   NavigationMenuLink,
 } from "@/components/ui/navigation-menu";
 import "./globals.css";
+import { QueryProvider } from "@/components/query-provider";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -96,7 +97,9 @@ export default function RootLayout({
                 <ThemeToggle/>
               </div>
             </header>
-            <main className="flex-1">{children}</main>
+            <main className="flex-1">
+              <QueryProvider>{children}</QueryProvider>
+            </main>
           </ThemeProvider>
         </body>
       </html>

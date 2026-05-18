@@ -1,9 +1,15 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { use, useState } from "react";
 import Link from "next/link";
 import { ArrowLeftIcon, CalendarIcon, PlusIcon, PencilIcon } from "lucide-react";
-import { api, type NNA, type DocumentacionIngreso } from "@/lib/api";
+import { type DocumentacionIngreso } from "@/lib/api";
+import {
+  useNNA,
+  useDocumentacionIngresoList,
+  useDocumentacionIngresoCreate,
+  useDocumentacionIngresoUpdate,
+} from "@/lib/queries";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,14 +20,6 @@ import { Empty } from "@/components/ui/empty";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
 function formatDate(iso: string | null) {
@@ -29,57 +27,32 @@ function formatDate(iso: string | null) {
   return new Date(iso + "T00:00:00").toLocaleDateString("es-CL");
 }
 
-const DEFAULT = {
-  tipo_documento: "",
-  estado_recepcion: false,
-  fecha_recepcion: "",
-  observacion: "",
-};
+const DEFAULT = { tipo_documento: "", estado_recepcion: false, fecha_recepcion: "", observacion: "" };
 
 export default function DocumentacionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const [nna, setNna] = useState<NNA | null>(null);
-  const [items, setItems] = useState<DocumentacionIngreso[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: nna, isLoading, error } = useNNA(id);
+  const { data: items = [] } = useDocumentacionIngresoList(id);
+  const createMut = useDocumentacionIngresoCreate(id);
+  const updateMut = useDocumentacionIngresoUpdate();
 
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(DEFAULT);
   const [fecha, setFecha] = useState<Date | undefined>(undefined);
-  const [saving, setSaving] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState(DEFAULT);
   const [editFecha, setEditFecha] = useState<Date | undefined>(undefined);
-  const [editSaving, setEditSaving] = useState(false);
-  const [editError, setEditError] = useState<string | null>(null);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const [nnaData, list] = await Promise.all([api.nna.get(id), api.documentacionIngreso.list(id)]);
-        setNna(nnaData);
-        setItems(list);
-      } catch (e: any) { setError(e.message); }
-      finally { setLoading(false); }
-    })();
-  }, [id]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    setFormError(null); setSaving(true);
-    try {
-      const payload: any = {};
-      if (form.tipo_documento) payload.tipo_documento = form.tipo_documento;
-      payload.estado_recepcion = form.estado_recepcion;
-      if (form.observacion) payload.observacion = form.observacion;
-      if (fecha) payload.fecha_recepcion = fecha.toISOString().split("T")[0];
-      const created = await api.documentacionIngreso.create(id, payload);
-      setItems((prev) => [...prev, created]);
-      setForm(DEFAULT); setFecha(undefined); setShowForm(false);
-    } catch (e: any) { setFormError(e.message); }
-    finally { setSaving(false); }
+    const payload: any = {};
+    if (form.tipo_documento) payload.tipo_documento = form.tipo_documento;
+    payload.estado_recepcion = form.estado_recepcion;
+    if (form.observacion) payload.observacion = form.observacion;
+    if (fecha) payload.fecha_recepcion = fecha.toISOString().split("T")[0];
+    await createMut.mutateAsync(payload);
+    setForm(DEFAULT); setFecha(undefined); setShowForm(false);
   };
 
   const startEdit = (item: DocumentacionIngreso) => {
@@ -91,29 +64,23 @@ export default function DocumentacionPage({ params }: { params: Promise<{ id: st
       observacion: item.observacion || "",
     });
     setEditFecha(item.fecha_recepcion ? new Date(item.fecha_recepcion + "T00:00:00") : undefined);
-    setEditError(null);
   };
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingId) return;
-    setEditError(null); setEditSaving(true);
-    try {
-      const payload: any = {};
-      if (editForm.tipo_documento) payload.tipo_documento = editForm.tipo_documento;
-      payload.estado_recepcion = editForm.estado_recepcion;
-      if (editForm.observacion) payload.observacion = editForm.observacion;
-      if (editFecha) payload.fecha_recepcion = editFecha.toISOString().split("T")[0];
-      else payload.fecha_recepcion = null;
-      const updated = await api.documentacionIngreso.update(editingId, payload);
-      setItems((prev) => prev.map((i) => (i.id_documentacion === editingId ? updated : i)));
-      setEditingId(null);
-    } catch (e: any) { setEditError(e.message); }
-    finally { setEditSaving(false); }
+    const payload: any = {};
+    if (editForm.tipo_documento) payload.tipo_documento = editForm.tipo_documento;
+    payload.estado_recepcion = editForm.estado_recepcion;
+    if (editForm.observacion) payload.observacion = editForm.observacion;
+    if (editFecha) payload.fecha_recepcion = editFecha.toISOString().split("T")[0];
+    else payload.fecha_recepcion = null;
+    await updateMut.mutateAsync({ id: editingId, data: payload });
+    setEditingId(null);
   };
 
-  if (loading) return <div className="flex items-center justify-center min-h-[50vh]"><Spinner className="size-6" /></div>;
-  if (error || !nna) return <div className="max-w-5xl mx-auto px-4 py-8"><p className="text-destructive">{error || "NNA no encontrado"}</p></div>;
+  if (isLoading) return <div className="flex items-center justify-center min-h-[50vh]"><Spinner className="size-6" /></div>;
+  if (error || !nna) return <div className="max-w-5xl mx-auto px-4 py-8"><p className="text-destructive">{error?.message || "NNA no encontrado"}</p></div>;
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -153,9 +120,9 @@ export default function DocumentacionPage({ params }: { params: Promise<{ id: st
                   <Input className="mt-1" value={form.observacion} onChange={(e) => setForm((p) => ({ ...p, observacion: e.target.value }))} placeholder="Observaciones" />
                 </div>
               </div>
-              {formError && <p className="text-destructive text-sm">{formError}</p>}
+              {createMut.isError && <p className="text-destructive text-sm">{createMut.error.message}</p>}
               <div className="flex gap-2">
-                <Button type="submit" size="sm" disabled={saving}>{saving ? "Guardando..." : "Guardar"}</Button>
+                <Button type="submit" size="sm" disabled={createMut.isPending}>{createMut.isPending ? "Guardando..." : "Guardar"}</Button>
                 <Button type="button" variant="outline" size="sm" onClick={() => setShowForm(false)}>Cancelar</Button>
               </div>
             </form>
@@ -195,9 +162,9 @@ export default function DocumentacionPage({ params }: { params: Promise<{ id: st
                         <Input className="mt-1" value={editForm.observacion} onChange={(e) => setEditForm((p) => ({ ...p, observacion: e.target.value }))} />
                       </div>
                     </div>
-                    {editError && <p className="text-destructive text-sm">{editError}</p>}
+                    {updateMut.isError && <p className="text-destructive text-sm">{updateMut.error.message}</p>}
                     <div className="flex gap-2">
-                      <Button type="submit" size="sm" disabled={editSaving}>{editSaving ? "Guardando..." : "Guardar"}</Button>
+                      <Button type="submit" size="sm" disabled={updateMut.isPending}>{updateMut.isPending ? "Guardando..." : "Guardar"}</Button>
                       <Button type="button" variant="outline" size="sm" onClick={() => setEditingId(null)}>Cancelar</Button>
                     </div>
                   </form>

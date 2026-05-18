@@ -1,9 +1,15 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { use, useState } from "react";
 import Link from "next/link";
 import { ArrowLeftIcon, PlusIcon, PencilIcon } from "lucide-react";
-import { api, type NNA, type DiscapacidadNNA } from "@/lib/api";
+import { type DiscapacidadNNA } from "@/lib/api";
+import {
+  useNNA,
+  useDiscapacidadNNAList,
+  useDiscapacidadNNACreate,
+  useDiscapacidadNNAUpdate,
+} from "@/lib/queries";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -15,75 +21,45 @@ const DEFAULT = { tipo: "", porcentaje_grado: "" as string | number, observacion
 
 export default function DiscapacidadesPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const [nna, setNna] = useState<NNA | null>(null);
-  const [items, setItems] = useState<DiscapacidadNNA[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: nna, isLoading, error } = useNNA(id);
+  const { data: items = [] } = useDiscapacidadNNAList(id);
+  const createMut = useDiscapacidadNNACreate(id);
+  const updateMut = useDiscapacidadNNAUpdate();
 
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(DEFAULT);
-  const [saving, setSaving] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
-
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState(DEFAULT);
-  const [editSaving, setEditSaving] = useState(false);
-  const [editError, setEditError] = useState<string | null>(null);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const [nnaData, list] = await Promise.all([api.nna.get(id), api.discapacidadNNA.list(id)]);
-        setNna(nnaData); setItems(list);
-      } catch (e: any) { setError(e.message); }
-      finally { setLoading(false); }
-    })();
-  }, [id]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    setFormError(null); setSaving(true);
-    try {
-      const payload: any = {};
-      if (form.tipo) payload.tipo = form.tipo;
-      if (form.observacion) payload.observacion = form.observacion;
-      if (form.porcentaje_grado !== "") payload.porcentaje_grado = Number(form.porcentaje_grado);
-      const created = await api.discapacidadNNA.create(id, payload);
-      setItems((prev) => [...prev, created]);
-      setForm(DEFAULT); setShowForm(false);
-    } catch (e: any) { setFormError(e.message); }
-    finally { setSaving(false); }
+    const payload: any = {};
+    if (form.tipo) payload.tipo = form.tipo;
+    if (form.observacion) payload.observacion = form.observacion;
+    if (form.porcentaje_grado !== "") payload.porcentaje_grado = Number(form.porcentaje_grado);
+    await createMut.mutateAsync(payload);
+    setForm(DEFAULT); setShowForm(false);
   };
 
   const startEdit = (item: DiscapacidadNNA) => {
     setEditingId(item.id_discapacidad);
-    setEditForm({
-      tipo: item.tipo || "",
-      porcentaje_grado: item.porcentaje_grado ?? "",
-      observacion: item.observacion || "",
-    });
-    setEditError(null);
+    setEditForm({ tipo: item.tipo || "", porcentaje_grado: item.porcentaje_grado ?? "", observacion: item.observacion || "" });
   };
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingId) return;
-    setEditError(null); setEditSaving(true);
-    try {
-      const payload: any = {};
-      if (editForm.tipo) payload.tipo = editForm.tipo;
-      if (editForm.observacion) payload.observacion = editForm.observacion;
-      if (editForm.porcentaje_grado !== "") payload.porcentaje_grado = Number(editForm.porcentaje_grado);
-      else payload.porcentaje_grado = null;
-      const updated = await api.discapacidadNNA.update(editingId, payload);
-      setItems((prev) => prev.map((i) => (i.id_discapacidad === editingId ? updated : i)));
-      setEditingId(null);
-    } catch (e: any) { setEditError(e.message); }
-    finally { setEditSaving(false); }
+    const payload: any = {};
+    if (editForm.tipo) payload.tipo = editForm.tipo;
+    if (editForm.observacion) payload.observacion = editForm.observacion;
+    if (editForm.porcentaje_grado !== "") payload.porcentaje_grado = Number(editForm.porcentaje_grado);
+    else payload.porcentaje_grado = null;
+    await updateMut.mutateAsync({ id: editingId, data: payload });
+    setEditingId(null);
   };
 
-  if (loading) return <div className="flex items-center justify-center min-h-[50vh]"><Spinner className="size-6" /></div>;
-  if (error || !nna) return <div className="max-w-5xl mx-auto px-4 py-8"><p className="text-destructive">{error || "NNA no encontrado"}</p></div>;
+  if (isLoading) return <div className="flex items-center justify-center min-h-[50vh]"><Spinner className="size-6" /></div>;
+  if (error || !nna) return <div className="max-w-5xl mx-auto px-4 py-8"><p className="text-destructive">{error?.message || "NNA no encontrado"}</p></div>;
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -101,22 +77,13 @@ export default function DiscapacidadesPage({ params }: { params: Promise<{ id: s
           <CardContent>
             <form onSubmit={handleCreate} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-xs">Tipo</Label>
-                  <Input className="mt-1" value={form.tipo} onChange={(e) => setForm((p) => ({ ...p, tipo: e.target.value }))} placeholder="Ej: Física, intelectual" />
-                </div>
-                <div>
-                  <Label className="text-xs">Porcentaje / Grado</Label>
-                  <Input className="mt-1" type="number" value={form.porcentaje_grado} onChange={(e) => setForm((p) => ({ ...p, porcentaje_grado: e.target.value }))} placeholder="Ej: 50" />
-                </div>
-                <div className="sm:col-span-2">
-                  <Label className="text-xs">Observación</Label>
-                  <Input className="mt-1" value={form.observacion} onChange={(e) => setForm((p) => ({ ...p, observacion: e.target.value }))} placeholder="Observaciones" />
-                </div>
+                <div><Label className="text-xs">Tipo</Label><Input className="mt-1" value={form.tipo} onChange={(e) => setForm((p) => ({ ...p, tipo: e.target.value }))} placeholder="Ej: Física, intelectual" /></div>
+                <div><Label className="text-xs">Porcentaje / Grado</Label><Input className="mt-1" type="number" value={form.porcentaje_grado} onChange={(e) => setForm((p) => ({ ...p, porcentaje_grado: e.target.value }))} placeholder="Ej: 50" /></div>
+                <div className="sm:col-span-2"><Label className="text-xs">Observación</Label><Input className="mt-1" value={form.observacion} onChange={(e) => setForm((p) => ({ ...p, observacion: e.target.value }))} placeholder="Observaciones" /></div>
               </div>
-              {formError && <p className="text-destructive text-sm">{formError}</p>}
+              {createMut.isError && <p className="text-destructive text-sm">{createMut.error.message}</p>}
               <div className="flex gap-2">
-                <Button type="submit" size="sm" disabled={saving}>{saving ? "Guardando..." : "Guardar"}</Button>
+                <Button type="submit" size="sm" disabled={createMut.isPending}>{createMut.isPending ? "Guardando..." : "Guardar"}</Button>
                 <Button type="button" variant="outline" size="sm" onClick={() => setShowForm(false)}>Cancelar</Button>
               </div>
             </form>
@@ -134,22 +101,13 @@ export default function DiscapacidadesPage({ params }: { params: Promise<{ id: s
                 {editingId === item.id_discapacidad ? (
                   <form onSubmit={handleUpdate} className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <Label className="text-xs">Tipo</Label>
-                        <Input className="mt-1" value={editForm.tipo} onChange={(e) => setEditForm((p) => ({ ...p, tipo: e.target.value }))} />
-                      </div>
-                      <div>
-                        <Label className="text-xs">Porcentaje / Grado</Label>
-                        <Input className="mt-1" type="number" value={editForm.porcentaje_grado} onChange={(e) => setEditForm((p) => ({ ...p, porcentaje_grado: e.target.value }))} />
-                      </div>
-                      <div className="sm:col-span-2">
-                        <Label className="text-xs">Observación</Label>
-                        <Input className="mt-1" value={editForm.observacion} onChange={(e) => setEditForm((p) => ({ ...p, observacion: e.target.value }))} />
-                      </div>
+                      <div><Label className="text-xs">Tipo</Label><Input className="mt-1" value={editForm.tipo} onChange={(e) => setEditForm((p) => ({ ...p, tipo: e.target.value }))} /></div>
+                      <div><Label className="text-xs">Porcentaje / Grado</Label><Input className="mt-1" type="number" value={editForm.porcentaje_grado} onChange={(e) => setEditForm((p) => ({ ...p, porcentaje_grado: e.target.value }))} /></div>
+                      <div className="sm:col-span-2"><Label className="text-xs">Observación</Label><Input className="mt-1" value={editForm.observacion} onChange={(e) => setEditForm((p) => ({ ...p, observacion: e.target.value }))} /></div>
                     </div>
-                    {editError && <p className="text-destructive text-sm">{editError}</p>}
+                    {updateMut.isError && <p className="text-destructive text-sm">{updateMut.error.message}</p>}
                     <div className="flex gap-2">
-                      <Button type="submit" size="sm" disabled={editSaving}>{editSaving ? "Guardando..." : "Guardar"}</Button>
+                      <Button type="submit" size="sm" disabled={updateMut.isPending}>{updateMut.isPending ? "Guardando..." : "Guardar"}</Button>
                       <Button type="button" variant="outline" size="sm" onClick={() => setEditingId(null)}>Cancelar</Button>
                     </div>
                   </form>

@@ -1,14 +1,28 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { use } from "react";
 import Link from "next/link";
-import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
-import { api, type NNA } from "@/lib/api";
-import { Button } from "@/components/ui/button";
+import { ArrowRightIcon } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
 import { Empty } from "@/components/ui/empty";
+import {
+  useNNA,
+  useAntecedenteIngresoList,
+  useDocumentacionIngresoList,
+  useHistorialConsumoNNAList,
+  useDiscapacidadNNAList,
+  useE2PListByNna,
+  usePMFListByNna,
+  useNCFASListByNna,
+  useHistorialRedList,
+  useGestionBusquedaList,
+  useInformeTribunalList,
+  useAntecedenteSaludList,
+  useAntecedenteEscolarList,
+  useAntecedenteFamiliarList,
+} from "@/lib/queries";
 
 function InfoRow({ label, value }: { label: string; value: string | null }) {
   return (
@@ -46,76 +60,27 @@ const SECTIONS: { key: SectionKey; label: string }[] = [
   { key: "familiar", label: "Familiar" },
 ];
 
+const last = <T,>(arr: T[]): T | undefined => arr[arr.length - 1];
+
 export default function NNADetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const [nna, setNna] = useState<NNA | null>(null);
-  const [summaries, setSummaries] = useState<Record<SectionKey, { count: number; snippet: string } | null>>({} as any);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const nnaData = await api.nna.get(id);
+  const { data: nna, isLoading: nnaLoading, error: nnaError } = useNNA(id);
+  const { data: ingresos = [] } = useAntecedenteIngresoList(id);
+  const { data: docs = [] } = useDocumentacionIngresoList(id);
+  const { data: consumo = [] } = useHistorialConsumoNNAList(id);
+  const { data: disc = [] } = useDiscapacidadNNAList(id);
+  const { data: e2p = [] } = useE2PListByNna(id);
+  const { data: pmf = [] } = usePMFListByNna(id);
+  const { data: ncfas = [] } = useNCFASListByNna(id);
+  const { data: historial = [] } = useHistorialRedList(id);
+  const { data: gestiones = [] } = useGestionBusquedaList(id);
+  const { data: informes = [] } = useInformeTribunalList(id);
+  const { data: salud = [] } = useAntecedenteSaludList(id);
+  const { data: escolar = [] } = useAntecedenteEscolarList(id);
+  const { data: familiarList = [] } = useAntecedenteFamiliarList(id);
 
-        // Fetch all sections in parallel
-        const [
-          ingresos, docs, consumo, disc, e2p, pmf, ncfas,
-          historial, gestiones, informes, salud, escolar, familiar,
-        ] = await Promise.all([
-          api.antecedenteIngreso.list(id).catch(() => []),
-          api.documentacionIngreso.list(id).catch(() => []),
-          api.historialConsumoNNA.list(id).catch(() => []),
-          api.discapacidadNNA.list(id).catch(() => []),
-          api.e2p.listByNna(id).catch(() => []),
-          api.pmf.listByNna(id).catch(() => []),
-          api.ncfas.listByNna(id).catch(() => []),
-          api.historialRed.list(id).catch(() => []),
-          api.gestionBusqueda.list(id).catch(() => []),
-          api.informeTribunal.list(id).catch(() => []),
-          api.antecedenteSalud.list(id).catch(() => []),
-          api.antecedenteEscolar.list(id).catch(() => []),
-          api.antecedenteFamiliar.list(id).catch(() => []),
-        ]);
-
-        const last = <T,>(arr: T[]): T | undefined => arr[arr.length - 1];
-
-        const ing = last(ingresos);
-        const doc = last(docs);
-        const con = last(consumo);
-        const dsc = last(disc);
-        const his = last(historial);
-        const ges = last(gestiones);
-        const inf = last(informes);
-        const sal = last(salud);
-        const esc = last(escolar);
-        const fam = last(familiar);
-
-        setNna(nnaData);
-        setSummaries({
-          ingreso: ing ? { count: ingresos.length, snippet: `${ing.quien_solicita_ingreso || "—"} · ${ing.tribunal || "—"} · ${ing.fecha_ingreso_residencia || "—"}` } : null,
-          documentacion: doc ? { count: docs.length, snippet: `${doc.tipo_documento || "—"} · ${doc.estado_recepcion ? "Recibido" : "Pendiente"}` } : null,
-          consumo: con ? { count: consumo.length, snippet: `${con.nombre_sustancia || "—"} · ${con.estado_consumo || "—"}` } : null,
-          discapacidades: dsc ? { count: disc.length, snippet: `${dsc.tipo || "—"} · ${dsc.porcentaje_grado ?? "—"}%` } : null,
-          instrumentos: (e2p.length + pmf.length + ncfas.length) > 0
-            ? { count: e2p.length + pmf.length + ncfas.length, snippet: `E2P: ${e2p.length} · PMF: ${pmf.length} · NCFAS: ${ncfas.length}` }
-            : null,
-          historial: his ? { count: historial.length, snippet: `${his.nombre_programa || "—"} · Ingreso: ${his.fecha_ingreso || "—"}` } : null,
-          gestion: ges ? { count: gestiones.length, snippet: `${ges.tipo_gestion || "—"} · ${ges.resultado || "—"}` } : null,
-          informes: inf ? { count: informes.length, snippet: `${inf.tipo_informe || "—"} · ${inf.estado || "—"} · Vence: ${inf.fecha_vencimiento || "—"}` } : null,
-          salud: sal ? { count: salud.length, snippet: `${sal.establecimiento || "—"} · ${sal.prevision || "—"}` } : null,
-          escolar: esc ? { count: escolar.length, snippet: `${esc.establecimiento || "—"} · ${esc.escolarizado ? "Escolarizado" : "No escolarizado"}` } : null,
-          familiar: fam ? { count: familiar.length, snippet: `Registrado: ${fam.fecha_antecedente_familiar || "—"}` } : null,
-        });
-      } catch (e: any) {
-        setError(e.message);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [id]);
-
-  if (loading) {
+  if (nnaLoading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
         <Spinner className="size-6" />
@@ -123,23 +88,43 @@ export default function NNADetailPage({ params }: { params: Promise<{ id: string
     );
   }
 
-  if (error || !nna) {
+  if (nnaError || !nna) {
     return (
       <div className="max-w-5xl mx-auto px-4 py-8">
-        <p className="text-destructive">{error || "NNA no encontrado"}</p>
-        <Button variant="outline" asChild className="mt-4">
-          <Link href="/nna"><ArrowLeftIcon /> Volver</Link>
-        </Button>
+        <p className="text-destructive">{nnaError?.message || "NNA no encontrado"}</p>
       </div>
     );
   }
 
+  const ing = last(ingresos);
+  const doc = last(docs);
+  const con = last(consumo);
+  const dsc = last(disc);
+  const his = last(historial);
+  const ges = last(gestiones);
+  const inf = last(informes);
+  const sal = last(salud);
+  const esc = last(escolar);
+  const fam = last(familiarList);
+
+  const summaries: Record<SectionKey, { count: number; snippet: string } | null> = {
+    ingreso: ing ? { count: ingresos.length, snippet: `${ing.quien_solicita_ingreso || "—"} · ${ing.tribunal || "—"} · ${ing.fecha_ingreso_residencia || "—"}` } : null,
+    documentacion: doc ? { count: docs.length, snippet: `${doc.tipo_documento || "—"} · ${doc.estado_recepcion ? "Recibido" : "Pendiente"}` } : null,
+    consumo: con ? { count: consumo.length, snippet: `${con.nombre_sustancia || "—"} · ${con.estado_consumo || "—"}` } : null,
+    discapacidades: dsc ? { count: disc.length, snippet: `${dsc.tipo || "—"} · ${dsc.porcentaje_grado ?? "—"}%` } : null,
+    instrumentos: (e2p.length + pmf.length + ncfas.length) > 0
+      ? { count: e2p.length + pmf.length + ncfas.length, snippet: `E2P: ${e2p.length} · PMF: ${pmf.length} · NCFAS: ${ncfas.length}` }
+      : null,
+    historial: his ? { count: historial.length, snippet: `${his.nombre_programa || "—"} · Ingreso: ${his.fecha_ingreso || "—"}` } : null,
+    gestion: ges ? { count: gestiones.length, snippet: `${ges.tipo_gestion || "—"} · ${ges.resultado || "—"}` } : null,
+    informes: inf ? { count: informes.length, snippet: `${inf.tipo_informe || "—"} · ${inf.estado || "—"} · Vence: ${inf.fecha_vencimiento || "—"}` } : null,
+    salud: sal ? { count: salud.length, snippet: `${sal.establecimiento || "—"} · ${sal.prevision || "—"}` } : null,
+    escolar: esc ? { count: escolar.length, snippet: `${esc.establecimiento || "—"} · ${esc.escolarizado ? "Escolarizado" : "No escolarizado"}` } : null,
+    familiar: fam ? { count: familiarList.length, snippet: `Registrado: ${fam.fecha_antecedente_familiar || "—"}` } : null,
+  };
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
-      <Button variant="ghost" asChild className="-ml-2 mb-4">
-        <Link href="/nna"><ArrowLeftIcon /> Volver al listado</Link>
-      </Button>
-
       {/* NNA Header */}
       <Card className="mb-8">
         <CardHeader>
