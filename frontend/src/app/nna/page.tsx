@@ -24,7 +24,7 @@ export default function NNAListPage() {
 
   useEffect(() => {
     api.nna
-      .list(0, 500)
+      .list(0, 10)
       .then(setNnas)
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
