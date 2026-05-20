@@ -24,7 +24,9 @@ type SectionKey =
   | "documentacion"
   | "consumo"
   | "discapacidades"
-  | "instrumentos"
+  | "e2p"
+  | "pmf"
+  | "ncfas"
   | "historial"
   | "gestion"
   | "informes"
@@ -37,7 +39,9 @@ const SECTIONS: { key: SectionKey; label: string }[] = [
   { key: "documentacion", label: "Documentación" },
   { key: "consumo", label: "Consumo" },
   { key: "discapacidades", label: "Discapacidades" },
-  { key: "instrumentos", label: "Instrumentos" },
+  { key: "e2p", label: "E2P" },
+  { key: "pmf", label: "PMF" },
+  { key: "ncfas", label: "NCFAS" },
   { key: "historial", label: "Historial Red" },
   { key: "gestion", label: "Gestión de Búsqueda" },
   { key: "informes", label: "Informes Tribunal" },
@@ -97,9 +101,9 @@ export default function NNADetailPage({ params }: { params: Promise<{ id: string
           documentacion: doc ? { count: docs.length, snippet: `${doc.tipo_documento || "—"} · ${doc.estado_recepcion ? "Recibido" : "Pendiente"}` } : null,
           consumo: con ? { count: consumo.length, snippet: `${con.nombre_sustancia || "—"} · ${con.estado_consumo || "—"}` } : null,
           discapacidades: dsc ? { count: disc.length, snippet: `${dsc.tipo || "—"} · ${dsc.porcentaje_grado ?? "—"}%` } : null,
-          instrumentos: (e2p.length + pmf.length + ncfas.length) > 0
-            ? { count: e2p.length + pmf.length + ncfas.length, snippet: `E2P: ${e2p.length} · PMF: ${pmf.length} · NCFAS: ${ncfas.length}` }
-            : null,
+          e2p: e2p.length > 0 ? { count: e2p.length, snippet: `Evaluaciones: ${e2p.length}` } : null,
+          pmf: pmf.length > 0 ? { count: pmf.length, snippet: `Evaluaciones: ${pmf.length}` } : null,
+          ncfas: ncfas.length > 0 ? { count: ncfas.length, snippet: `Evaluaciones: ${ncfas.length}` } : null,
           historial: his ? { count: historial.length, snippet: `${his.nombre_programa || "—"} · Ingreso: ${his.fecha_ingreso || "—"}` } : null,
           gestion: ges ? { count: gestiones.length, snippet: `${ges.tipo_gestion || "—"} · ${ges.resultado || "—"}` } : null,
           informes: inf ? { count: informes.length, snippet: `${inf.tipo_informe || "—"} · ${inf.estado || "—"} · Vence: ${inf.fecha_vencimiento || "—"}` } : null,

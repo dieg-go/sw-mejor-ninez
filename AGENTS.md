@@ -16,9 +16,16 @@ Currently, the service faces severe saturation and delays due to the fragmentati
 
 ## Quickstart
 
+**Full Docker stack** (DB + backend + frontend, builds images):
+```bash
+docker compose up -d --build
+# Then visit http://localhost:3000
+```
+
+**Dev mode** (each service individually):
 ```bash
 # Database (port 5433)
-docker compose up -d
+docker compose up -d db
 
 # Seed data (optional — creates 3 NNA, 5 adultos, ~40 child records)
 cd backend
@@ -57,12 +64,13 @@ Alternative: use `dev.ps1` (Windows PowerShell) which starts DB, backend, and fr
 - **Next.js 16.2.6** (App Router, TypeScript)
 - **React 19.2.4**
 - **Tailwind CSS v4** — uses `@import "tailwindcss"` (not `@tailwind base/components/utilities`). Theme via CSS `@theme inline {}`.
-- **shadcn/ui** (radix-nova style via `npx shadcn@next add`). 20+ components installed. Default UI toolkit — use these over raw HTML elements.
+- **shadcn/ui** (radix-nova style, `shadcn@4.7.0`). 22 components installed (see list below). Default UI toolkit — use these over raw HTML elements.
+- **radix-ui** (direct dependency, used by shadcn)
 - **next-themes** for class-based dark/light mode toggle
 - **pnpm** as package manager (v10+); `pnpm-workspace.yaml` exists but no workspace packages defined yet
 - **ESLint 9** flat config (`eslint.config.mjs`)
 - **Geist**, **Geist Mono**, and **Inter** fonts via `next/font/google`
-- Additional deps: `date-fns`, `lucide-react`, `react-day-picker`, `clsx` + `tailwind-merge`
+- Additional deps: `date-fns`, `lucide-react`, `react-day-picker`, `clsx` + `tailwind-merge`, `class-variance-authority`, `tw-animate-css`
 
 ### Backend
 - **FastAPI 0.115.6** with async
@@ -75,6 +83,8 @@ Alternative: use `dev.ps1` (Windows PowerShell) which starts DB, backend, and fr
 - **PostgreSQL 17** (Alpine) via Docker Compose
 - Database: `sw_mejor_ninez`, user/pass: `postgres/postgres`, port **5433** (mapped from 5432)
 - Volume: `pgdata` for persistent data
+- **Dockerfiles** in both `backend/` and `frontend/` for production builds
+- `docker compose up -d --build` starts the full stack (db + backend + frontend)
 
 ## Code Organization
 
@@ -133,28 +143,41 @@ backend/
 frontend/
 ├── src/
 │   ├── app/
-│   │   ├── layout.tsx   # Root layout (header nav, ThemeProvider, Geist+Inter fonts)
-│   │   ├── page.tsx     # Home page (links to /nna)
+│   │   ├── layout.tsx   # Root layout (header nav with Home, +Nuevo caso, NNA, Adultos + ThemeToggle)
+│   │   ├── page.tsx     # Home page (links to /nuevo-caso and /nna)
 │   │   ├── globals.css  # Tailwind v4 + shadcn + tw-animate-css imports, theme vars
 │   │   ├── nna/
 │   │   │   ├── page.tsx      # NNA list (client component, search, shadcn Table)
 │   │   │   ├── [id]/
-│   │   │   │   └── page.tsx  # NNA detail (tabs: ingreso, consumo, discapacidades,
-│   │   │   │                  #   instrumentos, historial, gestion, informes,
-│   │   │   │                  #   salud, escolar, familiar)
+│   │   │   │   ├── page.tsx  # NNA summary (fetches all sections, renders card grid linking to sub-pages)
+│   │   │   │   ├── ingreso/page.tsx         # Ingreso CRUD (list/create/edit)
+│   │   │   │   ├── documentacion/page.tsx   # Documentación CRUD
+│   │   │   │   ├── consumo/page.tsx         # Consumo CRUD
+│   │   │   │   ├── discapacidades/page.tsx  # Discapacidades CRUD
+│   │   │   │   ├── instrumentos/page.tsx    # Instrumentos CRUD (E2P/PMF/NCFAS tabs)
+│   │   │   │   ├── historial/page.tsx       # Historial Red CRUD
+│   │   │   │   ├── gestion/page.tsx         # Gestión Búsqueda CRUD
+│   │   │   │   ├── informes/page.tsx        # Informes Tribunal CRUD
+│   │   │   │   ├── salud/page.tsx           # Salud CRUD
+│   │   │   │   ├── escolar/page.tsx         # Escolar CRUD
+│   │   │   │   └── familiar/page.tsx        # Familiar + EntornoFamiliar CRUD
 │   │   │   └── nuevo/
 │   │   │       └── page.tsx  # Create NNA form (shadcn Form, DatePicker)
-│   │   └── adultos/
-│   │       ├── page.tsx      # Adulto list (client component, search)
-│   │       └── [id]/
-│   │           └── page.tsx  # Adulto detail (tabs: consumo, discapacidades, penales, instrumentos)
+│   │   ├── adultos/
+│   │   │   ├── page.tsx      # Adulto list (client component, search)
+│   │   │   ├── [id]/
+│   │   │   │   └── page.tsx  # Adulto detail (tabs: consumo, discapacidades, penales, instrumentos)
+│   │   │   └── nuevo/
+│   │   │       └── page.tsx  # Create adulto form (+ antecedentes penales inline)
+│   │   └── nuevo-caso/
+│   │       └── page.tsx      # 6-step wizard: NNA → Ingreso → Documentación → Adultos → Antecedentes → Revisión
 │   ├── lib/
 │   │   ├── api.ts        # Centralized API client with all endpoints + TypeScript types
 │   │   └── utils.ts      # cn() helper (clsx + tailwind-merge)
 │   └── components/
 │       ├── theme-provider.tsx  # next-themes wrapper
 │       ├── theme-toggle.tsx
-│       └── ui/           # 20 shadcn/ui components
+│       └── ui/           # 22 shadcn/ui components
 ├── public/
 ├── package.json
 ├── tsconfig.json         # Path alias @/* → ./src/*
@@ -199,34 +222,43 @@ All routes call service functions that follow the pattern `service = SomeService
 **API client** (`src/lib/api.ts`):
 - Single `api` export object with nested method groups (e.g., `api.nna.list()`, `api.adultos.get(id)`)
 - All methods go through a generic `request<T>()` function that sets `Content-Type: application/json`
-- Base URL hardcoded: `http://localhost:8000/api`
+- Base URL from `NEXT_PUBLIC_API_URL` env var (falls back to `http://localhost:8000/api`)
 - Contains full TypeScript interfaces for every entity (not shared with backend — hand-maintained)
 
-**NNA detail page** (`/nna/[id]/page.tsx`): Monolithic file (~880 lines). Contains a main page component + 10+ tab sub-components defined in the same file. Tabs: Ingreso, Consumo, Discapacidades, Instrumentos, Historial, Gestión, Informes, Salud, Escolar, Familiar. Some tabs fetch child data lazily.
+**NNA detail** (`/nna/[id]/page.tsx`): Summary page (~200 lines). Fetches all 11 sections in parallel via `Promise.all`, extracts the last record from each, and renders a grid of `<Card>` components linking to sub-pages. Each sub-page (e.g., `/nna/[id]/consumo`) is its own full CRUD page with list + inline create/edit forms.
 
-**Adulto detail page** (`/adultos/[id]/page.tsx`): Similar pattern, 4 tabs: Consumo, Discapacidades, Antec. Penales, Instrumentos.
+**NNA sub-page pattern**: Each sub-page follows the same structure:
+- Client component, `use(params)` for route param
+- Fetches NNA + entity list in `useEffect`
+- Inline "Nuevo" form (toggle with `showForm` state, `saving`/`formError` states)
+- Inline "Editar" per row (toggle with `editingId` state, separate `editForm`/`editSaving`/`editError` states)
+- Dates handled as `Date | undefined` for Calendar + converted to ISO strings (`"YYYY-MM-DD"`) for API
+- Booleans use `<Checkbox>` from shadcn
 
-**Create forms**: Only `/nna/nuevo` exists. Uses shadcn Form primitives (`Field`, `FieldLabel`, `FieldGroup`, `FieldError`) + `Calendar`/`Popover` for date picker. Client-side state, calls API on submit, redirects on success.
+**`/nuevo-caso` wizard**: 6-step multi-step form (NNA → Ingreso → Documentación → Adultos → Antecedentes → Revisión). All state lives in a single `WizardData` interface, passed down to step components. On submit, sequentially creates NNA → Ingreso (with causales/derechos) → Documentación → AntecedenteFamiliar → Adultos (with EntornoFamiliar links + antecedentes penales) → Salud/Escolar/Consumo/Discapacidades. Redirects to NNA detail on success.
 
-**No `/adultos/nuevo` page yet** — creation form does not exist.
+**Adulto detail** (`/adultos/[id]/page.tsx`): Still uses shadcn `<Tabs>` component (4 tabs: Consumo, Discapacidades, Antec. Penales, Instrumentos). Each tab fetches its own data lazily.
 
-**Dark mode**: Uses `next-themes` with `attribute="class"` — the `.dark` class is toggled on `<html>`. The `ThemeProvider` wraps the body. `ThemeToggle` component provides the toggle button. CSS uses `@custom-variant dark (&:is(.dark *))` selector.
+**Create forms**:
+- `/nna/nuevo` — standalone NNA creation form
+- `/adultos/nuevo` — full adulto creation with inline antecedentes penales list, uses `+ Agregar` pattern for multiple items
+- `/nuevo-caso` — comprehensive wizard (see above)
 
-**shadcn/ui components** (20 installed): alert, badge, button, calendar, card, dropdown-menu, empty, field, input, label, navigation-menu, popover, select, separator, skeleton, spinner, table, tabs, toggle, theme-provider, theme-toggle.
+**Dark mode**: Uses `next-themes` with `attribute="class"` — the `.dark` class is toggled on `<html>`. The `ThemeProvider` wraps the body in `layout.tsx`. `ThemeToggle` component provides the toggle button. CSS uses `@custom-variant dark (&:is(.dark *))` selector.
 
-**Routing**: All navigation via `<Link href="...">`, no server-side redirects. Detail pages use `params: Promise<{ id: string }>` (Next.js 16 async params pattern).
+**shadcn/ui components** (22 installed): alert, badge, breadcrumb, button, calendar, card, checkbox, dropdown-menu, empty, field, input, label, navigation-menu, popover, select, separator, skeleton, spinner, table, tabs, toggle, theme-provider, theme-toggle. Config in `frontend/components.json` (style: "radix-nova", iconLibrary: "lucide", baseColor: "neutral").
 
-**Navigation**: Header with `NavigationMenu` (Home, NNA, Adultos links) + ThemeToggle. Max width 5xl on all pages.
+**Routing/Global CSS**: Header nav links: Home, + Nuevo caso, NNA, Adultos. `globals.css` imports three layers: `@import "tailwindcss"`, `@import "tw-animate-css"`, `@import "shadcn/tailwind.css"`. CSS variables for light/dark theme via `oklch()` colors. Links use `<Link href="...">`. Detail pages use `params: Promise<{ id: string }>` (Next.js 16 async params). Max width 5xl on all pages.
 
 ## Gotchas
 
-1. **DB port is 5433, not 5432** — Docker maps 5433→5432. Both `alembic.ini` and `Settings` defaults use 5433. If you can't connect, check the port first.
+1. **DB port is 5433, not 5432** — Docker maps 5433→5432 locally. BUT inside Docker Compose, containers connect via hostname `db:5432`. Both `alembic.ini` and `Settings` defaults use 5433. If you can't connect locally, check the port first.
 
-2. **Tailwind CSS v4, not v3** — uses `@import "tailwindcss"` (not `@tailwind base`). Theme via `@theme inline {}` in CSS. No `tailwind.config.js`. PostCSS uses `@tailwindcss/postcss`.
+2. **Tailwind CSS v4, not v3** — uses `@import "tailwindcss"` (not `@tailwind base`). Theme via `@theme inline {}` in CSS. No `tailwind.config.js`. PostCSS uses `@tailwindcss/postcss`. Additional CSS imports: `@import "tw-animate-css"` and `@import "shadcn/tailwind.css"`.
 
-3. **ESLint 9 flat config** — `eslint.config.mjs` with `defineConfig`, not `.eslintrc.*`. Extends use spread: `...nextVitals, ...nextTs`.
+3. **ESLint 9 flat config** — `eslint.config.mjs` with `defineConfig`, not `.eslintrc.*`. Extends use spread: `...nextVitals, ...nextTs`. Includes `globalIgnores` for `.next/`, `out/`, `build/`, `next-env.d.ts`.
 
-4. **Backend `.env` location** — lives in `backend/`, not repo root. Run `uvicorn` from `backend/` so pydantic-settings finds it.
+4. **Backend `.env` location** — lives in `backend/`, not repo root. Run `uvicorn` from `backend/` so pydantic-settings finds it. The `.env` is NOT committed.
 
 5. **Database URL format** — `database_url` returns `postgresql+asyncpg://…` (async). `database_url_sync` returns `postgresql+psycopg2://…` (Alembic). Don't mix.
 
@@ -242,18 +274,24 @@ All routes call service functions that follow the pattern `service = SomeService
 
 11. **No tests exist** — `backend/tests/` is empty. The `pytest` command exists but there's nothing to run.
 
-12. **No `/adultos/nuevo` page** in frontend — the "Nuevo Adulto" button links to a non-existent route.
+12. **Frontend NNA detail is now a summary page** — `nna/[id]/page.tsx` is ~200 lines, rendering card links to 11 sub-pages. Each sub-page is a full CRUD page with inline create/edit forms. The old monolithic ~880-line page with tabs no longer exists.
 
-13. **Frontend detail pages are monolithic** — e.g., `nna/[id]/page.tsx` is ~880 lines with all tab components in one file. Tab components are not extracted to separate files, and they use shared `TabSpinner`/`InfoRow` helpers defined at file scope.
+13. **All frontend data pages are client components** — there's no server-side data fetching. Every page uses `useEffect` + `useState` pattern.
 
-14. **All frontend data pages are client components** — there's no server-side data fetching. Every page uses `useEffect` + `useState` pattern.
+14. **CORS restricted** to `http://localhost:3000` only.
 
-15. **CORS restricted** to `http://localhost:3000` only.
+15. **`pnpm workspaces`** file exists but has no packages defined — `pnpm install` works directly in `frontend/`.
 
-16. **`pnpm workspaces`** file exists but has no packages defined — `pnpm install` works directly in `frontend/`.
+16. **`__init__.py` imports in `app/core/`** — `app/core/__init__.py` does `from app.core.config import settings`, importing from a sibling. This works because `settings` is instantiated at module level first, but be careful adding new circular imports.
 
-17. **`__init__.py` imports in `app/core/`** — `app/core/__init__.py` does `from app.core.config import settings`, importing from a sibling. This works because `settings` is instantiated at module level first, but be careful adding new circular imports.
+17. **Next.js 16 async params** — dynamic route params are `Promise<{ id: string }>`, consumed with `use(params)`.
 
-18. **Next.js 16 async params** — dynamic route params are `Promise<{ id: string }>`, consumed with `use(params)`.
+18. **`dev.ps1` script** — Windows-only PowerShell launcher. Opens separate windows for DB, backend, and frontend.
 
-19. **`dev.ps1` script** — Windows-only PowerShell launcher. Opens separate windows for DB, backend, and frontend.
+19. **Docker Compose full stack** — `docker compose up -d --build` starts all three services (db, backend, frontend). Backend connects to `db:5432` internally. Frontend uses `NEXT_PUBLIC_API_URL=http://localhost:8000/api`.
+
+20. **NNA sub-page date handling** — dates in forms use `Date | undefined` (Calendar component). They're converted to `"YYYY-MM-DD"` strings via `fmt()` helper before API calls. Incoming date strings from API are displayed via `new Date(iso + "T00:00:00").toLocaleDateString("es-CL")` — the `+ "T00:00:00"` prevents timezone offset issues.
+
+21. **`/nuevo-caso` orchestration** — the wizard creates records sequentially: NNA first (gets `id_nna`), then Ingreso with causales/derechos under it, then Documentación, then an AntecedenteFamiliar with EntornoFamiliar entries linking Adultos, then Salud/Escolar/Consumo/Discapacidades. Any step can be skipped (only NNA is required). On success, redirects to `/nna/{idNna}`.
+
+22. **Dockerfiles** exist in both `backend/` and `frontend/`. Backend uses `python:3.12-slim`, runs `uvicorn app.main:app --host 0.0.0.0 --port 8000`. Frontend uses multi-stage build with `node:22-alpine`, pnpm, and runs `pnpm start --hostname 0.0.0.0 --port 3000`.

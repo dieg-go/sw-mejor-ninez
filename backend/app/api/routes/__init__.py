@@ -32,6 +32,7 @@ from app.api.routes.historial import (
 from app.api.routes.instrumentos import (
     e2p_adulto_router,
     e2p_item_router,
+    e2p_questions_router,
     e2p_router,
     ncfas_adulto_router,
     ncfas_item_router,
@@ -85,6 +86,7 @@ routers = [
     ncfas_router,
     ncfas_item_router,
     e2p_adulto_router,
+    e2p_questions_router,
     pmf_adulto_router,
     ncfas_adulto_router,
     salud_router,

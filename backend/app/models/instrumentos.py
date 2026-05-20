@@ -1,8 +1,8 @@
 import uuid
 from datetime import date
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSON, UUID
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
@@ -22,6 +22,8 @@ class E2P(SQLModel, table=True):
     )
     fecha_evaluacion: Optional[date] = None
     fecha_proxima_evaluacion: Optional[date] = None
+    version: int = Field()
+    respuestas: Optional[dict[str, Any]] = Field(default=None, sa_type=JSON)
     resultado: Optional[str] = None
     observacion: Optional[str] = None
 

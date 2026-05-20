@@ -162,6 +162,8 @@ async def seed():
                 id_adulto_significativo=madre_ana.id_adulto_significativo,
                 fecha_evaluacion=fecha_hace(30),
                 fecha_proxima_evaluacion=fecha_hace(-30),
+                version=4,
+                respuestas={"1": 4, "2": 3, "3": 4, "4": 3, "5": 5, "6": 4, "7": 3, "8": 4, "9": 5, "10": 3},
                 resultado="Fortalecimiento en curso",
                 observacion="Se observa mejora en vínculo materno-filial.",
             ),
@@ -375,6 +377,8 @@ async def seed():
             id_adulto_significativo=abuela_maria.id_adulto_significativo,
             fecha_evaluacion=fecha_hace(45),
             fecha_proxima_evaluacion=fecha_hace(-30),
+            version=1,
+            respuestas={"1": 5, "2": 4, "3": 5, "4": 3, "5": 5, "6": 4, "7": 5, "8": 4, "9": 5, "10": 4},
             resultado="Positivo",
             observacion="Abuela muestra buen manejo de la discapacidad de la NNA.",
         ))

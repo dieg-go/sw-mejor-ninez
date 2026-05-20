@@ -202,6 +202,8 @@ export interface Instrumento {
   id_adulto_significativo: string | null;
   fecha_evaluacion: string | null;
   fecha_proxima_evaluacion: string | null;
+  version: number | null;
+  respuestas: Record<string, number> | null;
   resultado: string | null;
   observacion: string | null;
 }
@@ -247,6 +249,14 @@ export interface EntornoFamiliar {
 }
 
 export type EntornoFamiliarUpdate = Partial<Omit<EntornoFamiliar, "id_entorno_familiar" | "id_antecedente_familiar">>;
+
+// ── E2P Questions ────────────────────────────────────────────────────────────
+
+export interface E2PQuestions {
+  edad: string;
+  escala: Record<string, string>;
+  preguntas: { id: number; texto: string }[];
+}
 
 // ── NNA ──────────────────────────────────────────────────────────────────────
 
@@ -390,6 +400,7 @@ export const api = {
   // ── Instrumentos ───────────────────────────────────────────────────────────
 
   e2p: {
+    getQuestions: (version: number) => request<E2PQuestions>(`/e2p/versions/${version}`),
     listByNna: (idNna: string) => request<Instrumento[]>(`/nna/${idNna}/e2p`),
     listByAdulto: (idAdulto: string) => request<Instrumento[]>(`/adultos/${idAdulto}/e2p`),
     createByNna: (idNna: string, data: Omit<Instrumento, "id_instrumento" | "id_nna">) =>

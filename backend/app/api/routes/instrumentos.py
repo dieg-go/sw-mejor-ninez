@@ -1,4 +1,6 @@
+import json
 import uuid
+from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -155,3 +157,28 @@ async def list_ncfas_adulto(id_adulto: uuid.UUID, db: AsyncSession = Depends(get
 async def create_ncfas_adulto(id_adulto: uuid.UUID, data: InstrumentoCreate, db: AsyncSession = Depends(get_db)):
     from app.services import create_adulto_child
     return await create_adulto_child(db, NCFAS, id_adulto, data.model_dump())
+
+
+# ── E2P Questions ────────────────────────────────────────────────────────────
+
+_E2P_QUESTIONS_PATH = Path(__file__).resolve().parent.parent.parent.parent.parent / "shared" / "e2p_questions.json"
+
+e2p_questions_router = APIRouter(prefix="/api/e2p/versions", tags=["E2P"])
+
+
+@e2p_questions_router.get("/{version_num}")
+async def get_e2p_questions(version_num: int):
+    if version_num < 1 or version_num > 8:
+        raise HTTPException(status_code=404, detail=f"Versión {version_num} no existe (1-8)")
+    try:
+        with open(_E2P_QUESTIONS_PATH, encoding="utf-8") as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        raise HTTPException(status_code=500, detail="Archivo de preguntas E2P no encontrado")
+    version_key = str(version_num)
+    if version_key not in data.get("versiones", {}):
+        raise HTTPException(status_code=404, detail=f"Versión {version_num} no encontrada")
+    return {
+        "escala": data.get("escala", {}),
+        **data["versiones"][version_key],
+    }
