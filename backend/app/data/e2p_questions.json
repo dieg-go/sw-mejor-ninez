@@ -1,0 +1,2411 @@
+{
+  "escala": {
+    "1": "Nunca",
+    "2": "Casi Nunca",
+    "3": "A veces",
+    "4": "Casi Siempre",
+    "5": "Siempre"
+  },
+  "versiones": {
+    "1": {
+      "edad": "0 a 3 meses",
+      "preguntas": [
+        {
+          "id": 1,
+          "texto": "Percibo las nuevas señales que empieza a generar mi hijo/a (ej., cuando sigue con la mirada, sonrisa social, búsqueda de sonidos, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 2,
+          "texto": "Logro reconocer señales de incomodidad de mi hijo/a antes de que se ponga a llorar (ej., movimientos de brazos, quejidos, búsqueda con la cabeza, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 3,
+          "texto": "Busco encontrarme con los ojos de mi hijo/a (ej., me acerco a la distancia que permita contacto visual y me doy minutos de calma para disfrutarlo)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 4,
+          "texto": "Logro comprender lo que mi hijo/a necesita (ej., si tiene hambre, sueño, ganas de ser acurrucado, dolor, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 5,
+          "texto": "Intento ponerme en el lugar de mi hijo/a para entender lo que le pasa (ej., que le cueste dormir porque hay mucho ruido, que no quiere quedarse solo, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 6,
+          "texto": "Logro darme cuenta cuando mi hijo/a se está fatigando (ej., se frota los ojos, se queja, corre la mirada, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 7,
+          "texto": "Cambio la actividad cuando veo que mi hijo/a esta muy cansado/a o estresado/a (ej., lo cambio de posición, lo llevo a otro lugar, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 8,
+          "texto": "Logro calmar rápidamente a mi hijo/a cuando lo necesita (en pocos minutos)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 9,
+          "texto": "Neutralizo los estímulos que puedan estresar a mi hijo/a (ej., mantengo el volumen bajo de la radio, regulo la temperatura de la habitación, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 10,
+          "texto": "Acaricio y acuno suavemente a mi hijo/a",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 11,
+          "texto": "Estoy atento y respondo cuando me sonríe (ej., intercambiamos sonrisas, jugamos al 'esta no está' (pick a boo) etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 12,
+          "texto": "Le hablo de manera suave y amorosa (ej., llamo su atención con mi voz, le repito una misma frase varias veces, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 13,
+          "texto": "Participo activamente en las actividades diarias de mi hijo/a (ej., lo/la hago dormir, lo/a tomo en brazos, lo/a baño, lo/la mudo, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 14,
+          "texto": "Al estar con mi hijo/a me mantengo pendiente de él o ella (ej., lo/la escucho, lo/la miro a los ojos, sigo sus propuestas, no veo el celular, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 15,
+          "texto": "Juego con mi hijo/a haciendo sonidos, mirándonos a la cara, o le acerco juguetes apropiados a su edad.",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 16,
+          "texto": "Le hablo a mi hijo/a sobre lo que está pasando (ej., 'ella es tu abuela', 'vamos a salir', etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 17,
+          "texto": "Organizo las salidas o paseos respetando las necesidades básicas de mi hijo/a (ej., respeto las siestas, procuro que no sea un lugar muy estresante, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 18,
+          "texto": "Organizo pequeñas rutinas con mi hijo/a (ej., lo/la saco a pasear por el barrio, canto una canción durante el baño, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 19,
+          "texto": "Respeto los momentos de inactividad que tiene mi hijo/a (ej., cuando luego de jugar con algún objeto se queda quieto/a por un momento, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 20,
+          "texto": "Pongo a mi hijo/a en posiciones seguras y en que pueda moverse con libertad",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 21,
+          "texto": "Cada vez que intenta alcanzar algo a su alrededor lo animo para que lo logre",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 22,
+          "texto": "Le presento un nuevo juguete y le muestro lo que puede hacer con el",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 23,
+          "texto": "Imito los sonidos que hace mi hijo/a y jugamos a la repetición",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 24,
+          "texto": "Me dispongo en una posición que me permite jugar o interactuar con él/ella de manera cómoda y cercana (ej., me dispongo cercano y a su altura, que nos permita contacto visual, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 25,
+          "texto": "Entiendo que a esta edad no comprenden la palabra NO y que requieren de mi presencia para prevenir incidentes",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 26,
+          "texto": "Cuando las cosas no resultan como esperaba, lo expreso de manera regulada y no me voy en contra de mi hijo/a",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 27,
+          "texto": "Con mi comportamiento doy el ejemplo de las cosas que me gustaría inculcar en mi hijo/a",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 28,
+          "texto": "Estoy atento/a y respondo cuando mi hijo/a me busca con la mirada y hace algún sonido",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 29,
+          "texto": "Interactúo por medio de sonrisas con mi hijo/a",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 30,
+          "texto": "Permito que otras personas de la familia o amistades se relacionen con mi hijo/a de manera cuidadosa y amorosa",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 31,
+          "texto": "Me preocupo de que no haya objetos peligrosos cerca de mi bebé",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 32,
+          "texto": "Cuando no estoy con mi bebé, estoy segura/o de que la persona que lo cuida lo trata bien",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 33,
+          "texto": "Me preocupo de que el ambiente en donde crece mi hijo/a este libre de consumo de cigarrillo, alcohol, drogas, etc.",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 34,
+          "texto": "Transmito a mi hijo/ una imagen segura y valiosa de mi persona, evitando quejarme del da a día, o de los aspectos dolorosos de mi vida frente a él/ella",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 35,
+          "texto": "Cuando cometo un error en el trato con mi hijo/a, me disculpo con él/ella a pesar de que mi bebé pueda no entender",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 36,
+          "texto": "Me preocupo por hacer que el lugar donde está mi hijo/a sea un entorno amoroso y respetuoso con todos",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 37,
+          "texto": "Mi hijo/a se alimenta con lactancia materna exclusiva a libre demanda o con leche de fórmula según indicación médica, sin dar nada complementario (ej., aguas de hierbas, jugo de frutas, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 38,
+          "texto": "Me ocupo de que mi hijo/a mantenga un buen estado de salud (ej., asiste a controles sanos, tiene vacunas al día, su peso y talla son acordes a su edad, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 39,
+          "texto": "Mi hijo/a duerme en la misma habitación que sus padres, ya sea en su propia cuna, o bien en colecho. En esta última, procuro las condiciones mínimas de seguridad para prevenir accidentes (ej., no hay consumo de alcohol, medicamentos o cigarrillo, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 40,
+          "texto": "Genero pequeñas rutinas de manera consistente y repetida en el tiempo (ej., canto una canción antes de dormir, le baño a la misma hora, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 41,
+          "texto": "Logro darme cuenta de los horarios naturales que va desarrollando mi hijo/a y voy adecuando y generando una rutina asociado a ello (ej., despierta siempre a las 7:00 am. a tomar leche y se incorpora ese como el horario de despertar, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 42,
+          "texto": "Comprendo que los niños no duermen de corrido toda la noche",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 43,
+          "texto": "Cuando la crianza se me hace difícil, busco ayuda de mis amigos o familiares (ej., cuando mi hijo/a está enfermo/a, cuando yo me siento sobrepasado/a, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 44,
+          "texto": "Pregunto por los recursos o servicios que hay en mi comuna apara activarlos en caso de necesitarlos para la crianza de mi hijo/a (ej., consultorio, municipio, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 45,
+          "texto": "Comparto con otros padres que también se encuentran en el período de crianza (ej., participo en grupos de crianza, comparto con amigos que también están criando, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 46,
+          "texto": "Reflexiono sobre lo que sueño para el futuro de mi hijo/a",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 47,
+          "texto": "Reflexiono sobre lo que sueño para nuestra familia",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 48,
+          "texto": "Reviso mis prioridades para asegurarme de proteger el desarrollo de mi hijo/a (ej., en qué gastar el dinero, el tiempo destinado al trabajo versus la familia, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 49,
+          "texto": "Me preparo para los momentos difíciles que vendrán en esta etapa de crianza (ej., dormir poco, lactancia, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 50,
+          "texto": "Anticipo situaciones conflictivas que podrían dificultar mi vida familiar y la crianza (ej., poco tiempo para compartir en pareja, un primer tiempo de quedarse más en casa y salir menos con amigos, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 51,
+          "texto": "Planifico con tiempo las actividades de la semana o del mes que involucran o se relacionan con mi hijo/a (ej., controles médicos, vacunas, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 52,
+          "texto": "Dedico tiempo a evaluar y pensar sobre cómo se está desarrollando mi hijo/a (ej., su desarrollo físico, emocional, comunicacional, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 53,
+          "texto": "Dedico tiempo a evaluar y pensar como estoy desarrollando mi rol como madre, padre u otro cuidador (ej., pensar si estoy satisfecho/a, alegre, si me siento agotado/a, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 54,
+          "texto": "Evalúo críticamente los consejos que me pueden dar y acojo los que van en línea con una crianza respetuosa",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 55,
+          "texto": "Logro pensar en aspectos de mi propia historia que no me gustaría repetir como padre o madre",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 56,
+          "texto": "Logro pensar y reconocer los aspectos positivos que me dejaron mis padres o cuidadores para la crianza de mi hijo/a",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 57,
+          "texto": "Pienso en cómo mi historia con mis padres influye en la forma que hoy tengo de criar a mi hijo/a",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 58,
+          "texto": "Me mantengo en buen estado de salud para poder cuidar de mis hijo/a (ej., cuido el consumo de comidas, de bebidas alcohólicas, consumo de tabaco, realizo chequeos médicos, hábitos de sueño, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 59,
+          "texto": "Logro identificar mis señales de agotamiento para no perder el control con mi hijo/a",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 60,
+          "texto": "Me permito espacios descanso (ej., leo un libro, salgo a caminar, me distraigo con actividades que disfruto, etc.)",
+          "categoria": "Reflexivas"
+        }
+      ]
+    },
+    "2": {
+      "edad": "4 a 10 meses",
+      "preguntas": [
+        {
+          "id": 1,
+          "texto": "Logro ver señales de diferentes emociones en mi hijo/a (ej., pongo atención a la rigidez de su cuerpo, me fijo en sus ojos, boca y gestos, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 2,
+          "texto": "Me doy cuenta cuando algo es agradable o desagradable para mi hijo/a (ej., en su forma de moverse, sus caras, sus vocalizaciones, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 3,
+          "texto": "Logro darme cuenta cuando mi hijo/a se encuentra con un ánimo disminuido (ej., porque tiene sueño, porque se está enfermando, porque está cansado/a, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 4,
+          "texto": "Logro comprender lo que mi hijo/a necesita (ej., si tiene hambre, sueño, ganas de ser acurrucado, ganas de estar en brazos, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 5,
+          "texto": "Intento ponerme en el lugar de mi hijo/a para entender lo que le pasa (ej., que le cueste dormir porque hay mucho ruido, que no quiere quedarse solo, que no quiere estar con desconocidos, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 6,
+          "texto": "Entiendo que la conducta de mi hijo/a tiene que ver con una necesidad (ej., llora porque necesita seguridad a la hora del sueño y no porque quiere manipularme para acostarse conmigo, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 7,
+          "texto": "Cambio la actividad cuando veo que mi hijo/a esta muy cansado o estresado (ej., lo cambio de posición, lo llevo a otro lugar, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 8,
+          "texto": "Logro calmar rápidamente a mi hijo/a cuando lo necesita (en pocos minutos)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 9,
+          "texto": "No dejo llorar solo a mi hijo/a en ninguna circunstancia",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 10,
+          "texto": "Acaricio y acuno suavemente a mi hijo/a",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 11,
+          "texto": "Disfrutamos de jugar a intercambiar sonrisas y sonidos (ej., juegos de imitación de turnos, jugamos al 'está no está', jugamos a mirarnos al espejo, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 12,
+          "texto": "Le hablo a mi hijo/a de manera suave y amorosa (ej., llamo su atención con mi voz y gestos, le repito una misma frase varias veces, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 13,
+          "texto": "Participo activamente en las actividades diarias de mi hijo/a (ej., lo hago dormir, lo tomo en brazos, lo baño, lo mudo, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 14,
+          "texto": "Al estar con mi hijo/a me mantengo pendiente de él o ella (ej., lo escucho, lo miro a los ojos, sigo sus propuestas, no veo el celular, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 15,
+          "texto": "Me preocupo por hechos importantes y relevantes que le estén sucediendo (ej., si se enferma sé lo que tiene y lo que debe tomar, si le está saliendo un diente y esta incómodo, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 16,
+          "texto": "Le hablo a mi hijo/a sobre lo que está pasando y sobre lo que va a pasar (ej., le digo: 'vamos a salir donde tu abuela', 'te vendrá a cuidar tu tía', etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 17,
+          "texto": "Organizo las salidas o paseos respetando las necesidades básicas de mi hijo/a (ej., respeto su hora siesta, procuro que no sea un lugar muy estresante para él/ella, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 18,
+          "texto": "Le ofrezco juegos u objetos adecuados a su edad (ej., sonajeros, mordedores, muñecos con diferentes texturas, llaves de goma, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 19,
+          "texto": "Respeto los momentos de inactividad que tiene mi hijo/a (ej., cuando luego de jugar con algún objeto se queda quieto por un momento, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 20,
+          "texto": "Acompaño los momentos de juego en el suelo para que se sienta seguro y libre de explorar",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 21,
+          "texto": "Le permito tocar y explorar objetos que se encuentran a su alrededor",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 22,
+          "texto": "Imito los sonidos que hace mi hijo/a y jugamos a la repetición",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 23,
+          "texto": "Sigo los juegos de causa-efecto que me propone (ej., cuando lanza las llaves al suelo, las recojo una y otra vez, busco los objetos que él/ella esconde, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 24,
+          "texto": "Le leo pequeños cuentos o cuento historias en un ambiente calmado y afectuoso",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 25,
+          "texto": "Entiendo que a esta edad aún no comprenden totalmente la palabra NO y requieren de mi presencia para prevenir incidentes",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 26,
+          "texto": "Soy consistente con las instrucciones que quiero establecer para mi hijo/a y actúo en concordancia con ello (ej., no le permito chupar cables bajo ninguna circunstancia, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 27,
+          "texto": "Con mi comportamiento doy el ejemplo de las cosas que me gustaría inculcar en mi hijo/a (ej., calma, paciencia, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 28,
+          "texto": "Interactúo por medio de sonrisas y vocalizaciones con mi hijo/a",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 29,
+          "texto": "Salimos de paseo por el barrio u otro lugar y le voy contando lo que hay en el entorno",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 30,
+          "texto": "Permito que otras personas de la familia o amistades se relacionen con mi hijo/a de manera cuidadosa y amorosa",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 31,
+          "texto": "Me preocupo de que no haya objetos peligrosos cerca de mi bebé",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 32,
+          "texto": "Cuando no estoy con mi bebé, estoy seguro/a de que la persona que lo cuida lo trata bien",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 33,
+          "texto": "Me preocupo de que el ambiente en donde crece mi hijo/a este libre de consumo de cigarrillo, alcohol, drogas, etc.",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 34,
+          "texto": "Intento que mi hijo/a no presencie discusiones familiares (ej., cuando discuto con mi pareja u otros miembros de la familia, no lo hago frente a él, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 35,
+          "texto": "Cuando cometo un error en el trato con mi hijo, me disculpo con él/ella a pesar de que mi hijo/a sea pequeño aún",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 36,
+          "texto": "Me preocupo por hacer que el lugar donde mi hijo/a está sea un entorno amoroso y respetuoso con todos",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 37,
+          "texto": "Mi hijo/a se alimenta con lactancia materna exclusiva, leche de fórmula o a iniciado la alimentación complementaria, según indicación médica",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 38,
+          "texto": "Me ocupo de que mi hijo/a mantenga un buen estado de salud (ej., asiste a controles sanos, tiene vacunas al día, su peso y talla son acordes a su edad, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 39,
+          "texto": "Cuando mi hijo/a está enfermo, sigo los tratamientos indicados por el especialista (ej., no automedico, sigo el tiempo indicado, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 40,
+          "texto": "Genero pequeñas rutinas de manera consistente y repetida en el tiempo (ej., le hago masaje después del baño, le leo un cuento antes de dormir, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 41,
+          "texto": "Me doy cuenta cuando las necesidades de mi hijo/a van cambiando y debo realizar cambios de rutina (ej., cuando dejan de dormir tres siestas y duermen dos, cuando necesitan conocer el mundo llevándose los objetos a la boca, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 42,
+          "texto": "Incorporo a mi hijo/a a las costumbres de la vida familiar, de manera progresiva, para que no le resulte amenazante (ej., celebrar cumpleaños, navidad, vacacionar,etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 43,
+          "texto": "Cuando la crianza se me hace difícil, busco ayuda de mis amigos o familiares (ej., cuando está enfermo/a, cuando me siento sobrepasado, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 44,
+          "texto": "Pregunto por los recursos o servicios que hay en mi comuna, para activarlos en caso de necesitarlos para la crianza de mi hijo (ej., en el consultorio, la municipalidad, los beneficios de Chile Crece Contigo, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 45,
+          "texto": "Utilizo los recursos o servicios para apoyarme en la crianza (ej., el consultorio, la municipalidad, los beneficios de Chile Crece Contigo, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 46,
+          "texto": "Reflexiono sobre lo que sueño para nuestra familia",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 47,
+          "texto": "Reviso mis prioridades para asegurarme de proteger el desarrollo de mi hijo/a (ej., en qué gastar el dinero, el tiempo destinado al trabajo versus la familia, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 48,
+          "texto": "Intento tener expectativas realistas sobre el desarrollo de mi hijo/a de manera de no ejercer presiones inadecuadas",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 49,
+          "texto": "Me preparo para los momentos difíciles que vendrán en esta etapa de crianza (ej., dolor por la salida de los dientes, salivación excesiva, mayores necesidades de juego, cambios en la rutina de sueño, mayor autonomía, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 50,
+          "texto": "Anticipo situaciones conflictivas que podrían dificultar mi vida familiar y la crianza (ej., poco tiempo para compartir en pareja, un primer tiempo de quedarse más en casa y salir menos con amigos, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 51,
+          "texto": "Cuando tengo alguna duda o inquietud, busco información seria que me permita tomar mejores decisiones (ej., me asesoro en grupos de crianza respetuosa, busco información con sustento científico, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 52,
+          "texto": "Dedico tiempo a evaluar y pensar sobre cómo se está desarrollando mi hijo/a (ej., su desarrollo físico, emocional, comunicacional, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 53,
+          "texto": "Dedico tiempo a evaluar y pensar como estoy desarrollando mi rol como madre/padre o cuidador (ej., pensar si estoy satisfecho, alegre, si me siento agotado, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 54,
+          "texto": "Evalúo críticamente los consejos que me pueden dar y acojo los que van en línea con una crianza respetuosa",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 55,
+          "texto": "Logro pensar en aspectos de mi propia historia que no me gustaría repetir como padre o madre",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 56,
+          "texto": "Logro pensar y reconocer los aspectos positivos que me dejaron mis padres o cuidadores para la crianza de mi hijo/a",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 57,
+          "texto": "Pienso en cómo mi historia con mis padres influye en la forma que hoy tengo de criar a mi hijo/a",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 58,
+          "texto": "Me mantengo en buen estado de salud para poder cuidar de mis hijo/a (ej., cuido el consumo de comidas, de bebidas alcohólicas, consumo de tabaco, realizo chequeos médicos, hábitos de sueño, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 59,
+          "texto": "Logro identificar mis señales de agotamiento para no perder el control con mi hijo/a",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 60,
+          "texto": "Me doy espacios para mí mismo/a, distintos de la crianza (ej., dormir una siesta, descansar, jugar fútbol, clases de baile, etc.)",
+          "categoria": "Reflexivas"
+        }
+      ]
+    },
+    "3": {
+      "edad": "11 a 18 meses",
+      "preguntas": [
+        {
+          "id": 1,
+          "texto": "Me doy cuenta cuando algo es agradable o desagradable para mi hijo/a (ej., en su forma de moverse, sus caras, sus palabras, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 2,
+          "texto": "Logro darme cuenta cuando mi hijo/a se encuentra con un ánimo bajo (ej., porque tiene sueño, porque se está enfermando, porque está cansado, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 3,
+          "texto": "Reconozco algunas actividades que mi hijo/a disfruta (ej., jugar conmigo, colocar y sacar cosas de un recipiente, mirarse al espejo, alcanzar objetos, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 4,
+          "texto": "Entiendo que para calmarse, la mayoría de las veces busca a su madre, padre, cuidador y no desea estar con otros (ej., llora cuando la mamá, el papá o el cuidador se aleja, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 5,
+          "texto": "Intento ponerme en el lugar de mi hijo/a para entender lo que le pasa (ej., que le cueste dormir porque hay mucho ruido, que no quiere quedarse solo/a, que no quiere estar con desconocidos, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 6,
+          "texto": "Entiendo que la conducta de mi hijo/a tiene que ver con una necesidad (ej., llora porque necesita seguridad a la hora del sueño y no porque quiere manipularme para acostarse conmigo, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 7,
+          "texto": "Cambio la actividad cuando veo que mi hijo/a esta muy cansado/a o estresado/a (ej., le ofrezco otras alternativas, lo llevo a otro lugar, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 8,
+          "texto": "Logro calmar prontamente a mi hijo/a cuando lo necesita (en pocos minutos)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 9,
+          "texto": "Doy pronta respuesta a las necesidades que observo en mi hijo/a",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 10,
+          "texto": "Acaricio y cobijo suavemente a mi hijo/a",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 11,
+          "texto": "Le digo a mi hijo/a que lo quiero y lo/la importante que es para mi",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 12,
+          "texto": "Disfrutamos de jugar a intercambiar sonrisas y sonidos (ej., juegos de imitación de sonidos de animales, mirarnos y sonreír frente al espejo, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 13,
+          "texto": "Le converso a mi hijo/a sobre lo que estoy haciendo con él/ella (ej., 'te voy a mudar', 'vamos a salir', 'es hora de descansar', etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 14,
+          "texto": "Me preocupo por hechos importantes y relevantes que le estén sucediendo (ej., si se enferma sé lo que tiene y lo que debe tomar, si gatea o camina lo acompaño y estimulo, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 15,
+          "texto": "Todos los días me doy momentos de juego con mi hijo/a (ej., intercambiamos sonidos, cantamos, buscamos objetos escondidos, aplaudimos, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 16,
+          "texto": "Preparo un espacio para que pueda practicar cómo ponerse de pie, gatear o caminar",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 17,
+          "texto": "Le ofrezco juegos u objetos adecuados a su edad (ej., cubos y objetos de diferentes tamaños, lápices, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 18,
+          "texto": "Organizo pequeñas rutinas con mi hijo/a (ej., lo llevo a pasear por el barrio después de comer, canto una canción mientras lo baño, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 19,
+          "texto": "Acompaño los momentos de juego para que se sienta seguro/a y libre de explorar",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 20,
+          "texto": "Le permito tocar y explorar objetos que se encuentran a su alrededor",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 21,
+          "texto": "Respeto cuando mi hijo/a no desea usar algún juguete o hacer una actividad (escucho y respeto sus señales)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 22,
+          "texto": "Le presento un nuevo juguete describiéndolo para que lo conozca",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 23,
+          "texto": "Le canto canciones en algún momento de la rutina diaria",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 24,
+          "texto": "Sigo los juegos de causa-efecto que me propone (ej., cuando lanza las llaves al suelo las recojo una y otra vez, busco los objetos que él/ella esconde, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 25,
+          "texto": "Soy consistente con las instrucciones que quiero establecer para mi hijo/a y actúo en concordancia a ello (ej., no le permito chupar cables bajo ninguna circunstancia, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 26,
+          "texto": "No me río o apruebo cosas que mi hijo/a hace y que pueden ser peligrosas (ej., no me río si se echa algo pequeño a la boca)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 27,
+          "texto": "Con mi comportamiento doy el ejemplo de las cosas que me gustaría inculcar en mi hijo/a (ej., actúo con calma, paciencia, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 28,
+          "texto": "Interactúo por medio de sonrisas y palabras con mi hijo/a",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 29,
+          "texto": "Salimos de paseo por el barrio u otro lugar y le voy contando lo que hay en el entorno",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 30,
+          "texto": "Permito que otras personas de la familia o amistades se relacionen con mi hijo/a de manera cuidadosa y amorosa",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 31,
+          "texto": "Me preocupo de proteger a mi hijo/a de objetos y lugares peligrosos (ej., medicamentos, objetos que pudiese tragar, objetos punzantes, piscinas, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 32,
+          "texto": "Cuando no estoy con mi bebé, estoy segura de que la persona que lo cuida lo trata bien",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 33,
+          "texto": "Cuando estoy con mi hijo/a, preparo un espacio en la casa para que pueda sentirse cómodo/a y jugar de manera segura (ej., coloco cojines a su alrededor por si se llega a voltear, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 34,
+          "texto": "Cuando cometo un error en el trato con mi hijo/a, me disculpo con él/ella a pesar de que mi hijo/a sea pequeño aún",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 35,
+          "texto": "Me aseguro de que tanto yo como los miembros del hogar tratemos bien a mi hijo/a",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 36,
+          "texto": "Me preocupo por hacer que el lugar donde está mi hijo/ sea un entorno amoroso y respetuoso",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 37,
+          "texto": "Me ocupo de que mi hijo/a mantenga un buen estado de salud (ej., asiste a controles sanos, tiene vacunas al día, su peso y talla son acordes a su edad, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 38,
+          "texto": "Cuido de la higiene de mi hijo/a (ej., baño su cuerpo, lavo sus manos y cara, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 39,
+          "texto": "Cuando mi hijo/a está enfermo/a, sigo los tratamientos indicados por el especialista (ej., no automedico, sigo la medicación el tiempo indicado, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 40,
+          "texto": "Genero pequeñas rutinas de manera consistente y repetida en el tiempo (ej., le hago masaje después del baño, le leo un cuento antes de dormir, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 41,
+          "texto": "Me doy cuenta cuando las necesidades de mi hijo/a van cambiando y debo realizar cambios de rutina (ej., cuando necesita dormir menos siestas que antes, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 42,
+          "texto": "Si tengo un imprevisto laboral o de salud logro reorganizar la rutina de mi hijo/a (ej., ver quien me puede ayudar a cuidarlo/a, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 43,
+          "texto": "Pregunto por los recursos o servicios que hay en mi comuna para activarlos en caso de necesitarlos para la crianza de mi hijo/a (ej., consultorio, municipio)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 44,
+          "texto": "Cuento con una lista de personas a las que sé que puedo acudir cuando necesito ayuda",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 45,
+          "texto": "Comparto con otros padres que también se encuentran en el período de crianza (ej., participo en grupos de crianza, comparto con amigos que también están criando, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 46,
+          "texto": "Reflexiono sobre lo que sueño para el futuro de mi hijo/a",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 47,
+          "texto": "Reflexiono sobre lo que sueño para nuestra familia",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 48,
+          "texto": "Reviso mis prioridades para asegurarme de proteger el desarrollo de mi hijo/a (ej., en qué gastar el dinero, el tiempo destinado al trabajo versus la familia, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 49,
+          "texto": "Me preparo para los momentos difíciles que vendrán en esta etapa de crianza (ej., iniciar primeros pasos, aprender a caminar, mayor autonomía etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 50,
+          "texto": "Anticipo situaciones conflictivas que podrían dificultar mi vida familiar y la crianza (ej., poco tiempo para compartir en pareja, un primer tiempo de quedarse más tiempo en casa, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 51,
+          "texto": "Planifico con tiempo las actividades de la semana o del mes que involucran o se relacionan con mi hijo/a (ej., controles médicos, vacunas, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 52,
+          "texto": "Dedico tiempo a evaluar y pensar sobre cómo se está desarrollando mi hijo/a (ej., su desarrollo físico, emocional, lenguaje, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 53,
+          "texto": "Dedico tiempo a evaluar y pensar cómo estoy desarrollando mi rol cómo madre/padre u otro cuidador (ej., pienso si estoy satisfecho, alegre, si me siento agotado, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 54,
+          "texto": "Reflexiono acerca de si las prácticas de crianza que utilizo con mi hijo/a son adecuadas a su edad",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 55,
+          "texto": "Logro pensar en aspectos de mi propia historia que no me gustaría repetir como padre o madre",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 56,
+          "texto": "Logro pensar y reconocer los aspectos positivos que me dejaron mis padres o cuidadores para la crianza de mi hijo/a",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 57,
+          "texto": "He pensado que como padre/madre o cuidador soy importante para la vida de mi hijo porque soy parte de su historia",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 58,
+          "texto": "Logro identificar mis señales de agotamiento para no perder el control con mi hijo/a",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 59,
+          "texto": "He logrado mantener una buena salud mental (ej., me siento feliz, me gusta cómo me veo, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 60,
+          "texto": "Me permito espacios descanso (ej., leo un libro, salgo a caminar, salgo a comprar, etc.)",
+          "categoria": "Reflexivas"
+        }
+      ]
+    },
+    "4": {
+      "edad": "19 a 36 meses",
+      "preguntas": [
+        {
+          "id": 1,
+          "texto": "Me doy cuenta de las situaciones que estresan o enojan a mi hijo/a (ej., cuando no desea bañarse, cuando le quitan un juguete, cuando no le resulta algo que lo tenía entusiasmado/a, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 2,
+          "texto": "Identifico las señales que da mi hijo/a cuando está agobiado o perdiendo la tranquilidad (ej., se está quejando muy seguido, está más irritable, se siente cansado o aburrido/a, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 3,
+          "texto": "Logro identificar distintas emociones en mi hijo/a (ej., cuando está alegre, sorprendido, interesado, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 4,
+          "texto": "Cuando mi hijo/a está estresado/a o molesto/a intento entenderlo sin colocarle 'etiquetas' (ej., evito decirle: mañoso/a, manipulador/a, pataletero/a, berrinchudo/a, sobrenombres, eres igual a...)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 5,
+          "texto": "Logro comprender los miedos propios de la edad de mi hijo/a (ej., cuando teme a la oscuridad, a extraños, a monstruos, a animales, al agua, a disfraces, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 6,
+          "texto": "Logro comprender lo que mi hijo/a necesita (ej., si tiene hambre, sueño, miedo, ganas de ser acurrucado, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 7,
+          "texto": "Cuando mi hijo/a se siente triste o llora, lo ayudo a entender lo que pasó (ej., le digo: 'parece que te pusiste triste por perder tu peluche', 'parece que te dio pena que tu hermano no te prestara sus juguetes', etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 8,
+          "texto": "Cuando mi hijo/a se siente, estresado/a, molesto/a, o triste lo/la calmo amorosamente (ej., lo abrazo, me pongo a su altura, lo acaricio, trato de enfocar su atención en algo positivo, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 9,
+          "texto": "Cuando han ocurrido situaciones difíciles en la familia, acompaño el enojo, pena o malestar de mi hijo/a (ej., lo abrazo, lo escucho, le converso, le doy un tiempo, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 10,
+          "texto": "Le demuestro a mi hijo/a que es una persona valiosa en mi vida (ej., le digo lo feliz que me hace, le hablo sobre su embarazo o de cuando le esperábamos, le cuento por qué elegimos su nombre, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 11,
+          "texto": "Le hago cariño a mi hijo/a de la manera en que le gusta (ej., lo/la acurruco, lo/la abrazo, acaricio su cabeza, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 12,
+          "texto": "Logro comunicarme afectuosamente con mi hijo/a (ej., le sonrío, le digo palabras positivas, uso un tono de voz cálido, le canto canciones infantiles, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 13,
+          "texto": "Me doy tiempo para hacer actividades con mi hijo/a (ej., jugamos, cantamos, dibujamos juntos, inventamos historias, cocinamos, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 14,
+          "texto": "Me doy el tiempo para conversar con mi hijo/a (ej., le hablo de lo que hacemos juntos, de su mascota, de las plantas, de los otros niños, de los abuelos, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 15,
+          "texto": "Al estar con mi hijo/a me mantengo atento a él o ella (ej., lo escucho, lo miro a los ojos, sigo sus propuestas, no veo el celular, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 16,
+          "texto": "Al iniciar el día, realizo una serie de pasos para que mi hijo/a comience su día tranquilamente (ej., lo despierto suavemente conversándole, lo despierto con tiempo para que alcance a tomar desayuno, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 17,
+          "texto": "Acompaño a mi hijo/a en el paso de una actividad a otra (ej., le canto una canción para que guarde los juguetes, le digo lo que vamos a hacer: 'cuando termines de comer, vamos a salir', etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 18,
+          "texto": "Al finalizar el día, realizo una serie de pasos para que mi hijo/a pueda ir a descansar (ej., los juguetes son guardados, se disminuye el ruido y la luz en el hogar, lo cambio de ropa, le leo un cuento o canto una canción, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 19,
+          "texto": "Permito que mi hijo/a enfrente desafíos (ej., que experimente con los cubiertos para comer su comida, que camine y explore los espacios, que lleve solo/a un vaso de agua, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 20,
+          "texto": "Cuando mi hijo/a siente curiosidad por las cosas permito que las descubra (ej., cuando abre un cajón, le preguntó ¿qué habrá ahí?, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 21,
+          "texto": "Aliento a mi hijo/a a que participe de algunas decisiones (ej., le permito escoger el color de su ropa, jugamos a lo que él o ella prefiere jugar, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 22,
+          "texto": "Al promover hábitos en mi hijo/a lo hago de forma entretenida (ej., al lavar los dientes canto una canción, al cepillar el cabello le cuento una historia, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 23,
+          "texto": "Cuando algo no le resulta lo/la ayudo a resolverlo (ej., le pongo una silla para que alcance un lugar más alto, le alcanzo un muñeco etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 24,
+          "texto": "Le leo un cuento, canto una canción o cuento una historia, antes de dormir o en otro momento del día",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 25,
+          "texto": "Le cuento sobre las decisiones que se toman por su bienestar (ej., le digo: 'te voy a colocar chaqueta porque hoy hace frio', 'vamos a ir al médico para que te ayude a sentirte mejor', etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 26,
+          "texto": "Consigo que mi hijo/a coopere sin recurrir a castigos ni gritos",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 27,
+          "texto": "Cuando quiero que mi hijo coopere, le doy instrucciones sencillas",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 28,
+          "texto": "Muestro a través del ejemplo las conductas sociales que espero ver en mi hijo/a (ej., saludo a las personas, les doy las gracias, pido permiso, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 29,
+          "texto": "Le enseño a mi hijo/a su nombre y el nombre de los miembros de su familia",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 30,
+          "texto": "Le enseño a relacionarse con niños y niñas de su edad (ej., compartir los juguetes, respetar los turnos, no pegar, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 31,
+          "texto": "Me preocupo de proteger a mi hijo/a de objetos y lugares peligrosos (ej., medicamentos, objetos que pudiese tragar, objetos punzantes, piscinas, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 32,
+          "texto": "Cuando no estoy con mi hijo/a, me he asegurado de que el adulto que lo cuida lo trata bien (ej., que no lo maltrate, que lo proteja, que lo consuele cuando llora, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 33,
+          "texto": "Protejo a mi hijo/a y me aseguro de que lo note (ej., lo/la tomo de la mano al cruzar la calle, lo/la tomo en brazos en lugares públicos, le digo que no recoja cosas del suelo cuando vamos por la calle, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 34,
+          "texto": "Transmito a mi hijo/ una imagen segura y valiosa de mi persona, evitando quejarme del día a día, o de los aspectos dolorosos de mi vida frente a él/ella",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 35,
+          "texto": "Intento que mi hijo/a no presencie discusiones familiares (ej., cuando discuto con mi pareja u otros miembros de la familia, no lo hago frente a él, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 36,
+          "texto": "Cuando cometo un error en el trato con mi hijo/a, me disculpo con él/ella y le explico que las personas se pueden equivocar",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 37,
+          "texto": "Me preocupo de proporcionar una alimentación saludable a mi hijo/a (ej., que coma legumbres, verduras, frutas, raciones apropiadas, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 38,
+          "texto": "Me preocupo de que mi hijo/a mantenga un buen estado de salud (ej., asiste a controles sanos, tiene vacunas al día, su peso y talla son acordes a su edad, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 39,
+          "texto": "Cuido de la higiene y presentación personal de mi hijo/a (ej., baño su cuerpo, sus dientes, lo peino, lavo sus manos antes de comer, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 40,
+          "texto": "En casa, hemos establecido como familia una organización de horarios y rutinas para mi hijo/a (ej., hora de levantarse, de desayunar, de jugar, descansar, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 41,
+          "texto": "Dedicamos tiempo a celebrar costumbres y tradiciones familiares (ej., celebrar cumpleaños, navidad, vacacionar, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 42,
+          "texto": "Si tengo un imprevisto laboral o de salud, logro reorganizar la rutina de mi hijo/a (ej., si tiene que ir al jardín, al control médico, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 43,
+          "texto": "Cuando necesito ayuda en la crianza, busco ayuda en mis amigos o familiares (ej., cuando está enfermo/a y tengo que ir al trabajo, cuando me siento estresado y requiero apoyo, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 44,
+          "texto": "Pregunto por los recursos o servicios que hay en mi comunidad, para hacer uso de ellos en caso de necesitarlos para la crianza de mi hijo/a (ej., consultorio, municipio, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 45,
+          "texto": "Utilizo los recursos o servicios para apoyarme en la crianza (ej., el consultorio, la municipalidad, los beneficios de Chile Crece Contigo, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 46,
+          "texto": "Priorizo gastos y acciones que protegen el futuro de mi hijo/a (ej., invertir en materiales de estimulación, en libros y cuentos, en actividades que desarrollan sus capacidades, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 47,
+          "texto": "Priorizo gastos y acciones que protegen el futuro de nuestra familia (ej., alimentación saludable, estudios, salidas recreativas familiares, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 48,
+          "texto": "Reviso mis prioridades para asegurarme de proteger el desarrollo de mi hijo/a (ej., en qué gastar el dinero, el tiempo destinado al trabajo versus la familia, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 49,
+          "texto": "Me preparo para los momentos difíciles que vendrán en esta etapa de crianza (ej., control de esfínter, destete, comer de forma independiente, ingreso al jardín, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 50,
+          "texto": "Anticipo situaciones conflictivas que podrían dificultar mi vida familiar y la crianza (ej., problemas de pareja, la visita de un familiar conflictivo, una etapa especialmente exigente en mi trabajo, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 51,
+          "texto": "Planifico con tiempo las actividades de la semana o del mes que involucran o se relacionan con mi hijo/a (ej., asistencia al jardín, a controles médicos, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 52,
+          "texto": "Dedico tiempo a evaluar y pensar sobre cómo se está desarrollando mi hijo/a (ej., su desarrollo físico, emocional, comunicacional, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 53,
+          "texto": "Dedico tiempo a evaluar y pensar sobre cómo estoy desarrollando mi rol de crianza (ej., pensar si estoy satisfecho, alegre, si me siento agotado, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 54,
+          "texto": "Evito contaminar la relación con mi hijo/a con mi enojo, penas y/o frustraciones (ej., respiro para calmarme, me preocupo de no transmitirle mis problemas de adulto, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 55,
+          "texto": "Logro pensar en aspectos de mi propia historia que no me gustaría repetir como padre o madre",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 56,
+          "texto": "Logro pensar y reconocer los aspectos positivos que me dejaron mis padres o cuidadores para la crianza de mi hijo/a",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 57,
+          "texto": "Pienso en cómo la historia con mis padres influye en la forma que hoy tengo de criar a mi hijo/a",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 58,
+          "texto": "Me mantengo saludable para poder cuidar de mis hijos/as (ej., cuido el consumo de comidas, de bebidas alcohólicas, consumo de tabaco, realizo chequeos médicos, hábitos de sueño, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 59,
+          "texto": "Logro identificar mis señales de agotamiento para no perder el control con mi hijo/a",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 60,
+          "texto": "Me doy espacios para mí mismo/a, distintos de la crianza (ej., salir a caminar, descansar, clases de baile, jugar fútbol, etc.)",
+          "categoria": "Reflexivas"
+        }
+      ]
+    },
+    "5": {
+      "edad": "3 a 5 años",
+      "preguntas": [
+        {
+          "id": 1,
+          "texto": "Conozco qué cosas le dan miedo a mi hijo/a (ej., la oscuridad, personajes imaginarios, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 2,
+          "texto": "Procuro poner atención a mi hijo/a cuando está realizando alguna actividad (ej., cuando juega en la plaza, cuando dibuja, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 3,
+          "texto": "Conozco los gustos de mi hijo/a (ej., sé que prefiere usar zapatillas sin cordones, que le gusta jugar con su mascota, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 4,
+          "texto": "Logro ponerme en el lugar de mi hijo/a (ej., entiendo su pena cuando pierde un juguete muy querido, comprendo que le cueste probar comidas nuevas, que le da miedo ir al dentista, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 5,
+          "texto": "Logro identificar distintas emociones en mi hijo (ej., sé cuándo está alegre, sorprendido, interesado, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 6,
+          "texto": "Puedo imaginar estados de ánimo de mi hijo/a (ej., tristeza si no cumplo lo que le prometo, miedo si llego tarde a buscarlo al jardín de infantes, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 7,
+          "texto": "Ayudo a mi hijo/a a calmarse cuando está estresado/a (ej., cuando llora porque enfermó, cuando está frustrado porque ha tenido un problema en el colegio, cuando pierde en un juego, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 8,
+          "texto": "Cuando mi hijo/a tiene pesadillas, hago cosas que lo/la tranquilizan (ej., le permito dormir conmigo, le cuento una historia que le gusta, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 9,
+          "texto": "Ayudo a mi hijo/a a contarme la historia de lo que lo ha alterado (ej., le pido que me cuente cómo se cayó, cómo se le rompió el juguete, qué soñó en su pesadilla, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 10,
+          "texto": "Con mi hijo/a, nos reímos juntos de cosas divertidas (ej., de un chiste, de bromas, una película graciosa, nos disfrazamos, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 11,
+          "texto": "Le demuestro explícitamente mi amor a mi hijo/a (ej., le digo 'hijo/a, te amo', 'te quiero mucho', le doy besos, lo/la abrazo, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 12,
+          "texto": "Le demuestro a mi hijo/a que es una persona valiosa en mi vida (ej., le digo lo feliz que me hace, le digo lo que aprecio de él/ella, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 13,
+          "texto": "Estoy atento/a si necesita ayuda para resolver algún problema (ej., buscamos juntos su juguete, lo acompaño al baño si es necesario, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 14,
+          "texto": "Aprovecho las actividades diarias para compartir con mi hijo/a (ej., vamos juntos a la feria, ordenamos juntos las frutas, regamos juntos las plantas, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 15,
+          "texto": "Converso con mi hijo/a de los temas que a él/ella le interesan (ej., sus amigos del colegio y barrio, su mascota, sus comidas favoritas, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 16,
+          "texto": "Le explico cómo espero que se comporte antes de salir de casa (ej., le digo: 'mantente cerca mío cuando estemos en la calle', 'si vamos al supermercado solo podrás elegir una cosa',etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 17,
+          "texto": "Le explico a mi hijo qué haremos antes de ir a alguna parte (ej., le digo:'vamos a visitar a tus abuelos, ir de compras, ir al médico, ir al zoológico', etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 18,
+          "texto": "Le anticipo a mi hijo/a los planes del día siguiente, especialmente si se salen de la rutina normal (ej., le digo quién los retirará del colegio, si llegaré más tarde, si tendremos visitas, si lo llevaré de compras, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 19,
+          "texto": "Lo motivo a tomar sus propias decisiones, ofreciéndole alternativas de acuerdo a su edad (ej., elegir su ropa o qué película quiere ver, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 20,
+          "texto": "Procuro que realice acciones por si mismo cuando lo llevo al jardín de infantes o salimos (ej., que lleve su mochila, que cargue su lonchera, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 21,
+          "texto": "Invito a mi hijo/a a colaborar en la realización de las actividades cotidianas en la casa (ej., ordenar sus juguetes, poner la mesa, regar las plantas, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 22,
+          "texto": "Lo acompaño a encontrar una solución a sus problemas por si mismo (ej., le doy 'pistas' para que tenga éxito en una tarea, sin darle la solución, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 23,
+          "texto": "Respondo a las preguntas de mi hijo/a utilizando un vocabulario preciso para que aprenda nuevas palabras (ej., zapato en vez de tato, mira el malabarista en vez de mira eso, cerezas en vez de fruta, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 24,
+          "texto": "Le muestro a mi hijo/a cómo hacer cosas nuevas apropiadas a su edad (ej., le digo 'mira, esto se abre así y se cierra así, ahora hazlo tú', etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 25,
+          "texto": "Me disculpo con mi hijo/a cuando me equivoco (ej., si le he gritado, si no le he respondido cuando me ha hablado, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 26,
+          "texto": "Anticipo a mi hijo/a las pautas de convivencia familiar (ej., le digo: 'antes de comer hay que lavarse las manos', 'no vemos tv cuando estamos almorzando', etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 27,
+          "texto": "Cuando mi hijo/a comete un error, buscamos juntos formas positivas de repararlo (ej., pedir disculpas, ayudar a ordenar, reparar el juguete roto, hacer y regalar un dibujo al que ofendió, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 28,
+          "texto": "Le enseño a mi hijo/a cómo debe comportarse en la calle, reuniones, cumpleaños (ej., le enseño a cruzar la calle de mi mano, a mirar la luz del semáforo, a saludar, a felicitar al que está de cumpleaños, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 29,
+          "texto": "Procuro que mi hijo/a aprenda sus datos personales y los de sus padres (ej., su sexo, nombre y edad, nombres, apellidos y labor de sus padres, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 30,
+          "texto": "Fomento que mi hijo/a haga amigo/as en el barrio y en escuela",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 31,
+          "texto": "Establezco límites de seguridad para el desarrollo de los juegos (ej., procuro que el espacio sea el adecuado, que no haya riesgos como fuego, electricidad, piscina, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 32,
+          "texto": "Enseño a mi hijo/a cuáles son sus partes íntimas y cómo deben ser cuidadas en cuanto a privacidad e higiene.",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 33,
+          "texto": "Cuando no estoy con mi hijo/a, estoy seguro/a que el adulto o los adultos que lo cuidan lo tratan bien",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 34,
+          "texto": "Procuro que mi hijo no esté expuesto a violencia física ni verbal en nuestra familia",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 35,
+          "texto": "Cuando cometo un error en el trato con mi hijo/a, me disculpo con él/ella y le explico que las personas pueden equivocarse",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 36,
+          "texto": "Le explico de manera calmada a mi hijo/a cómo me siento en determinadas circunstancias cuando no puedo responder a sus requerimientos (ej., le digo 'me siento agotada y necesito descansar un momento antes de jugar contigo', etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 37,
+          "texto": "Cuido de la higiene y presentación personal de mi hijo/a (ej., baño su cuerpo, lo ayudo a lavar sus dientes, lo peino, lo ayudo a lavar sus manos antes de comer, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 38,
+          "texto": "Me preocupo de proporcionar alimentación saludable a mi hijo/a (ej., frutas, verduras, cereales, agua, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 39,
+          "texto": "Procuro que mi hijo/a pueda mantener un estado sano de salud realizando actividades físicas (ej., jugar a saltar, a correr, trepar, andar en bicicleta con ayuda, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 40,
+          "texto": "Mi hijo/a puede usar un espacio especial de la casa para jugar y distraerse (ej., ver sus cuentos, armar sus rompecabezas, pintar, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 41,
+          "texto": "Si tengo un imprevisto laboral o de salud logro reorganizar la rutina de mi hijo/a (ej., si tiene que ir al jardín, al control médico, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 42,
+          "texto": "Procuro que el ambiente del hogar facilite la actividad que se realizará en ese momento (ej., apago el televisor antes de las comidas, apago luces y procuro que haya silencio antes de irnos a dormir, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 43,
+          "texto": "Utilizo los recursos o servicios para apoyarme en la crianza (ej., el consultorio, la municipalidad, los beneficios del Chile Crece Contigo u otros estatales etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 44,
+          "texto": "Pregunto por los recursos o servicios que hay en mi comunidad para hacer uso de ellos en caso de necesitarlos para la crianza de mi hijo/a (ej., consultorio, municipalidad, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 45,
+          "texto": "Cuando tengo dudas acerca de cómo apoyar a mi hijo/a en su desempeño, conducta o relación con sus compañeros de escuela, solicito reuniones con su profesor/a u orientador escolar",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 46,
+          "texto": "Conversamos acerca de quiénes somos como familia (ej., nuestras costumbres de vida, tradiciones familiares, creencias, normas de convivencia, deseos de cada uno, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 47,
+          "texto": "Reflexiono acerca de lo que deseo para mi hijo/a en el futuro (ej., tener buena salud, tener valores, ser trabajador/a, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 48,
+          "texto": "Reviso mis prioridades para asegurarme de proteger el desarrollo de mi hijo/a (ej., en qué gastar el dinero, el tiempo destinado al trabajo versus la familia, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 49,
+          "texto": "Me preparo para los momentos difíciles que vendrán en esta etapa de crianza (ej., me informo de cómo apoyarlo en su ingreso al colegio, sé que presentará conductas desafiantes, que tendrá interés por conocer el porqué de las cosas y hechos, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 50,
+          "texto": "Le explico a mi hijo/a si algún día cambiamos los horarios habituales (ej., le digo: 'hoy llegaré más tarde a casa porque debo quedarme a trabajar', etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 51,
+          "texto": "Anticipo situaciones conflictivas que podrían dificultar mi vida familiar y la crianza (ej., problemas de pareja, la visita de un familiar conflictivo, una etapa especialmente exigente en mi trabajo, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 52,
+          "texto": "Dedico tiempo a evaluar y pensar sobre cómo se está desarrollando mi hijo/a (ej., su desarrollo físico, emocional, su lenguaje, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 53,
+          "texto": "He logrado mantener un clima familiar bueno para el desarrollo de mi hijo/a (ej., las discusiones no son frente al niño/a, hay tiempo como familia para disfrutar y reírnos, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 54,
+          "texto": "Reflexiono acerca de si las prácticas de crianza que utilizo con mi hijo/a son adecuadas a su edad",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 55,
+          "texto": "Logro pensar en los aspectos de mi propia historia que no me gustaría repetir como padre o madre",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 56,
+          "texto": "Logro pensar y reconocer los aspectos positivos que me dejaron mis padres o cuidadores para la crianza de mi hijo/a",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 57,
+          "texto": "Intento estar alerta a qué aspectos de mi historia pueden aflorar en mi crianza y estoy dispuesto/a a buscar apoyo si es necesario (ej., buscar apoyo psicológico, social, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 58,
+          "texto": "Me mantengo saludable para poder cuidar de mi hijos/as (ej., cuido el consumo de comidas y bebidas alcohólicas, consumo de tabaco, realizo chequeos médicos, hábitos de sueño, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 59,
+          "texto": "Logro identificar mis señales de agotamiento para no perder el control con mi hijo/a",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 60,
+          "texto": "Siento que he logrado mantener una buena salud mental (ej., me siento contenta/o, me gusta cómo me veo, etc.)",
+          "categoria": "Reflexivas"
+        }
+      ]
+    },
+    "6": {
+      "edad": "6 a 7 años",
+      "preguntas": [
+        {
+          "id": 1,
+          "texto": "Reconozco las emociones de mi hijo/a a través de diversos lenguajes en que las expresa (ej., sonrisa, tonos de voz, bostezos, frases como 'no quiero ir al colegio', etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 2,
+          "texto": "Conozco las cosas que le dan alegría a mi hijo/a (ej., que vaya a mirarlo/a jugar fútbol, que le prepare su comida favorita, que le enseñe a andar en bicicleta, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 3,
+          "texto": "Conozco lo que le desagrada a mi hijo/a (ej., estudiar, que se acabe el permiso para ver televisión, obedecer normas, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 4,
+          "texto": "Ayudo a mi hijo/a, a que reconozca sus emociones y les ponga nombre (ej., le digo: 'parece que estás sintiendo rabia', 'te ves con pena, 'noto que estás contento', etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 5,
+          "texto": "Ayudo a mi hijo/a a que exprese lo que necesita con sus palabras (ej., le digo: 'cuéntame qué quieres', 'dime en qué parte del cuerpo te pegaste', 'conversemos de lo que pasó',etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 6,
+          "texto": "Trato de comprender lo que está sintiendo mi hijo/a (ej., pienso que quizás tuvo un día difícil y por eso no desea conversar, quizás está triste porque no lo/la seleccionaron para una actividad en el colegio, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 7,
+          "texto": "Procuro ser paciente cuando mi hijo/a está molesto o enfadado (ej., le doy el espacio y el tiempo que necesita para calmarse, me muestro disponible para conversar, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 8,
+          "texto": "Ayudo a mi hijo/a a encontrar sus propios recursos para actuar en determinadas situaciones (ej., le digo: 'si te enojaste por lo que te dijo tu amiga, ¿qué crees que le puedes decir la próxima vez?, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 9,
+          "texto": "Evito reprimir la expresión de las emociones de mi hijo/a cuando está estresado/a (ej., evito decirle:'no llores más', 'no debes estar asustado/a','los hombres no lloran', 'no es para tanto', etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 10,
+          "texto": "Con mi hijo/a nos reímos juntos de cosas divertidas (ej., de un chiste, de bromas, de anécdotas, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 11,
+          "texto": "Le demuestro explícitamente mi amor a mi hijo/a (ej., le digo: 'hijo/a, te quiero mucho' lo abrazo, le hago cariño en su cabeza, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 12,
+          "texto": "Le digo a mi hijo/a las cualidades o talentos que veo en él/ella (ej., le digo: 'cantaste muy bonito', 'fuiste muy generoso/a', 'fuiste un buen amigo', etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 13,
+          "texto": "Lo ayudo cuando necesita resolver algún problema (ej., para recortar, abotonarse, limpiarse al ir al baño, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 14,
+          "texto": "Aprovecho las actividades diarias para compartir con mi hijo/a (ej., vamos juntos a la feria, ordenamos juntos las frutas, regamos juntos las plantas, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 15,
+          "texto": "Converso con mi hijo/a de los temas que a él/ella le interesan (ej., sus amigos del colegio y barrio, su mascota, sus comidas favoritas, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 16,
+          "texto": "Le explico cómo espero que se comporte antes de salir de casa (ej., le digo: 'recuerda que en la calle debes darme la mano para cruzar', 'vamos al supermercado esta vez no me pidas juguetes', etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 17,
+          "texto": "Le explico a mi hijo qué haremos, antes de ir a alguna parte (ej., le digo: 'vamos a visitar a tus abuelos, ir de compras, ir al médico, ir al zoológico', etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 18,
+          "texto": "Procuro armar espacios apropiados al desarrollo de mi hijo (ej., hago espacio en la casa o patio para que juegue, pongo su ropa, útiles y juguetes en cajoneras que estén a su alcance, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 19,
+          "texto": "Incentivo a mi hijo/a a encontrar una solución a sus problemas por si mismo/a (ej., le doy pistas para que tenga éxito en una tarea, le pregunto cómo solucionó una situación parecida antes, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 20,
+          "texto": "Lo motivo a tomar sus propias decisiones ofreciéndole alternativas de acuerdo a su edad (ej., le digo: 'prefieres comer de postre naranja o manzana', 'quieres colocarte los pantalones azules o rojos', etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 21,
+          "texto": "Considero la opinión de mi hijo/a cuando decidimos algo (ej., dónde ir de paseo, qué hacer de almuerzo el domingo, a qué jugar juntos, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 22,
+          "texto": "Cuando mi hijo/a no entiende una idea encuentro otra manera de explicársela para que la comprenda (ej., le doy ejemplos de cosas que conoce, se lo explico de forma práctica, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 23,
+          "texto": "Le ayudo a mi hijo/a a que relacione sus aprendizajes escolares con la vida diaria (ej., si está aprendiendo a restar, calculamos juntos el vuelto al comprar el pan, si está aprendiendo a leer, le pido que lea la receta para preparar un postre sencillo, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 24,
+          "texto": "Lo ayudo a realizar sus tareas escolares cuando lo necesita (ej., buscamos información juntos, preparamos una disertación, preparamos una prueba, armamos un disfraz, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 25,
+          "texto": "Le señalo de manera firme y amable cuándo debe cumplir una orden (ej., deja de molestar a tu hermana ahora, necesito que te vistas para ir a la escuela, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 26,
+          "texto": "Si mi hijo/a no cumple una orden, me pregunto qué le está pasando (ej., ¿estará cansado, malhumorado, aburrido, preocupado, enfermo, etc.?)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 27,
+          "texto": "Me disculpo con mi hijo/a cuando me equivoco (ej., si le he gritado, le he llamado la atención injustamente, lo he ignorado, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 28,
+          "texto": "Participo con mi hijo/a en las actividades sociales de la escuela (ej., paseos de curso, reuniones de apoderado, actividades artísticas, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 29,
+          "texto": "Llevo a mi hijo/a a los eventos sociales a los que lo invitan (ej., cumpleaños de sus amigos, paseos de curso, actividades en el barrio, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 30,
+          "texto": "Le explico a mi hijo/a que debe cuidar el medio ambiente (ej., no botar basura en la calle, no arrancar ramas o flores, no maltratar animales, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 31,
+          "texto": "Le enseño a mi hijo/ a a cuidarse cuando está en la vía pública (ej, estar atento a semáforos, cuidado en las esquinas si anda en bicicleta, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 32,
+          "texto": "Le enseño a mi hijo/a a cuidar y respetar su cuerpo (ej., no desvestirse frente a personas extrañas, saludar a los demás de la forma en que le acomode, que reconozca emociones que no le agradan, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 33,
+          "texto": "Mantengo a mi hijo/a alejado de peligros en el hogar (ej., no dejo herramientas, armas, objetos tóxicos a su alcance, lo superviso si hay piscina en casa, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 34,
+          "texto": "En mi familia tratamos bien a los niños (ej., sin gritos, sin zamarreos, sin golpes, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 35,
+          "texto": "Procuro que en mi familia nos tratemos con respeto (ej., nos saludamos de buenos días y buenas noches, nos recibimos y despedimos de forma afectuosa, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 36,
+          "texto": "Reservamos momentos para compartir en familia (ej., comer, jugar, ver y comentar un programa de televisión juntos, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 37,
+          "texto": "Superviso la higiene y cuidado que necesita mi hijo/a (ej., lavarse los dientes, bañarse, vestirse, cambiar su ropa si está sucia, cortarse las uñas, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 38,
+          "texto": "Me preocupo de que mi hijo/a mantenga un buen estado de salud (ej., asiste a controles médicos, su peso y talla son acordes a su edad, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 39,
+          "texto": "Procuro que mi hijo pueda mantener un estado sano de salud realizando actividades físicas (ej., jugar a saltar, a correr, trepar, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 40,
+          "texto": "Mi hijo/a puede usar un espacio especial de la casa para jugar y distraerse (ej., ver sus cuentos, armar sus rompecabezas, pintar, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 41,
+          "texto": "Procuro que el ambiente del hogar facilite la actividad que se realizará en ese momento (ej., apago el televisor antes de las comidas, apago luces y procuro que haya silencio antes de irnos a dormir, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 42,
+          "texto": "En casa hemos establecido como familia una organización de horarios y rutinas para mi hijo/a (ej., hora de levantarse, de desayunar, de jugar, de descansar, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 43,
+          "texto": "Cuando la crianza se me hace difícil, busco ayuda de mis amigos o familiares (ej., cuando está enfermo/a y necesito apoyo para cuidarlo, cuando me siento sobrepasada, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 44,
+          "texto": "Si tengo dudas sobre un tema de crianza, pido consejos, orientación y ayuda a personas confiables",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 45,
+          "texto": "Recurro a alguien de confianza cuando no puedo llevar a mi hijo/a a la escuela",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 46,
+          "texto": "Pienso en los valores que deseo inculcar en mi hijo/a (ej., que sea honesto/a, que sea respetuoso/a, que sea solidario/a, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 47,
+          "texto": "Conversamos acerca de quiénes somos como familia (ej., nuestras costumbres de vida, tradiciones familiares, creencias, normas de convivencia, deseos de cada uno, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 48,
+          "texto": "Pensamos en qué desearíamos cambiar como familia (ej., 'nos gustaría que nos tratáramos mejor', 'queremos divertirnos más en familia', 'queremos ser más unidos', etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 49,
+          "texto": "Me preparo para los momentos difíciles que vendrán en esta etapa de crianza (ej., caída de dientes de leche, exigencias escolares mayores, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 50,
+          "texto": "Anticipo situaciones conflictivas que podrían dificultar mi vida familiar y la crianza (ej., problemas de pareja, la visita de un familiar conflictivo, una etapa especialmente exigente en mi trabajo, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 51,
+          "texto": "Le anticipo a mi hijo/a si algún día cambiamos los horarios habituales (ej., le digo: 'hoy llegaré más tarde a casa porque debo quedarme a trabajar', etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 52,
+          "texto": "Dedico tiempo a evaluar y pensar sobre cómo se está desarrollando mi hijo/a (ej., su desarrollo físico, emocional, su lenguaje, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 53,
+          "texto": "Me pregunto cómo me siento en mi rol de padre/madre o cuidador de mi hijo/a (ej., si estoy satisfecho, contento, feliz, abrumado, angustiado, confundido, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 54,
+          "texto": "Reflexiono acerca de si las prácticas de crianza que utilizo con mi hijo/a son adecuadas a su edad.",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 55,
+          "texto": "Logro pensar en los aspectos de mi propia historia que no me gustaría repetir como padre, madre o cuidador",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 56,
+          "texto": "Pienso en cómo la historia con mis padres influye en la forma que hoy tengo de criar a mi hijo/a",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 57,
+          "texto": "He pensado que como padre, madre o cuidador soy importante para la vida de mi hijo, porque soy parte de su historia",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 58,
+          "texto": "Siento que he logrado mantener una buena salud mental (ej., me siento contenta/o, me gusta cómo me veo, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 59,
+          "texto": "Logro identificar mis señales de agotamiento para no perder el control con mi hijo/a",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 60,
+          "texto": "Me mantengo saludable para poder cuidar de mi hijo/a (ej., cuido el consumo de comidas y bebidas alcohólicas, consumo de tabaco, realizo chequeos médicos, cuido mis hábitos de sueño, etc.)",
+          "categoria": "Reflexivas"
+        }
+      ]
+    },
+    "7": {
+      "edad": "8 a 12 años",
+      "preguntas": [
+        {
+          "id": 1,
+          "texto": "Logro reconocer cuándo mi hijo/a necesita conversar conmigo (ej., de algo que le preocupa, de cómo estuvo su día, de una compañera/o que le gusta, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 2,
+          "texto": "Logro entender, en poco tiempo, qué necesita mi hijo/a (ej., que quiere que lo abrace si está triste, pasar un tiempo solo, jugar con sus amigos, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 3,
+          "texto": "Intento comprender las emociones y pensamientos que mi hijo/a vivencia (ej., si está enamorado/a, si le frustra no ser considerado para jugar en un equipo, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 4,
+          "texto": "Sé reconocer las situaciones que angustian o abruman a mi hijo/a (ej., sé cuándo mi hijo/a se siente incómodo con una persona; cuando no la está pasando bien en un cumpleaños, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 5,
+          "texto": "Cuando mi hijo se niega a hacer lo que pido me pregunto por los motivos detrás de su conducta (ej., si tendrá pena, estará cansado o no le gusta lo que le pido)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 6,
+          "texto": "Cuando mi hijo/a necesita ser calmado lo ayudo a sentirse mejor (ej. si tiene pena lo abrazo, le pregunto qué le pasa, le ayudo a respirar, le doy espacio para que exprese su enojo)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 7,
+          "texto": "Cuando mi hijo/a llora o se enoja, logro que se calme en poco tiempo (ej., menos de 15 min.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 8,
+          "texto": "Cuando mi hijo/a se siente inseguro de sus capacidades, logro que recupere su confianza en sí mismo /a (ej., cuando no se siente preparado para una prueba, o para una competencia deportiva)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 9,
+          "texto": "Mantengo una comunicación afectuosa y cariñosa con mi hija/o (ej., le digo “te quiero mucho”, ocupo palabras positivas hacia él/ella, uso un tono de voz cálido, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 10,
+          "texto": "Con mi hijo/a, la pasamos bien y nos reímos juntos",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 11,
+          "texto": "A mi hijo/a, le demuestro mi cariño de forma explícita y respetuosa (ej., nos miramos con cariño o nos abrazamos, le sonrío, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 12,
+          "texto": "Me hago el tiempo para hacer actividades y hacer cosas que a mi hijo/a le interesan (ej., salimos de paseo, vamos al cine, a la casa de amigos, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 13,
+          "texto": "Reservo un momento del día para compartir de forma exclusiva con mi hijo/a (ej., conversamos sobre su día, leemos juntos, vamos a comprar el pan juntos)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 14,
+          "texto": "Al estar con mi hijo/a me mantengo involucrado con él o ella (ej., sigo sus propuestas, dejo de ver el celular, le hago preguntas de lo que está haciendo, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 15,
+          "texto": "Al levantarse para ir al colegio, facilito una secuencia de pasos para que mi hijo/a inicie bien el día (ej., despertarlo de a poco, que se vista y desayune)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 16,
+          "texto": "Cuando mi hijo/a llega del colegio, facilito una secuencia de pasos para que pueda recrearse y estudiar (ej., que almuerce y se cambie de ropa, que descanse y prepare su espacio de estudio)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 17,
+          "texto": "Cuando es hora de dormir, facilito una secuencia de pasos para que mi hijo/a pueda descansar (ej., disminuyo gradualmente el ruido, apago la televisión)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 18,
+          "texto": "Lo acompaño y oriento en las decisiones sobre su apariencia (ej., qué ropa o corte de pelo usar)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 19,
+          "texto": "Lo acompaño y oriento en las decisiones sobre el uso de su tiempo libre (ej., qué actividad extra escolar hacer, si leer, descansar o hacer deporte)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 20,
+          "texto": "Lo acompaño y oriento sobre cómo manejar sus conflictos (ej., con un profesor o un compañero del colegio)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 21,
+          "texto": "Ofrezco a mi hijo/a experiencias de aprendizaje distintas de lo que realiza en la escuela (ej., vamos al museo, plazas, campamentos, teatro, actividades deportivas, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 22,
+          "texto": "Cuando mi hijo/a no entiende una idea o concepto, encuentro otra manera de explicársela para que comprenda (ej., le doy ejemplos de cosas o lugares que conoce)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 23,
+          "texto": "Comparto con mi hijo algunas de mis experiencias y aprendizajes positivos para orientar los suyos (ej., “yo a tu edad también me sentía así”, “a mí me pasó lo mismo”, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 24,
+          "texto": "Cuando discutimos o tenemos un conflicto con mi hijo/a, logro mantener la calma y hablo sin gritar",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 25,
+          "texto": "Cuando establezco normas y/o límites le explico las razones a mi hijo/a (ej., por qué es importante y cuáles son las consecuencias de no hacerlo)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 26,
+          "texto": "Cuando tenemos un conflicto, mi hijo/a y yo buscamos formas positivas de reparar el error (ej., pedir disculpas o ayudar a ordenar)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 27,
+          "texto": "Procuro que mi hijo/a dé un buen trato a las personas (ej., le explico que debe agradecer, disculparse, respetar turnos, resolver conflictos sin golpes ni gritos)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 28,
+          "texto": "Me he preocupado de ser un modelo positivo para mi hijo/a, dando buen ejemplo con mis acciones (ej., no botar basura en la calle, cuando voy de compras agradezco al vendedor)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 29,
+          "texto": "Le explico cómo comportarse cuando salimos juntos o con otras personas (ej., tener cuidado al cruzar la calle, cómo comportarse en reuniones familiares, cumpleaños)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 30,
+          "texto": "Monitoreo el comportamiento de mi hijo/a en redes sociales (ej., conozco a sus amigos en Facebook, los videos que ve en Youtube, los temas que habla por chats como whatsapp u otros, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 31,
+          "texto": "Monitoreo la relación de mi hijo/a con su escuela (ej., asisto a reuniones escolares y me informo de su asistencia y rendimiento, me informo de la relación con sus compañeros de curso)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 32,
+          "texto": "Le enseño a mi hijo cómo protegerse y cuidarse a sí mismo (ej., reconocer en qué personas confiar, que nadie puede tocar sus partes íntimas)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 33,
+          "texto": "Uso un tono de voz cálido y respetuoso para relacionarme con mi hijo/a y explicarle las cosas",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 34,
+          "texto": "Respeto y cuido los espacios y objetos personales de mi hijo (ej., le pido si puedo usar algo que es suyo, entro a su pieza de forma cuidadosa)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 35,
+          "texto": "Cuando no estoy con mi hijo/a, estoy seguro/a que el adulto o los adultos que lo cuidan lo tratan bien",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 36,
+          "texto": "Me preocupo de monitorear el desarrollo de hábitos en su aseo y cuidado personal (ej., rutina de higiene, cepillado de dientes)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 37,
+          "texto": "Me preocupo de monitorear el desarrollo de hábitos de alimentación saludable de mi hijo",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 38,
+          "texto": "Me preocupo de llevar a mi hijo/a a controles preventivos de salud (ej., sus vacunas, control pediátrico, dentista, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 39,
+          "texto": "Si sufro un imprevisto (ej., laboral, de salud) logro reorganizar la rutina cotidiana de mi hijo/a",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 40,
+          "texto": "Motivo a mi hijo a participar de las tareas que son parte de la rutina familiar (ej., le pido ayuda en las tareas domésticas, cocinamos juntos, le animo a hacer su cama)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 41,
+          "texto": "Dedicamos tiempo a celebrar costumbres y rituales familiares (ej., comer juntos como familia, celebrar los cumpleaños y fechas importantes, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 42,
+          "texto": "Me relaciono con los apoderados del curso de mi hijo/a (ej., asisto a ceremonias y actividades extraprogramáticas, participo en celebraciones de las familias del curso)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 43,
+          "texto": "Reflexiono sobre lo que me gustaría para el futuro de mi hijo/a (ej., en sus estudios, en sus amistades, en su desarrollo personal)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 44,
+          "texto": "Reviso mis prioridades para asegurarme de proteger el desarrollo de mi hijo/a (ej., en qué gastar el dinero, el tiempo destinado al trabajo versus la familia, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 45,
+          "texto": "Reflexiono sobre las expectativas que tengo de mi hijo/a (ej., sobre su rendimiento escolar, sobre nuestra relación, sobre sus logros personales)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 46,
+          "texto": "Anticipo situaciones conflictivas que podrían dificultar mi vida familiar y la crianza (ej., la época de gripes o alergias, la visita de un familiar conflictivo, un periodo de muchas pruebas y trabajos en el colegio, una etapa especialmente exigente en mi trabajo, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 47,
+          "texto": "Me preparo para los momentos difíciles que vendrán en esta etapa de crianza (ej., me informo sobre los cambios que se producen en la pre-adolescencia)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 48,
+          "texto": "Planifico con tiempo las actividades de la semana o del mes que involucran o se relacionan con mi hijo/a (ej., reuniones de apoderados, trabajos del colegio, eventos deportivos o artísticos, cumpleaños o fiestas familiares, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 49,
+          "texto": "Dedico tiempo a evaluar y pensar sobre cómo se está desarrollando mi hijo/a (ej., si habla de acuerdo a su edad, si su estatura y peso está normal, si tiene buenos amigos/as, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 50,
+          "texto": "Me he asegurado de que mi vida personal no dañe a mi hijo/a (ej., las peleas con mi pareja o familiares son en privado, no delante de mi hijo)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 51,
+          "texto": "Antes de relacionarme con mi hijo/a, me limpio de rabias, penas o frustraciones (ej., respiro hondo antes de entrar a casa)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 52,
+          "texto": "Logro reconocer aspectos del legado positivo que me dejaron mis padres (o cuidadores) para la crianza de mi hijo/a",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 53,
+          "texto": "Me doy tiempo para pensar cómo fue mi relación con mis padres, y cómo esta historia influye en la forma que hoy tengo de criar a mi hijo/a",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 54,
+          "texto": "Logro pensar en aspectos de mi propia historia que no me gustaría repetir como padre o madre",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 55,
+          "texto": "He logrado mantener una buena salud mental (ej., me siento contenta/o, me gusta cómo me veo)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 56,
+          "texto": "Me doy espacios para mí mismo/a, distintos de la crianza (ej., salir a caminar, descansar, clases de baile, jugar fútbol, etc.)",
+          "categoria": "Reflexivas"
+        }
+      ]
+    },
+    "8": {
+      "edad": "13 a 17 años",
+      "preguntas": [
+        {
+          "id": 1,
+          "texto": "Logro reconocer cuándo mi hijo/a necesita conversar conmigo (ej., de algo que le preocupa, de cómo estuvo su día, de una compañera/o que le gusta, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 2,
+          "texto": "Sé reconocer las situaciones que estresan, angustian o abruman a mi hijo/a (ej., sé cuándo se siente incómodo con una persona, cuando está bajo mucha presión por no sentirse capaz de hacer algo, cuando no lo está pasando bien en el colegio, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 3,
+          "texto": "Cuando he notado distante o diferente a mi hijo/a, logro entender en poco tiempo qué le pasa y qué necesita (ej., que quiere que lo abrace si está triste, pasar un tiempo solo, salir con sus amigos, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 4,
+          "texto": "Intento comprender las emociones y pensamientos de mi hijo/a (ej., si está enamorado/a, si le frustra no ser considerado para jugar en un equipo, si siente miedo de contarme una equivocación)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 5,
+          "texto": "Cuando mi hijo/a se niega a hacer lo que pido me pregunto por los motivos detrás de su conducta (ej., pienso: 'será lo difícil de esta edad', 'está cansado o molesto por algo', 'no le gusta lo que le pido', etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 6,
+          "texto": "Cuando mi hijo/a necesita ser contenido/a en sus emociones logro ayudarlo a sentirse mejor (ej., si siente tristeza lo abrazo, le pregunto qué le pasa, o le doy espacio para que exprese su enojo, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 7,
+          "texto": "Cuando mi hijo/a se enoja y necesita estar solo/a, respeto sus ritmos y tiempos (ej., si se encierra en su pieza, si me dice que no quiere hablar ahora, lo espero y busco un mejor momento para hablar)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 8,
+          "texto": "Cuando mi hijo/a se siente inseguro de sus capacidades, sé cómo apoyarlo para que recupere su confianza en si mismo /a (ej,. cuando no se siente preparado para una prueba, o para una competencia deportiva, cuando quiere invitar a salir a alguien, ha recibido burlas, cuando siente que la ropa no le queda bien, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 9,
+          "texto": "Cuando nos proponemos hacer actividades con mi hijo/a lo pasamos bien (ej., nos reímos juntos, tenemos conversaciones entretenidas, buscamos intereses comunes, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 10,
+          "texto": "Mantengo una comunicación afectuosa y cariñosa con mi hijo/a (ej., le digo 'te quiero mucho', ocupo palabras positivas hacia él/ella, uso un tono de voz cálido, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 11,
+          "texto": "A mi hijo/a, le demuestro mi cariño de forma explícita (ej., lo saludo de forma amorosa en las mañanas, lo llamo por teléfono o mando whatsapp, nos miramos con cariño, nos abrazamos, le sonrío habitualmente, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 12,
+          "texto": "Me hago el tiempo para hacer actividades que a mi hijo/a le interesan (ej., vamos a comprar algo que le guste, jugamos videojuegos, escuchamos la música que le gusta, lo acompaño en actividades recreativas como jugar fútbol, vemos su serie favorita etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 13,
+          "texto": "Me hago el tiempo durante el día para estar cerca de mi hijo/a (ej., lo invito a ver algún programa en la tele juntos, le pregunto sobre algo de tecnología o videojuegos, cocinamos, conversamos, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 14,
+          "texto": "Cuando estoy en una actividad con mi hijo/a logro poner mi atención en él o ella, manteniéndome interesado en lo que estamos haciendo. (ej., dejo de ver el celular, le hago preguntas sobre lo que está haciendo/diciendo, muestro interés en lo que me cuenta, etc.)",
+          "categoria": "Vinculares"
+        },
+        {
+          "id": 15,
+          "texto": "Al levantarse para ir al colegio, monitoreo que mi hijo/a se guíe por una secuencia de pasos que le ayude a iniciar bien el día (ej., me preocupo de que tome desayuno, que tenga su uniforme, que salga a la hora, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 16,
+          "texto": "Durante la semana monitoreo que mi hijo/a tenga una rutina de sueño adecuada para su edad (ej., comemos a una hora similar, negociamos horarios para acostarse, que no vea televisión hasta tan tarde, negociamos el uso de videojuegos, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 17,
+          "texto": "Cuando mi hijo/a llega del colegio, facilito una secuencia de pasos para que pueda recrearse y estudiar (ej., que almuerce y se cambie de ropa, que descanse y prepare su espacio de estudio, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 18,
+          "texto": "Cuando algo no me parece sobre su apariencia, busco orientarlo pero respetando sus propias preferencias (ej., estilo de su ropa, corte o color de pelo, hacerse tatuajes, piercing, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 19,
+          "texto": "Lo/ la acompaño en la toma de decisiones sobre el uso de su tiempo libre (ej., qué actividad extra escolar hacer, si leer, descansar o hacer deporte, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 20,
+          "texto": "Cuando mi hijo/a me lo pide, lo aconsejo y oriento sobre cómo manejar sus conflictos (ej., con un profesor, compañero, con su pareja, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 21,
+          "texto": "Apoyo y motivo a mi hijo/a para que tenga experiencias de aprendizaje diferentes de las que realiza en el colegio (ej., que asista a campamentos scout, participe de talleres artísticos, asista a actividades deportivas de la comunidad, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 22,
+          "texto": "Le ayudo a mi hijo/a a comprender lo que no entiende (ej., a través de ejemplo, anécdotas, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 23,
+          "texto": "Le hablo a mi hijo/a de mi historia para que aprenda de mi experiencia (ej., 'yo a tu edad también me sentía así', 'a mí me pasó lo mismo', etc)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 24,
+          "texto": "Cuando discutimos o tenemos un conflicto con mi hijo/a, logro mantener la calma (ej.,hablo sin gritar, no hago amenazas, no golpeo cosas, no le insulto, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 25,
+          "texto": "Cuando tenemos un conflicto, nos damos el tiempo para encontrar formas positivas de solucionarlo (ej., dialogamos, llegamos a un acuerdo, le doy una segunda oportunidad, pedir disculpas, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 26,
+          "texto": "Cuando negociamos reglas o normas con mi hijo/a logramos llegar a un acuerdo común (ej., respecto de los horarios de llegada, las salidas, el uso de aparatos electrónicos, las visitas de parejas, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 27,
+          "texto": "Oriento a mi hijo/a respecto a cómo comportarse según la situación, lugar o personas con las que esté (ej., cuando tiene que hablar con el director del colegio, cuando vamos donde algún familiar, cuando sale a una cita, cuando está con su pareja, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 28,
+          "texto": "Soy un modelo positivo para mi hijo/a, dando buen ejemplo con mis acciones (ej., no botar basura en la calle, cuidar el entorno, respetar la diversidad, ser solidario cuando alguien necesita ayuda, no hablar mal de la gente o de forma grosera, no agredir a las personas, etc.)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 29,
+          "texto": "Procuro que mi hijo/a dé un buen trato a las personas (ej., le explico que debe respetarlas, disculparse si es necesario, agradecer, resolver conflictos sin golpes ni gritos)",
+          "categoria": "Formativas"
+        },
+        {
+          "id": 30,
+          "texto": "Monitoreo la actividad de mi hijo/a en redes sociales (ej., conozco a sus amigos en Facebook, las fotografías que comparte en Instagram, los temas que habla por chats como whatsapp u otros)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 31,
+          "texto": "Monitoreo la relación de mi hijo/a con su colegio/liceo (ej., asisto a reuniones escolares y me informo de su asistencia y rendimiento, me informo de la relación con sus compañeros de curso, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 32,
+          "texto": "Le enseño a mi hijo cómo protegerse y cuidarse a si mismo (ej., reconocer en qué personas confiar, cuidarse cuando va a fiestas, le hablo sobre el consumo de alcohol, drogas, prevención sexual, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 33,
+          "texto": "Respeto y cuido los espacios y objetos personales de mi hijo/a (ej., le pido si puedo usar algo que es suyo, entro a su pieza de forma cuidadosa, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 34,
+          "texto": "Cuando está mi hijo/a presente, promuevo los buenos tratos en la familia (ej. no gritarnos ni tratarnos mal, evitar descalificarnos o humillarnos, mantener un clima armonioso y respetuoso, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 35,
+          "texto": "Promuevo en mi familia que mi hijo/a sea escuchado (ej. si quiere opinar pido que lo escuchen, si hay que decidir algo preguntamos su opinión, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 36,
+          "texto": "Cuido que mi hijo/a se alimente de manera saludable (ej., comemos alimentos sanos, le he hablado sobre las consecuencias de los malos hábitos, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 37,
+          "texto": "Me preocupo de monitorear el desarrollo de hábitos en su aseo y cuidado personal",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 38,
+          "texto": "Cuando ha sido necesario, me he preocupado de llevar a mi hijo/a a atención en salud (ej., al psicólogo si lo derivan del colegio, al ginecólogo, a la urgencia si ha tenido algún accidente, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 39,
+          "texto": "Dedicamos tiempo a celebrar costumbres y rituales familiares (ej., comer juntos como familia los domingos, celebramos los cumpleaños, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 40,
+          "texto": "Le pido a mi hijo/a que participe de las actividades que son parte de la rutina familiar (ej., le doy responsabilidades en alguna de las tareas domésticas, cocinamos juntos, ir a comprar algo que se necesite en casa, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 41,
+          "texto": "Si sufro un imprevisto laboral o de salud, logro orientar a mi hijo/a para que siga su rutina cotidiana (ej., logra hacer sus tareas, pedir ayuda a un vecino, en caso de ser mayor volver en locomoción a la casa, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 42,
+          "texto": "Cuando la crianza se me hace difícil, busco ayuda de mis amigos o familiares (ej., cuando estoy enfermo y mi hijo/a tiene que ir al colegio, cuando me siento sobrepasada/o, etc.)",
+          "categoria": "Protectoras"
+        },
+        {
+          "id": 43,
+          "texto": "Reflexiono junto a mi hijo/a sobre su futuro (ej., en sus estudios, en sus amistades, en su desarrollo personal, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 44,
+          "texto": "Reflexiono sobre las expectativas que tengo de mi hijo/a (ej., sobre su rendimiento escolar, sobre nuestra relación, sobre sus logros personales)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 45,
+          "texto": "Reviso mis prioridades para asegurarme de proteger el desarrollo de mi hijo/a (ej., en qué gastar el dinero, el tiempo destinado al trabajo versus la familia, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 46,
+          "texto": "Me preparo para los momentos difíciles que vendrán en esta etapa de crianza (ej., los cambios que se producen en la adolescencia, el cómo orientar el desarrollo psicosexual de mi hijo/a, el cuestionamiento a los padres como autoridad, regular el consumo de alcohol, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 47,
+          "texto": "Anticipo situaciones conflictivas que podrían dificultar mi vida familiar y la crianza (ej., problemas de pareja, la visita de un familiar conflictivo, un periodo de muchas pruebas y trabajos en el colegio, una etapa especialmente exigente en mi trabajo, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 48,
+          "texto": "Planifico con tiempo las actividades de la semana o del mes que involucran o se relacionan con mi hijo/a (ej., reuniones de padres, trabajos del colegio, eventos deportivos o artísticos, cumpleaños o fiestas familiares, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 49,
+          "texto": "Dedico tiempo a evaluar y pensar sobre cómo se está desarrollando o cómo se ha desarrollado mi hijo/a (ej., respecto de sus valores, el desarrollo de sus capacidades y talentos, si tiene buenos amigos/as, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 50,
+          "texto": "Me he asegurado de que mi vida personal no dañe a mi hijo/a (ej., las peleas con mi pareja o familiares son en privado, no delante de mi hijo, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 51,
+          "texto": "Resguardo no contaminar con mis rabias, penas y/o frustraciones la relación con mi hijo/a (ej., respiro para calmarme, me preocupo de que no sea confidente de mis problemas adultos, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 52,
+          "texto": "Logro pensar en aspectos de mi propia historia que no me gustaría repetir como padre o madre",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 53,
+          "texto": "Logro pensar y reconocer el legado positivo que me dejaron mis padres o cuidadores para la crianza de mi hijo/a",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 54,
+          "texto": "Me doy tiempo para pensar cómo fue mi relación con mis padres y cómo esta historia influye en la forma que hoy tengo de criar a mi hijo/a",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 55,
+          "texto": "La crianza me ha dejado tiempo para disfrutar de otras cosas que me gustan (ej., juntarme con mis amigos, ver películas, ver series, tener mis proyectos personales, etc.)",
+          "categoria": "Reflexivas"
+        },
+        {
+          "id": 56,
+          "texto": "He logrado mantener una buena salud mental (ej., me siento contenta/o, me gusta cómo me veo, siento que puedo manejar el estrés adecuadamente, etc.)",
+          "categoria": "Reflexivas"
+        }
+      ]
+    }
+  }
+}

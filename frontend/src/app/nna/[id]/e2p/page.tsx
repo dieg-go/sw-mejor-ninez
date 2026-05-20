@@ -1,15 +1,9 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { use, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowLeftIcon, CalendarIcon, PlusIcon, PencilIcon } from "lucide-react";
-import {
-  api,
-  type NNA,
-  type Instrumento,
-  type AdultoSignificativo,
-  type E2PQuestions,
-} from "@/lib/api";
+import { api, type NNA, type Instrumento, type AdultoSignificativo, type E2PQuestions } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -18,14 +12,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Empty } from "@/components/ui/empty";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
 const LIKERT_OPTIONS = [
@@ -36,16 +23,35 @@ const LIKERT_OPTIONS = [
   { value: 5, label: "Siempre" },
 ];
 
-const E2P_VERSIONS = [
-  { value: 1, label: "1 — 0 a 1 año 6 meses" },
-  { value: 2, label: "2 — 1 año 7 meses a 3 años" },
-  { value: 3, label: "3 — 4 a 5 años" },
-  { value: 4, label: "4 — 6 a 7 años" },
-  { value: 5, label: "5 — 8 a 9 años" },
-  { value: 6, label: "6 — 10 a 11 años" },
-  { value: 7, label: "7 — 12 a 14 años" },
-  { value: 8, label: "8 — 15 a 17 años" },
+const VERSION_MONTHS: [number, number][] = [
+  [0, 3],
+  [4, 10],
+  [11, 18],
+  [19, 36],
+  [37, 60],
+  [61, 84],
+  [85, 144],
+  [145, 204],
 ];
+
+const CATEGORY_COLORS: Record<string, string> = {
+  Vinculares: "border-l-blue-500 bg-blue-50/50 dark:bg-blue-950/20",
+  Formativas: "border-l-green-500 bg-green-50/50 dark:bg-green-950/20",
+  Protectoras: "border-l-amber-500 bg-amber-50/50 dark:bg-amber-950/20",
+  Reflexivas: "border-l-purple-500 bg-purple-50/50 dark:bg-purple-950/20",
+};
+
+function ageToVersion(fechaNacimiento: string | null, evalDate: Date): number | null {
+  if (!fechaNacimiento) return null;
+  const birth = new Date(fechaNacimiento + "T00:00:00");
+  const months = (evalDate.getFullYear() - birth.getFullYear()) * 12 + (evalDate.getMonth() - birth.getMonth());
+  for (let v = 0; v < VERSION_MONTHS.length; v++) {
+    const [lo, hi] = VERSION_MONTHS[v];
+    if (months >= lo && months <= hi) return v + 1;
+  }
+  if (months < 0) return 1;
+  return 8;
+}
 
 function formatDate(iso: string | null) {
   if (!iso) return "—";
@@ -57,12 +63,7 @@ function getLikertLabel(value: number) {
   return opt?.label ?? "—";
 }
 
-function likertRadios(
-  questionId: number,
-  value: number | undefined,
-  onChange: (qId: number, val: number) => void,
-  disabled: boolean,
-) {
+function likertRadios(questionId: number, value: number | undefined, onChange: (qId: number, val: number) => void, disabled: boolean) {
   return (
     <div className="flex gap-3 flex-wrap mt-1">
       {LIKERT_OPTIONS.map((opt) => (
@@ -121,6 +122,12 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
   const [editAnswers, setEditAnswers] = useState<Record<string, number>>({});
   const [editQuestionsLoading, setEditQuestionsLoading] = useState(false);
 
+  // Auto-detect version from NNA age
+  const autoVersion = useMemo(() => {
+    if (!nna?.fecha_nacimiento) return null;
+    return ageToVersion(nna.fecha_nacimiento, new Date());
+  }, [nna]);
+
   const loadItems = async () => {
     setLoading(true);
     try { setItems(await api.e2p.listByNna(id)); }
@@ -139,34 +146,23 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
     })();
   }, [id]);
 
-  const handleVersionChange = async (v: string) => {
-    const ver = parseInt(v);
-    setVersion(ver);
-    setAnswers({});
-    if (ver) {
-      setQuestionsLoading(true);
-      try { setQuestions(await api.e2p.getQuestions(ver)); }
-      catch { setQuestions(null); setFormError("Error al cargar preguntas"); }
-      finally { setQuestionsLoading(false); }
-    } else { setQuestions(null); }
-  };
-
-  const handleEditVersionChange = async (v: string) => {
-    const ver = parseInt(v);
-    setEditVersion(ver);
-    setEditAnswers({});
-    if (ver) {
-      setEditQuestionsLoading(true);
-      try { setEditQuestions(await api.e2p.getQuestions(ver)); }
-      catch { setEditQuestions(null); setEditError("Error al cargar preguntas"); }
-      finally { setEditQuestionsLoading(false); }
-    } else { setEditQuestions(null); }
+  const loadVersion = async (ver: number) => {
+    setQuestionsLoading(true);
+    try { setQuestions(await api.e2p.getQuestions(ver)); }
+    catch { setQuestions(null); setFormError("Error al cargar preguntas"); }
+    finally { setQuestionsLoading(false); }
   };
 
   const resetCreate = () => {
     setIdAdulto(""); setResultado(""); setObservacion("");
     setFechaEval(undefined); setFechaProx(undefined);
     setVersion(null); setQuestions(null); setAnswers({});
+  };
+
+  const showCreate = () => {
+    setShowForm(true);
+    const v = autoVersion;
+    if (v) { setVersion(v); loadVersion(v); }
   };
 
   const buildPayload = (ver: number | null, ans: Record<string, number>) => {
@@ -183,7 +179,7 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!version) { setFormError("Seleccione una versión"); return; }
+    if (!version) { setFormError("No se pudo determinar la versión"); return; }
     setFormError(null); setSaving(true);
     try {
       const p = buildPayload(version, answers);
@@ -246,6 +242,21 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
     return a?.nombre || idAdulto.slice(0, 8);
   };
 
+  // Group questions by category
+  const grouped = useMemo(() => {
+    if (!questions) return [];
+    const cats: Record<string, typeof questions.preguntas> = {};
+    for (const q of questions.preguntas) (cats[q.categoria] ??= []).push(q);
+    return Object.entries(cats);
+  }, [questions]);
+
+  const editGrouped = useMemo(() => {
+    if (!editQuestions) return [];
+    const cats: Record<string, typeof editQuestions.preguntas> = {};
+    for (const q of editQuestions.preguntas) (cats[q.categoria] ??= []).push(q);
+    return Object.entries(cats);
+  }, [editQuestions]);
+
   if (error || !nna) return <div className="max-w-5xl mx-auto px-4 py-8"><p className="text-destructive">{error || "NNA no encontrado"}</p></div>;
 
   return (
@@ -257,7 +268,7 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
 
       <div className="flex items-center justify-between mb-4">
         <span className="text-sm text-muted-foreground">{items.length} registro{items.length !== 1 ? "s" : ""}</span>
-        {!showForm && <Button size="sm" onClick={() => setShowForm(true)}><PlusIcon /> Nuevo E2P</Button>}
+        {!showForm && <Button size="sm" onClick={showCreate}><PlusIcon /> Nuevo E2P</Button>}
       </div>
 
       {showForm && (
@@ -281,15 +292,10 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
                   </Select>
                 </div>
                 <div>
-                  <Label className="text-xs">Versión <span className="text-destructive">*</span></Label>
-                  <Select value={version?.toString() || ""} onValueChange={handleVersionChange}>
-                    <SelectTrigger className="mt-1 w-full"><SelectValue placeholder="Seleccionar versión" /></SelectTrigger>
-                    <SelectContent>
-                      {E2P_VERSIONS.map((v) => (
-                        <SelectItem key={v.value} value={v.value.toString()}>{v.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Label className="text-xs">Versión</Label>
+                  <p className="text-sm mt-1.5">
+                    {version ? `Versión ${version} — ${questions?.edad || ""}` : "Calculando..."}
+                  </p>
                 </div>
                 <div>
                   <Label className="text-xs">Fecha evaluación</Label>
@@ -319,20 +325,27 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
                 </div>
               </div>
 
+              {questionsLoading && <div className="flex items-center justify-center py-4"><Spinner className="size-5" /></div>}
+
               {questions && (
-                <div className="border rounded-md p-4 max-h-[60vh] overflow-y-auto space-y-4">
-                  <p className="text-sm font-medium text-muted-foreground">{questions.edad} — {questions.preguntas.length} preguntas</p>
-                  {questions.preguntas.map((q) => (
-                    <div key={q.id} className="border-b pb-3 last:border-0">
-                      <p className="text-sm font-medium">
-                        <span className="text-muted-foreground">{q.id}.</span> {q.texto}
-                      </p>
-                      {likertRadios(q.id, answers[String(q.id)], (qId, val) => setAnswers((prev) => ({ ...prev, [String(qId)]: val })), saving)}
+                <div className="max-h-[60vh] overflow-y-auto space-y-6">
+                  {grouped.map(([cat, qs]) => (
+                    <div key={cat} className={cn("border-l-4 rounded-r-md p-3", CATEGORY_COLORS[cat] || "")}>
+                      <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">{cat}</h4>
+                      <div className="space-y-3">
+                        {qs.map((q) => (
+                          <div key={q.id} className="border-b last:border-0 pb-2 last:pb-0 border-border/50">
+                            <p className="text-sm font-medium">
+                              <span className="text-muted-foreground">{q.id}.</span> {q.texto}
+                            </p>
+                            {likertRadios(q.id, answers[String(q.id)], (qId, val) => setAnswers((prev) => ({ ...prev, [String(qId)]: val })), saving)}
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   ))}
                 </div>
               )}
-              {questionsLoading && <div className="flex items-center justify-center py-4"><Spinner className="size-5" /></div>}
 
               {formError && <p className="text-destructive text-sm">{formError}</p>}
               <div className="flex gap-2">
@@ -370,14 +383,9 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
                       </div>
                       <div>
                         <Label className="text-xs">Versión</Label>
-                        <Select value={editVersion?.toString() || ""} onValueChange={handleEditVersionChange}>
-                          <SelectTrigger className="mt-1 w-full"><SelectValue placeholder="Seleccionar versión" /></SelectTrigger>
-                          <SelectContent>
-                            {E2P_VERSIONS.map((v) => (
-                              <SelectItem key={v.value} value={v.value.toString()}>{v.label}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <p className="text-sm mt-1.5">
+                          {editVersion ? `Versión ${editVersion} — ${editQuestions?.edad || ""}` : "—"}
+                        </p>
                       </div>
                       <div>
                         <Label className="text-xs">Fecha evaluación</Label>
@@ -407,20 +415,27 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
                       </div>
                     </div>
 
+                    {editQuestionsLoading && <div className="flex items-center justify-center py-4"><Spinner className="size-5" /></div>}
+
                     {editQuestions && (
-                      <div className="border rounded-md p-4 max-h-[60vh] overflow-y-auto space-y-4">
-                        <p className="text-sm font-medium text-muted-foreground">{editQuestions.edad} — {editQuestions.preguntas.length} preguntas</p>
-                        {editQuestions.preguntas.map((q) => (
-                          <div key={q.id} className="border-b pb-3 last:border-0">
-                            <p className="text-sm font-medium">
-                              <span className="text-muted-foreground">{q.id}.</span> {q.texto}
-                            </p>
-                            {likertRadios(q.id, editAnswers[String(q.id)], (qId, val) => setEditAnswers((prev) => ({ ...prev, [String(qId)]: val })), editSaving)}
+                      <div className="max-h-[60vh] overflow-y-auto space-y-6">
+                        {editGrouped.map(([cat, qs]) => (
+                          <div key={cat} className={cn("border-l-4 rounded-r-md p-3", CATEGORY_COLORS[cat] || "")}>
+                            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">{cat}</h4>
+                            <div className="space-y-3">
+                              {qs.map((q) => (
+                                <div key={q.id} className="border-b last:border-0 pb-2 last:pb-0 border-border/50">
+                                  <p className="text-sm font-medium">
+                                    <span className="text-muted-foreground">{q.id}.</span> {q.texto}
+                                  </p>
+                                  {likertRadios(q.id, editAnswers[String(q.id)], (qId, val) => setEditAnswers((prev) => ({ ...prev, [String(qId)]: val })), editSaving)}
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         ))}
                       </div>
                     )}
-                    {editQuestionsLoading && <div className="flex items-center justify-center py-4"><Spinner className="size-5" /></div>}
 
                     {editError && <p className="text-destructive text-sm">{editError}</p>}
                     <div className="flex gap-2">

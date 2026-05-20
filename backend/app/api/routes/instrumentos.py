@@ -161,7 +161,7 @@ async def create_ncfas_adulto(id_adulto: uuid.UUID, data: InstrumentoCreate, db:
 
 # ── E2P Questions ────────────────────────────────────────────────────────────
 
-_E2P_QUESTIONS_PATH = Path(__file__).resolve().parent.parent.parent.parent.parent / "shared" / "e2p_questions.json"
+_E2P_QUESTIONS_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "e2p_questions.json"
 
 e2p_questions_router = APIRouter(prefix="/api/e2p/versions", tags=["E2P"])
 

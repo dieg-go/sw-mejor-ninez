@@ -255,7 +255,7 @@ export type EntornoFamiliarUpdate = Partial<Omit<EntornoFamiliar, "id_entorno_fa
 export interface E2PQuestions {
   edad: string;
   escala: Record<string, string>;
-  preguntas: { id: number; texto: string }[];
+  preguntas: { id: number; texto: string; categoria: string }[];
 }
 
 // ── NNA ──────────────────────────────────────────────────────────────────────
