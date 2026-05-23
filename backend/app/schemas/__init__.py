@@ -48,10 +48,20 @@ from app.schemas.historial import (
     InformeTribunalCreate,
     InformeTribunalUpdate,
 )
-from app.schemas.instrumentos import (
-    InstrumentoRead,
-    InstrumentoCreate,
-    InstrumentoUpdate,
+from app.schemas.e2p import (
+    E2PRead,
+    E2PCreate,
+    E2PUpdate,
+)
+from app.schemas.pmf import (
+    PMFRead,
+    PMFCreate,
+    PMFUpdate,
+)
+from app.schemas.ncfas import (
+    NCFASRead,
+    NCFASCreate,
+    NCFASUpdate,
 )
 from app.schemas.antecedentes import (
     AntecedenteSaludRead,
@@ -111,9 +121,15 @@ __all__ = [
     "InformeTribunalRead",
     "InformeTribunalCreate",
     "InformeTribunalUpdate",
-    "InstrumentoRead",
-    "InstrumentoCreate",
-    "InstrumentoUpdate",
+    "E2PRead",
+    "E2PCreate",
+    "E2PUpdate",
+    "PMFRead",
+    "PMFCreate",
+    "PMFUpdate",
+    "NCFASRead",
+    "NCFASCreate",
+    "NCFASUpdate",
     "AntecedenteSaludRead",
     "AntecedenteSaludCreate",
     "AntecedenteSaludUpdate",

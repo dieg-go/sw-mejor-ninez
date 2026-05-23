@@ -1,14 +1,15 @@
 {
   "escala": {
-    "1": "Nunca",
-    "2": "Casi Nunca",
-    "3": "A veces",
-    "4": "Casi Siempre",
-    "5": "Siempre"
+    "0": "Nunca",
+    "1": "Casi Nunca",
+    "2": "A veces",
+    "3": "Casi Siempre",
+    "4": "Siempre"
   },
   "versiones": {
     "1": {
       "edad": "0 a 3 meses",
+      "puntaje": { "0": 2, "1": 2, "2": 2, "3": 3, "4": 4 },
       "preguntas": [
         {
           "id": 1,
@@ -314,6 +315,7 @@
     },
     "2": {
       "edad": "4 a 10 meses",
+      "puntaje": null,
       "preguntas": [
         {
           "id": 1,
@@ -619,6 +621,7 @@
     },
     "3": {
       "edad": "11 a 18 meses",
+      "puntaje": null,
       "preguntas": [
         {
           "id": 1,
@@ -924,6 +927,7 @@
     },
     "4": {
       "edad": "19 a 36 meses",
+      "puntaje": null,
       "preguntas": [
         {
           "id": 1,
@@ -1229,6 +1233,7 @@
     },
     "5": {
       "edad": "3 a 5 años",
+      "puntaje": null,
       "preguntas": [
         {
           "id": 1,
@@ -1534,6 +1539,7 @@
     },
     "6": {
       "edad": "6 a 7 años",
+      "puntaje": null,
       "preguntas": [
         {
           "id": 1,
@@ -1839,6 +1845,7 @@
     },
     "7": {
       "edad": "8 a 12 años",
+      "puntaje": null,
       "preguntas": [
         {
           "id": 1,
@@ -2124,6 +2131,7 @@
     },
     "8": {
       "edad": "13 a 17 años",
+      "puntaje": null,
       "preguntas": [
         {
           "id": 1,

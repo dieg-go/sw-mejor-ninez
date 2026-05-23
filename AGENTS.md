@@ -98,7 +98,8 @@ backend/
 ├── migrations/
 │   ├── env.py
 │   └── versions/
-│       └── 0b733fafb9a6_initial.py  # Uses SQLModel.metadata.create_all()
+│       ├── 0b733fafb9a6_initial.py                      # Uses SQLModel.metadata.create_all()
+│       └── ef7302f55ef1_e2p_version_and_respuestas.py    # Adds version + respuestas columns to E2P
 └── app/
     ├── __init__.py
     ├── main.py          # FastAPI app, CORS, registers all routers, /health
@@ -110,7 +111,9 @@ backend/
     │       ├── adultos.py     # AdultoSignificativo CRUD + antecedentes penales
     │       ├── children.py    # HistorialConsumo, Discapacidad (NNA + Adulto), AntecedentesPenales item
     │       ├── ingreso.py     # AntecedenteIngreso, Causal, DerechoVulnerado, DocumentacionIngreso
-    │       ├── instrumentos.py # E2P, PMF, NCFAS (NNA + Adulto routes)
+    │       ├── e2p.py         # E2P CRUD (NNA + Adulto), puntaje, questions by version
+    │       ├── pmf.py         # PMF CRUD (NNA + Adulto)
+    │       ├── ncfas.py       # NCFAS CRUD (NNA + Adulto)
     │       ├── antecedentes.py # AntecedenteSalud, Escolar, Familiar, EntornoFamiliar
     │       └── historial.py   # HistorialRedProteccional, GestionBusquedaFamiliar, InformeTribunal
     ├── models/           # SQLModel models (21 tables, split by domain)
@@ -121,7 +124,9 @@ backend/
     │   ├── discapacidad.py # DiscapacidadNNA, DiscapacidadAdulto
     │   ├── ingreso.py    # AntecedenteIngreso, DocumentacionIngreso, RegistroCausalIngreso, RegistroDerechoVulnerado
     │   ├── historial.py  # HistorialRedProteccional, GestionBusquedaFamiliar, InformeTribunal
-    │   ├── instrumentos.py # E2P, PMF, NCFAS (dual FK: id_nna + id_adulto_significativo)
+    │   ├── e2p.py        # E2P (dual FK, version int, respuestas JSON)
+    │   ├── pmf.py        # PMF (dual FK: id_nna + id_adulto_significativo)
+    │   ├── ncfas.py      # NCFAS (dual FK: id_nna + id_adulto_significativo)
     │   └── antecedentes.py # AntecedenteSalud, AntecedenteEscolar, AntecedenteFamiliar, EntornoFamiliar
     ├── schemas/          # Pydantic v2 schemas (separate from models)
     │   ├── __init__.py   # Re-exports all schemas
@@ -131,8 +136,13 @@ backend/
     │   ├── discapacidad.py
     │   ├── ingreso.py
     │   ├── historial.py
-    │   ├── instrumentos.py # Unified InstrumentoCreate/Read/Update for E2P/PMF/NCFAS
+    │   ├── e2p.py        # E2PCreate, E2PUpdate, E2PRead
+    │   ├── pmf.py        # PMFCreate, PMFUpdate, PMFRead
+    │   ├── ncfas.py      # NCFASCreate, NCFASUpdate, NCFASRead
     │   └── antecedentes.py
+    ├── data/             # Static JSON reference data loaded at runtime
+    │   ├── e2p_questions.json  # 8 age-based versions, each with Likert questions by category
+    │   └── e2p_escala.json     # Baremos/scoring scales (Baja/Intermedia/Alta zones per category per version)
     ├── services/
     │   └── __init__.py   # NNAService, AdultoService + generic child helpers
     └── core/
@@ -154,7 +164,9 @@ frontend/
 │   │   │   │   ├── documentacion/page.tsx   # Documentación CRUD
 │   │   │   │   ├── consumo/page.tsx         # Consumo CRUD
 │   │   │   │   ├── discapacidades/page.tsx  # Discapacidades CRUD
-│   │   │   │   ├── instrumentos/page.tsx    # Instrumentos CRUD (E2P/PMF/NCFAS tabs)
+│   │   │   │   ├── e2p/page.tsx             # E2P CRUD (Likert questionnaire, auto-version, score display)
+│   │   │   │   ├── pmf/page.tsx             # PMF CRUD
+│   │   │   │   ├── ncfas/page.tsx           # NCFAS CRUD
 │   │   │   │   ├── historial/page.tsx       # Historial Red CRUD
 │   │   │   │   ├── gestion/page.tsx         # Gestión Búsqueda CRUD
 │   │   │   │   ├── informes/page.tsx        # Informes Tribunal CRUD
@@ -211,7 +223,9 @@ All routes call service functions that follow the pattern `service = SomeService
 
 **Models**: 21 SQLModel classes with UUID PKs (`sa_type=UUID(as_uuid=True)`, `default_factory=uuid.uuid4`). `TYPE_CHECKING` guards on relationship imports to avoid circular imports. Relationships use `back_populates` consistently.
 
-**Instrumentos (E2P, PMF, NCFAS)**: Each has two foreign keys: `id_nna` → NNA and `id_adulto_significativo` → AdultoSignificativo. Relationships use explicit `sa_relationship_kwargs={"foreign_keys": "..."}` to disambiguate.
+**Instrumentos (E2P, PMF, NCFAS)**: Each has two foreign keys: `id_nna` → NNA and `id_adulto_significativo` → AdultoSignificativo. Relationships use explicit `sa_relationship_kwargs={"foreign_keys": "..."}` to disambiguate. Models, schemas, and routes are split into separate files per instrument (`e2p.py`, `pmf.py`, `ncfas.py`).
+
+**E2P specifics**: The E2P model uniquely has `version: int` (required, 1-8, determining which age-based question set applies) and `respuestas: dict[str, Any]` (JSON field mapping question ID → Likert 0-4 value). The scoring endpoint `GET /api/e2p/{id}/puntaje` computes category scores against baremos loaded from `app/data/e2p_escala.json`, returning zone classification (Baja/Intermedia/Alta). Questions are served by `GET /api/e2p/versions/{version_num}`, loading from `app/data/e2p_questions.json`. Both JSON data files are resolved via `Path(__file__).resolve().parent.parent.parent / "data" / ...` relative to the route file.
 
 **Router registration**: `app/api/routes/__init__.py` imports all routers into a flat `routers` list. `app/main.py` iterates it with `app.include_router(router)`.
 
@@ -225,7 +239,7 @@ All routes call service functions that follow the pattern `service = SomeService
 - Base URL from `NEXT_PUBLIC_API_URL` env var (falls back to `http://localhost:8000/api`)
 - Contains full TypeScript interfaces for every entity (not shared with backend — hand-maintained)
 
-**NNA detail** (`/nna/[id]/page.tsx`): Summary page (~200 lines). Fetches all 11 sections in parallel via `Promise.all`, extracts the last record from each, and renders a grid of `<Card>` components linking to sub-pages. Each sub-page (e.g., `/nna/[id]/consumo`) is its own full CRUD page with list + inline create/edit forms.
+**NNA detail** (`/nna/[id]/page.tsx`): Summary page (~200 lines). Fetches all 13 sections in parallel via `Promise.all` (including separate e2p/pmf/ncfas), extracts the last record from each, and renders a grid of `<Card>` components linking to sub-pages. Each sub-page (e.g., `/nna/[id]/consumo`) is its own full CRUD page with list + inline create/edit forms.
 
 **NNA sub-page pattern**: Each sub-page follows the same structure:
 - Client component, `use(params)` for route param
@@ -270,11 +284,11 @@ All routes call service functions that follow the pattern `service = SomeService
 
 9. **NNAUpdate schema** intentionally duplicates all fields (doesn't inherit from `NNABase`) — this is so `model_dump(exclude_unset=True)` works correctly for partial updates without accidentally including default values from a base class.
 
-10. **Instrumentos dual FK** — E2P, PMF, NCFAS tables have BOTH `id_nna` and `id_adulto_significativo`. Routes exist for both `/nna/{id}/e2p` and `/adultos/{id}/e2p`. When creating, you pass the parent's ID based on which route you hit.
+10. **Instrumentos dual FK** — E2P, PMF, NCFAS tables have BOTH `id_nna` and `id_adulto_significativo`. Routes exist for both `/nna/{id}/e2p` and `/adultos/{id}/e2p`. When creating, you pass the parent's ID based on which route you hit. The E2P model also has `version` (int, required) and `respuestas` (JSON dict).
 
 11. **No tests exist** — `backend/tests/` is empty. The `pytest` command exists but there's nothing to run.
 
-12. **Frontend NNA detail is now a summary page** — `nna/[id]/page.tsx` is ~200 lines, rendering card links to 11 sub-pages. Each sub-page is a full CRUD page with inline create/edit forms. The old monolithic ~880-line page with tabs no longer exists.
+12. **Frontend NNA detail is a summary page** — `nna/[id]/page.tsx` is ~200 lines, rendering card links to 13 sub-pages. Each sub-page is a full CRUD page with inline create/edit forms. The old monolithic ~880-line page with tabs no longer exists.
 
 13. **All frontend data pages are client components** — there's no server-side data fetching. Every page uses `useEffect` + `useState` pattern.
 
@@ -295,3 +309,27 @@ All routes call service functions that follow the pattern `service = SomeService
 21. **`/nuevo-caso` orchestration** — the wizard creates records sequentially: NNA first (gets `id_nna`), then Ingreso with causales/derechos under it, then Documentación, then an AntecedenteFamiliar with EntornoFamiliar entries linking Adultos, then Salud/Escolar/Consumo/Discapacidades. Any step can be skipped (only NNA is required). On success, redirects to `/nna/{idNna}`.
 
 22. **Dockerfiles** exist in both `backend/` and `frontend/`. Backend uses `python:3.12-slim`, runs `uvicorn app.main:app --host 0.0.0.0 --port 8000`. Frontend uses multi-stage build with `node:22-alpine`, pnpm, and runs `pnpm start --hostname 0.0.0.0 --port 3000`.
+
+23. **E2P data files are loaded at runtime from relative paths** — `backend/app/data/e2p_questions.json` and `e2p_escala.json` are read via `Path(__file__).resolve().parent.parent.parent / "data" / ...`. The questions file has 8 version keys (`"1"` through `"8"`), each with `edad`, `puntaje` (scoring map), and `preguntas` (list of `{id, texto, categoria}`). The escala file has `escalas_e2p` mapping version keys like `"v_0_3_meses"` to per-category zone thresholds. The 8 version → escala key mapping is hardcoded in `e2p.py` route.
+
+24. **E2P auto-version detection** — The frontend E2P page auto-detects the correct version (1-8) from the NNA's `fecha_nacimiento` using month ranges: [0-3], [4-10], [11-18], [19-36], [37-60], [61-84], [85-144], [145-204]. This triggers a question fetch and pre-selects the version on form open. The `ageToVersion()` function is local to the E2P page.
+
+25. **Frontend AGENTS.md and CLAUDE.md** in `frontend/` both contain `@../AGENTS.md` — they delegate to the root AGENTS.md. Always update only the root file.
+
+26. **Empty directories** — `shared/` (intended for shared types, currently empty) and `backend/app/instruments/` (empty, possibly placeholder). Do not add files to these without explicit instruction.
+
+27. **E2P `version` is required at DB level but optional in API schema** — `E2PCreate.version` is `Optional[int]`, but the model field `version: int = Field()` is **not optional**. Creating an E2P without `version` will fail at the database/ORM level. The frontend always sends version (auto-detected from NNA's age), but a direct API call must include it.
+
+28. **Frontend `Instrumento` interface is reused for E2P, PMF, and NCFAS** — all three instruments share the same TypeScript interface in `src/lib/api.ts`, with `version` and `respuestas` as optional fields. PMF and NCFAS don't use these fields (they only exist on the E2P model), but the frontend API client doesn't discriminate. When creating PMF/NCFAS records, don't send `version` or `respuestas`.
+
+29. **pnpm `--ignore-scripts` in Docker builds** — the frontend Dockerfile uses `--ignore-scripts` for both install steps. This skips `postinstall` hooks (e.g., Next.js telemetry, husky, etc.). If you add a dependency that requires a postinstall script to function, remove this flag or add the specific script.
+
+30. **`cleanup.bat`** — Windows batch file in repo root. Removes Python cache, venv, node_modules, and `.next` directories. Not part of any automated workflow; manual utility only.
+
+31. **Backend `model_config` syntax varies** — Schemas use `model_config = ConfigDict(from_attributes=True)` (Pydantic v2 class-based), while `Settings` uses `model_config = {"env_file": ".env", ...}` (dict-based). Both are valid Pydantic v2 styles; don't mix them within a single class.
+
+32. **Alembic `env.py` imports `app.models`** — the migration env does `import app.models  # noqa: F401` to register all tables in `SQLModel.metadata`. When adding new model files, ensure they're imported in `app/models/__init__.py` so Alembic can detect them.
+
+33. **Seed file is idempotent** — `seed.py` checks if ≥2 NNA exist before inserting. It won't duplicate data on re-runs. Creates 3 NNA, 5 adultos, and ~40 child records with realistic Chilean names/RUNs.
+
+34. **Frontend date format** — all dates displayed in UI use `es-CL` locale: `toLocaleDateString("es-CL")`. Dates sent to API are ISO strings `"YYYY-MM-DD"`. Incoming date strings from API are parsed with `new Date(iso + "T00:00:00")` to avoid timezone offset shifts.

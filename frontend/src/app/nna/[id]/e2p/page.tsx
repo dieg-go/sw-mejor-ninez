@@ -3,7 +3,7 @@
 import { use, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowLeftIcon, CalendarIcon, PlusIcon, PencilIcon } from "lucide-react";
-import { api, type NNA, type Instrumento, type AdultoSignificativo, type E2PQuestions } from "@/lib/api";
+import { api, type NNA, type Instrumento, type AdultoSignificativo, type E2PQuestions, type E2PPuntaje } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -16,11 +16,11 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { cn } from "@/lib/utils";
 
 const LIKERT_OPTIONS = [
-  { value: 1, label: "Nunca" },
-  { value: 2, label: "Casi Nunca" },
-  { value: 3, label: "A veces" },
-  { value: 4, label: "Casi Siempre" },
-  { value: 5, label: "Siempre" },
+  { value: 0, label: "Nunca" },
+  { value: 1, label: "Casi Nunca" },
+  { value: 2, label: "A veces" },
+  { value: 3, label: "Casi Siempre" },
+  { value: 4, label: "Siempre" },
 ];
 
 const VERSION_MONTHS: [number, number][] = [
@@ -62,6 +62,12 @@ function getLikertLabel(value: number) {
   const opt = LIKERT_OPTIONS.find((o) => o.value === value);
   return opt?.label ?? "—";
 }
+
+const ZONE_COLORS: Record<string, string> = {
+  Baja: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300",
+  Intermedia: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
+  Alta: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300",
+};
 
 function likertRadios(questionId: number, value: number | undefined, onChange: (qId: number, val: number) => void, disabled: boolean) {
   return (
@@ -122,6 +128,9 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
   const [editAnswers, setEditAnswers] = useState<Record<string, number>>({});
   const [editQuestionsLoading, setEditQuestionsLoading] = useState(false);
 
+  // Puntaje per saved item
+  const [puntajes, setPuntajes] = useState<Record<string, E2PPuntaje | null>>({});
+
   // Auto-detect version from NNA age
   const autoVersion = useMemo(() => {
     if (!nna?.fecha_nacimiento) return null;
@@ -145,6 +154,20 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
       } catch (e: any) { setError(e.message); setLoading(false); }
     })();
   }, [id]);
+
+  // Fetch puntajes for items with respuestas
+  useEffect(() => {
+    (async () => {
+      const newPuntajes: Record<string, E2PPuntaje | null> = {};
+      for (const item of items) {
+        if (item.respuestas && Object.keys(item.respuestas).length > 0) {
+          try { newPuntajes[item.id_instrumento] = await api.e2p.getPuntaje(item.id_instrumento); }
+          catch { newPuntajes[item.id_instrumento] = null; }
+        }
+      }
+      setPuntajes(newPuntajes);
+    })();
+  }, [items]);
 
   const loadVersion = async (ver: number) => {
     setQuestionsLoading(true);
@@ -457,20 +480,16 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
                         <div><span className="text-xs text-muted-foreground">Respuestas: </span>{Object.keys(item.respuestas).length} preguntas</div>
                       )}
                       {item.observacion && <div className="col-span-2"><span className="text-xs text-muted-foreground">Obs: </span>{item.observacion}</div>}
-                      {item.respuestas && (
-                        <div className="col-span-2 mt-1">
-                          <details className="text-xs">
-                            <summary className="text-muted-foreground cursor-pointer hover:text-foreground">Ver respuestas</summary>
-                            <div className="mt-1 grid grid-cols-4 sm:grid-cols-6 gap-1">
-                              {Object.entries(item.respuestas).map(([q, val]) => (
-                                <div key={q} className="bg-muted/50 rounded px-1.5 py-0.5">
-                                  <span className="text-muted-foreground">{q}:</span> {getLikertLabel(val as number)}
-                                </div>
-                              ))}
-                            </div>
-                          </details>
+                      {item.respuestas && puntajes[item.id_instrumento] && (
+                        <div className="col-span-2 mt-2 flex flex-wrap gap-1.5">
+                          {puntajes[item.id_instrumento]!.categorias.map((c) => (
+                            <span key={c.categoria} className={cn("inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium", ZONE_COLORS[c.zona] || "bg-muted")}>
+                              {c.categoria} <span className="opacity-70">{c.puntaje_bruto}/{c.puntaje_max}</span>
+                            </span>
+                          ))}
                         </div>
                       )}
+
                     </div>
                     <Button variant="ghost" size="icon" onClick={() => startEdit(item)}><PencilIcon className="size-4" /></Button>
                   </div>

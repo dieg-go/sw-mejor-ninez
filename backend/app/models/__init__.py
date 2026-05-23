@@ -9,7 +9,9 @@ from app.models.ingreso import (
     RegistroDerechoVulnerado,
 )
 from app.models.historial import GestionBusquedaFamiliar, HistorialRedProteccional, InformeTribunal
-from app.models.instrumentos import E2P, NCFAS, PMF
+from app.models.e2p import E2P
+from app.models.pmf import PMF
+from app.models.ncfas import NCFAS
 from app.models.antecedentes import (
     AntecedenteEscolar,
     AntecedenteFamiliar,

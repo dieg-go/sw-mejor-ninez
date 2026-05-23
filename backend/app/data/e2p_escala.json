@@ -1,0 +1,180 @@
+{
+  "escalas_e2p": {
+    "v_0_3_meses": {
+      "vinculares": [
+        { "zona": "Baja", "min": 0, "max": 52 },
+        { "zona": "Intermedia", "min": 53, "max": 54 },
+        { "zona": "Alta", "min": 55, "max": 60 }
+      ],
+      "formativas": [
+        { "zona": "Baja", "min": 0, "max": 52 },
+        { "zona": "Intermedia", "min": 53, "max": 55 },
+        { "zona": "Alta", "min": 56, "max": 60 }
+      ],
+      "protectoras": [
+        { "zona": "Baja", "min": 0, "max": 53 },
+        { "zona": "Intermedia", "min": 54, "max": 55 },
+        { "zona": "Alta", "min": 56, "max": 60 }
+      ],
+      "reflexivas": [
+        { "zona": "Baja", "min": 0, "max": 51 },
+        { "zona": "Intermedia", "min": 52, "max": 53 },
+        { "zona": "Alta", "min": 54, "max": 60 }
+      ]
+    },
+    "v_4_10_meses": {
+      "vinculares": [
+        { "zona": "Baja", "min": 0, "max": 54 },
+        { "zona": "Intermedia", "min": 55, "max": 56 },
+        { "zona": "Alta", "min": 57, "max": 60 }
+      ],
+      "formativas": [
+        { "zona": "Baja", "min": 0, "max": 51 },
+        { "zona": "Intermedia", "min": 52, "max": 53 },
+        { "zona": "Alta", "min": 54, "max": 60 }
+      ],
+      "protectoras": [
+        { "zona": "Baja", "min": 0, "max": 50 },
+        { "zona": "Intermedia", "min": 51, "max": 53 },
+        { "zona": "Alta", "min": 54, "max": 60 }
+      ],
+      "reflexivas": [
+        { "zona": "Baja", "min": 0, "max": 49 },
+        { "zona": "Intermedia", "min": 50, "max": 52 },
+        { "zona": "Alta", "min": 53, "max": 60 }
+      ]
+    },
+    "v_11_18_meses": {
+      "vinculares": [
+        { "zona": "Baja", "min": 0, "max": 54 },
+        { "zona": "Intermedia", "min": 55, "max": 57 },
+        { "zona": "Alta", "min": 58, "max": 60 }
+      ],
+      "formativas": [
+        { "zona": "Baja", "min": 0, "max": 51 },
+        { "zona": "Intermedia", "min": 52, "max": 54 },
+        { "zona": "Alta", "min": 55, "max": 60 }
+      ],
+      "protectoras": [
+        { "zona": "Baja", "min": 0, "max": 51 },
+        { "zona": "Intermedia", "min": 52, "max": 54 },
+        { "zona": "Alta", "min": 55, "max": 60 }
+      ],
+      "reflexivas": [
+        { "zona": "Baja", "min": 0, "max": 47 },
+        { "zona": "Intermedia", "min": 48, "max": 50 },
+        { "zona": "Alta", "min": 51, "max": 60 }
+      ]
+    },
+    "v_19_36_meses": {
+      "vinculares": [
+        { "zona": "Baja", "min": 0, "max": 49 },
+        { "zona": "Intermedia", "min": 50, "max": 52 },
+        { "zona": "Alta", "min": 53, "max": 60 }
+      ],
+      "formativas": [
+        { "zona": "Baja", "min": 0, "max": 47 },
+        { "zona": "Intermedia", "min": 48, "max": 51 },
+        { "zona": "Alta", "min": 52, "max": 60 }
+      ],
+      "protectoras": [
+        { "zona": "Baja", "min": 0, "max": 47 },
+        { "zona": "Intermedia", "min": 48, "max": 50 },
+        { "zona": "Alta", "min": 51, "max": 60 }
+      ],
+      "reflexivas": [
+        { "zona": "Baja", "min": 0, "max": 46 },
+        { "zona": "Intermedia", "min": 47, "max": 50 },
+        { "zona": "Alta", "min": 51, "max": 60 }
+      ]
+    },
+    "v_3_5_anos": {
+      "vinculares": [
+        { "zona": "Baja", "min": 0, "max": 51 },
+        { "zona": "Intermedia", "min": 52, "max": 54 },
+        { "zona": "Alta", "min": 55, "max": 60 }
+      ],
+      "formativas": [
+        { "zona": "Baja", "min": 0, "max": 50 },
+        { "zona": "Intermedia", "min": 51, "max": 53 },
+        { "zona": "Alta", "min": 54, "max": 60 }
+      ],
+      "protectoras": [
+        { "zona": "Baja", "min": 0, "max": 49 },
+        { "zona": "Intermedia", "min": 50, "max": 51 },
+        { "zona": "Alta", "min": 52, "max": 60 }
+      ],
+      "reflexivas": [
+        { "zona": "Baja", "min": 0, "max": 49 },
+        { "zona": "Intermedia", "min": 50, "max": 53 },
+        { "zona": "Alta", "min": 54, "max": 60 }
+      ]
+    },
+    "v_6_7_anos": {
+      "vinculares": [
+        { "zona": "Baja", "min": 0, "max": 49 },
+        { "zona": "Intermedia", "min": 50, "max": 52 },
+        { "zona": "Alta", "min": 53, "max": 60 }
+      ],
+      "formativas": [
+        { "zona": "Baja", "min": 0, "max": 49 },
+        { "zona": "Intermedia", "min": 50, "max": 52 },
+        { "zona": "Alta", "min": 53, "max": 60 }
+      ],
+      "protectoras": [
+        { "zona": "Baja", "min": 0, "max": 50 },
+        { "zona": "Intermedia", "min": 51, "max": 53 },
+        { "zona": "Alta", "min": 54, "max": 60 }
+      ],
+      "reflexivas": [
+        { "zona": "Baja", "min": 0, "max": 47 },
+        { "zona": "Intermedia", "min": 48, "max": 50 },
+        { "zona": "Alta", "min": 51, "max": 60 }
+      ]
+    },
+    "v_8_12_anos": {
+      "vinculares": [
+        { "zona": "Baja", "min": 0, "max": 43 },
+        { "zona": "Intermedia", "min": 44, "max": 48 },
+        { "zona": "Alta", "min": 49, "max": 56 }
+      ],
+      "formativas": [
+        { "zona": "Baja", "min": 0, "max": 49 },
+        { "zona": "Intermedia", "min": 50, "max": 52 },
+        { "zona": "Alta", "min": 53, "max": 60 }
+      ],
+      "protectoras": [
+        { "zona": "Baja", "min": 0, "max": 45 },
+        { "zona": "Intermedia", "min": 46, "max": 47 },
+        { "zona": "Alta", "min": 48, "max": 52 }
+      ],
+      "reflexivas": [
+        { "zona": "Baja", "min": 0, "max": 45 },
+        { "zona": "Intermedia", "min": 46, "max": 49 },
+        { "zona": "Alta", "min": 50, "max": 56 }
+      ]
+    },
+    "v_13_17_anos": {
+      "vinculares": [
+        { "zona": "Baja", "min": 0, "max": 40 },
+        { "zona": "Intermedia", "min": 41, "max": 44 },
+        { "zona": "Alta", "min": 45, "max": 56 }
+      ],
+      "formativas": [
+        { "zona": "Baja", "min": 0, "max": 44 },
+        { "zona": "Intermedia", "min": 45, "max": 49 },
+        { "zona": "Alta", "min": 50, "max": 60 }
+      ],
+      "protectoras": [
+        { "zona": "Baja", "min": 0, "max": 41 },
+        { "zona": "Intermedia", "min": 42, "max": 45 },
+        { "zona": "Alta", "min": 46, "max": 52 }
+      ],
+      "reflexivas": [
+        { "zona": "Baja", "min": 0, "max": 41 },
+        { "zona": "Intermedia", "min": 42, "max": 45 },
+        { "zona": "Alta", "min": 46, "max": 56 }
+      ]
+    }
+  }
+}

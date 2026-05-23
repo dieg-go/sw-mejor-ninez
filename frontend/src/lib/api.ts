@@ -258,6 +258,20 @@ export interface E2PQuestions {
   preguntas: { id: number; texto: string; categoria: string }[];
 }
 
+export interface E2PPuntaje {
+  version: number;
+  edad: string;
+  escala: Record<string, string>;
+  categorias: {
+    categoria: string;
+    puntaje_bruto: number;
+    puntaje_max: number;
+    zona: string;
+    rango_zona: string;
+  }[];
+  respuestas: Record<string, number>;
+}
+
 // ── NNA ──────────────────────────────────────────────────────────────────────
 
 export const api = {
@@ -408,6 +422,7 @@ export const api = {
     createByAdulto: (idAdulto: string, data: Omit<Instrumento, "id_instrumento" | "id_nna">) =>
       request<Instrumento>(`/adultos/${idAdulto}/e2p`, { method: "POST", body: JSON.stringify(data) }),
     get: (id: string) => request<Instrumento>(`/e2p/${id}`),
+    getPuntaje: (id: string) => request<E2PPuntaje>(`/e2p/${id}/puntaje`),
     update: (id: string, data: InstrumentoUpdate) =>
       request<Instrumento>(`/e2p/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   },

@@ -9,7 +9,9 @@ if TYPE_CHECKING:
     from app.models.consumo import HistorialConsumoAdulto
     from app.models.discapacidad import DiscapacidadAdulto
     from app.models.antecedentes import EntornoFamiliar
-    from app.models.instrumentos import E2P, PMF, NCFAS
+    from app.models.e2p import E2P
+    from app.models.pmf import PMF
+    from app.models.ncfas import NCFAS
 
 
 class AdultoSignificativo(SQLModel, table=True):

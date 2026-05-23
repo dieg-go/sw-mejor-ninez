@@ -29,17 +29,21 @@ from app.api.routes.historial import (
     red_item_router,
     red_router,
 )
-from app.api.routes.instrumentos import (
+from app.api.routes.e2p import (
     e2p_adulto_router,
     e2p_item_router,
     e2p_questions_router,
     e2p_router,
-    ncfas_adulto_router,
-    ncfas_item_router,
-    ncfas_router,
+)
+from app.api.routes.pmf import (
     pmf_adulto_router,
     pmf_item_router,
     pmf_router,
+)
+from app.api.routes.ncfas import (
+    ncfas_adulto_router,
+    ncfas_item_router,
+    ncfas_router,
 )
 from app.api.routes.antecedentes import (
     entorno_item_router,

@@ -163,7 +163,7 @@ async def seed():
                 fecha_evaluacion=fecha_hace(30),
                 fecha_proxima_evaluacion=fecha_hace(-30),
                 version=4,
-                respuestas={"1": 4, "2": 3, "3": 4, "4": 3, "5": 5, "6": 4, "7": 3, "8": 4, "9": 5, "10": 3},
+                respuestas={"1": 4, "2": 3, "3": 4, "4": 3, "5": 4, "6": 3, "7": 2, "8": 4, "9": 4, "10": 3},
                 resultado="Fortalecimiento en curso",
                 observacion="Se observa mejora en vínculo materno-filial.",
             ),
