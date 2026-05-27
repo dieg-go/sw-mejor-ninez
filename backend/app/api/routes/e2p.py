@@ -129,21 +129,21 @@ async def get_e2p_puntaje(id_e2p: uuid.UUID, db: AsyncSession = Depends(get_db))
     }
 
 
-# ── Adulto routes ────────────────────────────────────────────────────────────
+# ── Familiar routes ──────────────────────────────────────────────────────────
 
-e2p_adulto_router = APIRouter(prefix="/api/adultos/{id_adulto}/e2p", tags=["E2P"])
-
-
-@e2p_adulto_router.get("", response_model=list[E2PRead])
-async def list_e2p_adulto(id_adulto: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    from app.services import list_adulto_children
-    return await list_adulto_children(db, E2P, id_adulto)
+e2p_familiar_router = APIRouter(prefix="/api/familiares/{id_familiar}/e2p", tags=["E2P"])
 
 
-@e2p_adulto_router.post("", response_model=E2PRead, status_code=201)
-async def create_e2p_adulto(id_adulto: uuid.UUID, data: E2PCreate, db: AsyncSession = Depends(get_db)):
-    from app.services import create_adulto_child
-    return await create_adulto_child(db, E2P, id_adulto, data.model_dump())
+@e2p_familiar_router.get("", response_model=list[E2PRead])
+async def list_e2p_familiar(id_familiar: uuid.UUID, db: AsyncSession = Depends(get_db)):
+    from app.services import list_familiar_children
+    return await list_familiar_children(db, E2P, id_familiar)
+
+
+@e2p_familiar_router.post("", response_model=E2PRead, status_code=201)
+async def create_e2p_familiar(id_familiar: uuid.UUID, data: E2PCreate, db: AsyncSession = Depends(get_db)):
+    from app.services import create_familiar_child
+    return await create_familiar_child(db, E2P, id_familiar, data.model_dump())
 
 
 # ── Questions ────────────────────────────────────────────────────────────────

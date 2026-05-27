@@ -44,18 +44,18 @@ async def update_ncfas(id_ncfas: uuid.UUID, data: NCFASUpdate, db: AsyncSession 
     return await update_child(db, obj, data.model_dump(exclude_unset=True))
 
 
-# ── Adulto routes ────────────────────────────────────────────────────────────
+# ── Familiar routes ──────────────────────────────────────────────────────────
 
-ncfas_adulto_router = APIRouter(prefix="/api/adultos/{id_adulto}/ncfas", tags=["NCFAS"])
-
-
-@ncfas_adulto_router.get("", response_model=list[NCFASRead])
-async def list_ncfas_adulto(id_adulto: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    from app.services import list_adulto_children
-    return await list_adulto_children(db, NCFAS, id_adulto)
+ncfas_familiar_router = APIRouter(prefix="/api/familiares/{id_familiar}/ncfas", tags=["NCFAS"])
 
 
-@ncfas_adulto_router.post("", response_model=NCFASRead, status_code=201)
-async def create_ncfas_adulto(id_adulto: uuid.UUID, data: NCFASCreate, db: AsyncSession = Depends(get_db)):
-    from app.services import create_adulto_child
-    return await create_adulto_child(db, NCFAS, id_adulto, data.model_dump())
+@ncfas_familiar_router.get("", response_model=list[NCFASRead])
+async def list_ncfas_familiar(id_familiar: uuid.UUID, db: AsyncSession = Depends(get_db)):
+    from app.services import list_familiar_children
+    return await list_familiar_children(db, NCFAS, id_familiar)
+
+
+@ncfas_familiar_router.post("", response_model=NCFASRead, status_code=201)
+async def create_ncfas_familiar(id_familiar: uuid.UUID, data: NCFASCreate, db: AsyncSession = Depends(get_db)):
+    from app.services import create_familiar_child
+    return await create_familiar_child(db, NCFAS, id_familiar, data.model_dump())

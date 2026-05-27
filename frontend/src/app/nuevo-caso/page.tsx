@@ -30,7 +30,7 @@ const STEPS = [
   "NNA",
   "Ingreso",
   "Documentación",
-  "Adultos",
+  "Familiares",
   "Antecedentes",
   "Revisión",
 ] as const;
@@ -882,13 +882,13 @@ export default function NuevoCasoPage() {
         });
       }
 
-      // 4. Create Adultos + link to NNA via EntornoFamiliar
+      // 4. Create Familiares + link to NNA via VinculoFamiliar
       if (data.adultos.length > 0) {
         const fam = await api.antecedenteFamiliar.create(idNna, {
           fecha_antecedente_familiar: new Date().toISOString().split("T")[0],
         });
         for (const a of data.adultos) {
-          const adulto = await api.adultos.create({
+          const familiar = await api.familiares.create({
             nombre: a.nombre || null,
             run: a.run || null,
             fecha_nacimiento: fmt(a.fecha_nacimiento),
@@ -896,13 +896,13 @@ export default function NuevoCasoPage() {
             numero_telefono: a.numero_telefono || null,
             tiene_antecedentes_penales: a.tiene_antecedentes_penales,
           });
-          await api.entornoFamiliar.create(fam.id_antecedente_familiar, {
-            id_adulto_significativo: adulto.id_adulto_significativo,
+          await api.vinculoFamiliar.create(fam.id_antecedente_familiar, {
+            id_familiar: familiar.id_familiar,
             parentesco: a.parentesco || null,
             es_adulto_responsable: a.es_adulto_responsable,
           });
           for (const ant of a.antecedentes) {
-            await api.antecedentesPenales.create(adulto.id_adulto_significativo, {
+            await api.antecedentesPenales.create(familiar.id_familiar, {
               descripcion: ant.descripcion || null,
             });
           }

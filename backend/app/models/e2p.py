@@ -7,7 +7,7 @@ from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from app.models.nna import NNA
-    from app.models.adulto import AdultoSignificativo
+    from app.models.adulto import Familiar
 
 
 class E2P(SQLModel, table=True):
@@ -17,8 +17,8 @@ class E2P(SQLModel, table=True):
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
     )
     id_nna: uuid.UUID = Field(foreign_key="NNA.id_nna", sa_type=UUID(as_uuid=True))
-    id_adulto_significativo: uuid.UUID = Field(
-        foreign_key="AdultoSignificativo.id_adulto_significativo", sa_type=UUID(as_uuid=True)
+    id_familiar: uuid.UUID = Field(
+        foreign_key="Familiar.id_familiar", sa_type=UUID(as_uuid=True)
     )
     fecha_evaluacion: Optional[date] = None
     fecha_proxima_evaluacion: Optional[date] = None
@@ -31,7 +31,7 @@ class E2P(SQLModel, table=True):
         back_populates="evaluaciones_e2p",
         sa_relationship_kwargs={"foreign_keys": "[E2P.id_nna]"},
     )
-    adulto_significativo: "AdultoSignificativo" = Relationship(
+    familiar: "Familiar" = Relationship(
         back_populates="evaluaciones_e2p",
-        sa_relationship_kwargs={"foreign_keys": "[E2P.id_adulto_significativo]"},
+        sa_relationship_kwargs={"foreign_keys": "[E2P.id_familiar]"},
     )

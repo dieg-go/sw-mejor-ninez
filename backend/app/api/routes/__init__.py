@@ -1,5 +1,5 @@
 from app.api.routes.nna import router as nna_router
-from app.api.routes.adultos import router as adultos_router, adulto_penal_router
+from app.api.routes.adultos import router as familiares_router, familiar_penal_router
 from app.api.routes.children import (
     consumo_nna_router,
     consumo_adulto_router,
@@ -30,24 +30,24 @@ from app.api.routes.historial import (
     red_router,
 )
 from app.api.routes.e2p import (
-    e2p_adulto_router,
+    e2p_familiar_router,
     e2p_item_router,
     e2p_questions_router,
     e2p_router,
 )
 from app.api.routes.pmf import (
-    pmf_adulto_router,
+    pmf_familiar_router,
     pmf_item_router,
     pmf_router,
 )
 from app.api.routes.ncfas import (
-    ncfas_adulto_router,
+    ncfas_familiar_router,
     ncfas_item_router,
     ncfas_router,
 )
 from app.api.routes.antecedentes import (
-    entorno_item_router,
-    entorno_router,
+    vinculo_item_router,
+    vinculo_router,
     escolar_item_router,
     escolar_router,
     familiar_item_router,
@@ -58,8 +58,8 @@ from app.api.routes.antecedentes import (
 
 routers = [
     nna_router,
-    adultos_router,
-    adulto_penal_router,
+    familiares_router,
+    familiar_penal_router,
     consumo_nna_router,
     consumo_adulto_router,
     consumo_nna_item_router,
@@ -89,16 +89,16 @@ routers = [
     pmf_item_router,
     ncfas_router,
     ncfas_item_router,
-    e2p_adulto_router,
+    e2p_familiar_router,
     e2p_questions_router,
-    pmf_adulto_router,
-    ncfas_adulto_router,
+    pmf_familiar_router,
+    ncfas_familiar_router,
     salud_router,
     salud_item_router,
     escolar_router,
     escolar_item_router,
     familiar_router,
     familiar_item_router,
-    entorno_router,
-    entorno_item_router,
+    vinculo_router,
+    vinculo_item_router,
 ]

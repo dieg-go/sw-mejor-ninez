@@ -6,7 +6,7 @@ from sqlmodel import select
 
 from app.core.database import async_session
 from app.models import (
-    AdultoSignificativo,
+    Familiar,
     AntecedenteEscolar,
     AntecedenteFamiliar,
     AntecedenteIngreso,
@@ -15,7 +15,7 @@ from app.models import (
     DiscapacidadNNA,
     DocumentacionIngreso,
     E2P,
-    EntornoFamiliar,
+    VinculoFamiliar,
     GestionBusquedaFamiliar,
     HistorialConsumoAdulto,
     HistorialConsumoNNA,
@@ -55,7 +55,7 @@ async def seed():
         )
         session.add(ana)
 
-        madre_ana = AdultoSignificativo(
+        madre_ana = Familiar(
             nombre="Marta Muñoz",
             run="12.345.678-9",
             fecha_nacimiento=fecha_hace(38 * 365),
@@ -63,7 +63,7 @@ async def seed():
             numero_telefono="+56912345678",
             tiene_antecedentes_penales=False,
         )
-        tio_ana = AdultoSignificativo(
+        tio_ana = Familiar(
             nombre="Pedro Muñoz",
             run="10.987.654-2",
             fecha_nacimiento=fecha_hace(40 * 365),
@@ -76,7 +76,7 @@ async def seed():
 
         session.add(
             AntecedentesPenales(
-                id_adulto_significativo=tio_ana.id_adulto_significativo,
+                id_familiar=tio_ana.id_familiar,
                 descripcion="Violencia intrafamiliar — condena 2019",
             )
         )
@@ -86,15 +86,15 @@ async def seed():
         session.add(af_ana)
         await session.flush()
         session.add_all([
-            EntornoFamiliar(
+            VinculoFamiliar(
                 id_antecedente_familiar=af_ana.id_antecedente_familiar,
-                id_adulto_significativo=madre_ana.id_adulto_significativo,
+                id_familiar=madre_ana.id_familiar,
                 parentesco="Madre",
                 es_adulto_responsable=True,
             ),
-            EntornoFamiliar(
+            VinculoFamiliar(
                 id_antecedente_familiar=af_ana.id_antecedente_familiar,
-                id_adulto_significativo=tio_ana.id_adulto_significativo,
+                id_familiar=tio_ana.id_familiar,
                 parentesco="Tío",
                 es_adulto_responsable=False,
             ),
@@ -159,7 +159,7 @@ async def seed():
         session.add_all([
             E2P(
                 id_nna=ana.id_nna,
-                id_adulto_significativo=madre_ana.id_adulto_significativo,
+                id_familiar=madre_ana.id_familiar,
                 fecha_evaluacion=fecha_hace(30),
                 fecha_proxima_evaluacion=fecha_hace(-30),
                 version=4,
@@ -169,7 +169,7 @@ async def seed():
             ),
             PMF(
                 id_nna=ana.id_nna,
-                id_adulto_significativo=madre_ana.id_adulto_significativo,
+                id_familiar=madre_ana.id_familiar,
                 fecha_evaluacion=fecha_hace(30),
                 fecha_proxima_evaluacion=fecha_hace(-30),
                 resultado="En proceso",
@@ -218,7 +218,7 @@ async def seed():
         )
         session.add(carlos)
 
-        padre_carlos = AdultoSignificativo(
+        padre_carlos = Familiar(
             nombre="Héctor Rojas",
             run="21.345.678-3",
             fecha_nacimiento=fecha_hace(45 * 365),
@@ -230,7 +230,7 @@ async def seed():
         await session.flush()
 
         session.add(HistorialConsumoAdulto(
-            id_adulto_significativo=padre_carlos.id_adulto_significativo,
+            id_familiar=padre_carlos.id_familiar,
             nombre_sustancia="Pasta base de cocaína",
             estado_consumo="Activo",
             fecha_inicio=fecha_hace(1500),
@@ -240,9 +240,9 @@ async def seed():
         af_carlos = AntecedenteFamiliar(id_nna=carlos.id_nna, fecha_antecedente_familiar=fecha_hace(80))
         session.add(af_carlos)
         await session.flush()
-        session.add(EntornoFamiliar(
+        session.add(VinculoFamiliar(
             id_antecedente_familiar=af_carlos.id_antecedente_familiar,
-            id_adulto_significativo=padre_carlos.id_adulto_significativo,
+            id_familiar=padre_carlos.id_familiar,
             parentesco="Padre",
             es_adulto_responsable=True,
         ))
@@ -282,7 +282,7 @@ async def seed():
 
         session.add(NCFAS(
             id_nna=carlos.id_nna,
-            id_adulto_significativo=padre_carlos.id_adulto_significativo,
+            id_familiar=padre_carlos.id_familiar,
             fecha_evaluacion=fecha_hace(15),
             fecha_proxima_evaluacion=fecha_hace(-60),
             resultado="Pendiente",
@@ -304,7 +304,7 @@ async def seed():
         )
         session.add(maria)
 
-        abuela_maria = AdultoSignificativo(
+        abuela_maria = Familiar(
             nombre="Rosa Huenchul",
             run="08.765.432-1",
             fecha_nacimiento=fecha_hace(62 * 365),
@@ -312,7 +312,7 @@ async def seed():
             numero_telefono="+56944332211",
             tiene_antecedentes_penales=False,
         )
-        madre_maria = AdultoSignificativo(
+        madre_maria = Familiar(
             nombre="Elisa Huenchul",
             run="33.222.111-0",
             fecha_nacimiento=fecha_hace(28 * 365),
@@ -324,7 +324,7 @@ async def seed():
         await session.flush()
 
         session.add(HistorialConsumoAdulto(
-            id_adulto_significativo=madre_maria.id_adulto_significativo,
+            id_familiar=madre_maria.id_familiar,
             nombre_sustancia="Alcohol",
             estado_consumo="En tratamiento",
             fecha_inicio=fecha_hace(2500),
@@ -335,15 +335,15 @@ async def seed():
         session.add(af_maria)
         await session.flush()
         session.add_all([
-            EntornoFamiliar(
+            VinculoFamiliar(
                 id_antecedente_familiar=af_maria.id_antecedente_familiar,
-                id_adulto_significativo=abuela_maria.id_adulto_significativo,
+                id_familiar=abuela_maria.id_familiar,
                 parentesco="Abuela materna",
                 es_adulto_responsable=True,
             ),
-            EntornoFamiliar(
+            VinculoFamiliar(
                 id_antecedente_familiar=af_maria.id_antecedente_familiar,
-                id_adulto_significativo=madre_maria.id_adulto_significativo,
+                id_familiar=madre_maria.id_familiar,
                 parentesco="Madre",
                 es_adulto_responsable=False,
             ),
@@ -374,7 +374,7 @@ async def seed():
 
         session.add(E2P(
             id_nna=maria.id_nna,
-            id_adulto_significativo=abuela_maria.id_adulto_significativo,
+            id_familiar=abuela_maria.id_familiar,
             fecha_evaluacion=fecha_hace(45),
             fecha_proxima_evaluacion=fecha_hace(-30),
             version=1,

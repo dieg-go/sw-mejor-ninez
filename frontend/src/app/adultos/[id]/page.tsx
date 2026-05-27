@@ -3,7 +3,7 @@
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeftIcon } from "lucide-react";
-import { api, type AdultoSignificativo } from "@/lib/api";
+import { api, type Familiar } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -79,20 +79,20 @@ function InstrumentoSection({
   );
 }
 
-export default function AdultoDetailPage({
+export default function FamiliarDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const [adulto, setAdulto] = useState<AdultoSignificativo | null>(null);
+  const [familiar, setFamiliar] = useState<Familiar | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    api.adultos
+    api.familiares
       .get(id)
-      .then(setAdulto)
+      .then(setFamiliar)
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
   }, [id]);
@@ -105,10 +105,10 @@ export default function AdultoDetailPage({
     );
   }
 
-  if (error || !adulto) {
+  if (error || !familiar) {
     return (
       <div className="max-w-5xl mx-auto px-4 py-8">
-        <p className="text-destructive">{error || "Adulto no encontrado"}</p>
+        <p className="text-destructive">{error || "Familiar no encontrado"}</p>
         <Button variant="outline" asChild className="mt-4">
           <Link href="/adultos">
             <ArrowLeftIcon />
@@ -131,18 +131,18 @@ export default function AdultoDetailPage({
       <Card className="mb-6">
         <CardHeader>
           <div className="flex items-center gap-2">
-            <CardTitle>{adulto.nombre}</CardTitle>
-            {adulto.tiene_antecedentes_penales && (
+            <CardTitle>{familiar.nombre}</CardTitle>
+            {familiar.tiene_antecedentes_penales && (
               <Badge variant="destructive">Antecedentes penales</Badge>
             )}
           </div>
-          <CardDescription>RUN: {adulto.run || "—"}</CardDescription>
+          <CardDescription>RUN: {familiar.run || "—"}</CardDescription>
         </CardHeader>
         <CardContent>
           <dl className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            <InfoRow label="Fecha nacimiento" value={adulto.fecha_nacimiento} />
-            <InfoRow label="Dirección" value={adulto.direccion} />
-            <InfoRow label="Teléfono" value={adulto.numero_telefono} />
+            <InfoRow label="Fecha nacimiento" value={familiar.fecha_nacimiento} />
+            <InfoRow label="Dirección" value={familiar.direccion} />
+            <InfoRow label="Teléfono" value={familiar.numero_telefono} />
           </dl>
         </CardContent>
       </Card>
@@ -156,32 +156,32 @@ export default function AdultoDetailPage({
         </TabsList>
 
         <TabsContent value="consumo">
-          <ConsumoTab idAdulto={id} />
+          <ConsumoTab idFamiliar={id} />
         </TabsContent>
         <TabsContent value="discapacidades">
-          <DiscapacidadTab idAdulto={id} />
+          <DiscapacidadTab idFamiliar={id} />
         </TabsContent>
         <TabsContent value="penales">
-          <PenalesTab idAdulto={id} />
+          <PenalesTab idFamiliar={id} />
         </TabsContent>
         <TabsContent value="instrumentos">
-          <InstrumentosTab idAdulto={id} />
+          <InstrumentosTab idFamiliar={id} />
         </TabsContent>
       </Tabs>
     </div>
   );
 }
 
-function ConsumoTab({ idAdulto }: { idAdulto: string }) {
+function ConsumoTab({ idFamiliar }: { idFamiliar: string }) {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     api.historialConsumoAdulto
-      .list(idAdulto)
+      .list(idFamiliar)
       .then(setData)
       .finally(() => setLoading(false));
-  }, [idAdulto]);
+  }, [idFamiliar]);
 
   if (loading) return <TabSpinner />;
   if (data.length === 0) {
@@ -220,16 +220,16 @@ function ConsumoTab({ idAdulto }: { idAdulto: string }) {
   );
 }
 
-function DiscapacidadTab({ idAdulto }: { idAdulto: string }) {
+function DiscapacidadTab({ idFamiliar }: { idFamiliar: string }) {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     api.discapacidadAdulto
-      .list(idAdulto)
+      .list(idFamiliar)
       .then(setData)
       .finally(() => setLoading(false));
-  }, [idAdulto]);
+  }, [idFamiliar]);
 
   if (loading) return <TabSpinner />;
   if (data.length === 0) {
@@ -261,16 +261,16 @@ function DiscapacidadTab({ idAdulto }: { idAdulto: string }) {
   );
 }
 
-function PenalesTab({ idAdulto }: { idAdulto: string }) {
+function PenalesTab({ idFamiliar }: { idFamiliar: string }) {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     api.antecedentesPenales
-      .list(idAdulto)
+      .list(idFamiliar)
       .then(setData)
       .finally(() => setLoading(false));
-  }, [idAdulto]);
+  }, [idFamiliar]);
 
   if (loading) return <TabSpinner />;
   if (data.length === 0) {
@@ -297,7 +297,7 @@ function PenalesTab({ idAdulto }: { idAdulto: string }) {
   );
 }
 
-function InstrumentosTab({ idAdulto }: { idAdulto: string }) {
+function InstrumentosTab({ idFamiliar }: { idFamiliar: string }) {
   const [e2p, setE2p] = useState<any[]>([]);
   const [pmf, setPmf] = useState<any[]>([]);
   const [ncfas, setNcfas] = useState<any[]>([]);
@@ -305,9 +305,9 @@ function InstrumentosTab({ idAdulto }: { idAdulto: string }) {
 
   useEffect(() => {
     Promise.all([
-      api.e2p.listByAdulto(idAdulto),
-      api.pmf.listByAdulto(idAdulto),
-      api.ncfas.listByAdulto(idAdulto),
+      api.e2p.listByFamiliar(idFamiliar),
+      api.pmf.listByFamiliar(idFamiliar),
+      api.ncfas.listByFamiliar(idFamiliar),
     ])
       .then(([e, p, n]) => {
         setE2p(e);
@@ -315,7 +315,7 @@ function InstrumentosTab({ idAdulto }: { idAdulto: string }) {
         setNcfas(n);
       })
       .finally(() => setLoading(false));
-  }, [idAdulto]);
+  }, [idFamiliar]);
 
   if (loading) return <TabSpinner />;
   if (e2p.length === 0 && pmf.length === 0 && ncfas.length === 0) {

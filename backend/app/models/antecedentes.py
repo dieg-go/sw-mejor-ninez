@@ -7,7 +7,7 @@ from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from app.models.nna import NNA
-    from app.models.adulto import AdultoSignificativo
+    from app.models.adulto import Familiar
 
 
 class AntecedenteSalud(SQLModel, table=True):
@@ -50,11 +50,11 @@ class AntecedenteFamiliar(SQLModel, table=True):
     fecha_antecedente_familiar: Optional[date] = None
 
     nna: "NNA" = Relationship(back_populates="antecedentes_familiares")
-    entorno_familiar: list["EntornoFamiliar"] = Relationship(back_populates="antecedente_familiar")
+    vinculo_familiar: list["VinculoFamiliar"] = Relationship(back_populates="antecedente_familiar")
 
 
-class EntornoFamiliar(SQLModel, table=True):
-    __tablename__ = "EntornoFamiliar"
+class VinculoFamiliar(SQLModel, table=True):
+    __tablename__ = "VinculoFamiliar"
 
     id_entorno_familiar: uuid.UUID = Field(
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
@@ -62,11 +62,11 @@ class EntornoFamiliar(SQLModel, table=True):
     id_antecedente_familiar: uuid.UUID = Field(
         foreign_key="AntecedenteFamiliar.id_antecedente_familiar", sa_type=UUID(as_uuid=True)
     )
-    id_adulto_significativo: uuid.UUID = Field(
-        foreign_key="AdultoSignificativo.id_adulto_significativo", sa_type=UUID(as_uuid=True)
+    id_familiar: uuid.UUID = Field(
+        foreign_key="Familiar.id_familiar", sa_type=UUID(as_uuid=True)
     )
     parentesco: Optional[str] = None
     es_adulto_responsable: bool = False
 
-    antecedente_familiar: "AntecedenteFamiliar" = Relationship(back_populates="entorno_familiar")
-    adulto_significativo: "AdultoSignificativo" = Relationship(back_populates="entorno_familiar")
+    antecedente_familiar: "AntecedenteFamiliar" = Relationship(back_populates="vinculo_familiar")
+    familiar: "Familiar" = Relationship(back_populates="entorno_familiar")

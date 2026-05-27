@@ -43,8 +43,8 @@ export interface NNACreate {
 
 export type NNAUpdate = Partial<NNACreate>;
 
-export interface AdultoSignificativo {
-  id_adulto_significativo: string;
+export interface Familiar {
+  id_familiar: string;
   nombre: string | null;
   fecha_nacimiento: string | null;
   run: string | null;
@@ -53,7 +53,7 @@ export interface AdultoSignificativo {
   tiene_antecedentes_penales: boolean;
 }
 
-export interface AdultoSignificativoCreate {
+export interface FamiliarCreate {
   nombre?: string | null;
   fecha_nacimiento?: string | null;
   run?: string | null;
@@ -62,7 +62,7 @@ export interface AdultoSignificativoCreate {
   tiene_antecedentes_penales?: boolean;
 }
 
-export type AdultoSignificativoUpdate = Partial<AdultoSignificativoCreate>;
+export type FamiliarUpdate = Partial<FamiliarCreate>;
 
 export interface HistorialConsumoNNA {
   id_historial_consumo: string;
@@ -79,7 +79,7 @@ export type HistorialConsumoNNAUpdate = Partial<Omit<HistorialConsumoNNA, "id_hi
 
 export interface HistorialConsumoAdulto {
   id_historial_consumo: string;
-  id_adulto_significativo: string;
+  id_familiar: string;
   nombre_sustancia: string | null;
   estado_consumo: string | null;
   fecha_inicio: string | null;
@@ -87,7 +87,7 @@ export interface HistorialConsumoAdulto {
   en_tratamiento: boolean;
 }
 
-export type HistorialConsumoAdultoUpdate = Partial<Omit<HistorialConsumoAdulto, "id_historial_consumo" | "id_adulto_significativo">>;
+export type HistorialConsumoAdultoUpdate = Partial<Omit<HistorialConsumoAdulto, "id_historial_consumo" | "id_familiar">>;
 
 export interface DiscapacidadNNA {
   id_discapacidad: string;
@@ -101,21 +101,21 @@ export type DiscapacidadNNAUpdate = Partial<Omit<DiscapacidadNNA, "id_discapacid
 
 export interface DiscapacidadAdulto {
   id_discapacidad: string;
-  id_adulto_significativo: string;
+  id_familiar: string;
   tipo: string | null;
   porcentaje_grado: number | null;
   observacion: string | null;
 }
 
-export type DiscapacidadAdultoUpdate = Partial<Omit<DiscapacidadAdulto, "id_discapacidad" | "id_adulto_significativo">>;
+export type DiscapacidadAdultoUpdate = Partial<Omit<DiscapacidadAdulto, "id_discapacidad" | "id_familiar">>;
 
 export interface AntecedentesPenales {
   id_antecedentes_penales: string;
-  id_adulto_significativo: string;
+  id_familiar: string;
   descripcion: string | null;
 }
 
-export type AntecedentesPenalesUpdate = Partial<Omit<AntecedentesPenales, "id_antecedentes_penales" | "id_adulto_significativo">>;
+export type AntecedentesPenalesUpdate = Partial<Omit<AntecedentesPenales, "id_antecedentes_penales" | "id_familiar">>;
 
 export interface AntecedenteIngreso {
   id_antecedente_ingreso: string;
@@ -199,7 +199,7 @@ export type InformeTribunalUpdate = Partial<Omit<InformeTribunal, "id_informe" |
 export interface Instrumento {
   id_instrumento: string;
   id_nna: string;
-  id_adulto_significativo: string | null;
+  id_familiar: string | null;
   fecha_evaluacion: string | null;
   fecha_proxima_evaluacion: string | null;
   version: number | null;
@@ -240,15 +240,15 @@ export interface AntecedenteFamiliar {
 
 export type AntecedenteFamiliarUpdate = Partial<Omit<AntecedenteFamiliar, "id_antecedente_familiar" | "id_nna">>;
 
-export interface EntornoFamiliar {
+export interface VinculoFamiliar {
   id_entorno_familiar: string;
   id_antecedente_familiar: string;
-  id_adulto_significativo: string | null;
+  id_familiar: string | null;
   parentesco: string | null;
   es_adulto_responsable: boolean;
 }
 
-export type EntornoFamiliarUpdate = Partial<Omit<EntornoFamiliar, "id_entorno_familiar" | "id_antecedente_familiar">>;
+export type VinculoFamiliarUpdate = Partial<Omit<VinculoFamiliar, "id_entorno_familiar" | "id_antecedente_familiar">>;
 
 // ── E2P Questions ────────────────────────────────────────────────────────────
 
@@ -285,16 +285,16 @@ export const api = {
       request<NNA>(`/nna/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   },
 
-  // ── Adulto ─────────────────────────────────────────────────────────────────
+  // ── Familiar ────────────────────────────────────────────────────────────────
 
-  adultos: {
+  familiares: {
     list: (skip = 0, limit = 100) =>
-      request<AdultoSignificativo[]>(`/adultos?skip=${skip}&limit=${limit}`),
-    get: (id: string) => request<AdultoSignificativo>(`/adultos/${id}`),
-    create: (data: AdultoSignificativoCreate) =>
-      request<AdultoSignificativo>("/adultos", { method: "POST", body: JSON.stringify(data) }),
-    update: (id: string, data: AdultoSignificativoUpdate) =>
-      request<AdultoSignificativo>(`/adultos/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+      request<Familiar[]>(`/familiares?skip=${skip}&limit=${limit}`),
+    get: (id: string) => request<Familiar>(`/familiares/${id}`),
+    create: (data: FamiliarCreate) =>
+      request<Familiar>("/familiares", { method: "POST", body: JSON.stringify(data) }),
+    update: (id: string, data: FamiliarUpdate) =>
+      request<Familiar>(`/familiares/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   },
 
   // ── NNA children ───────────────────────────────────────────────────────────
@@ -309,9 +309,9 @@ export const api = {
   },
 
   historialConsumoAdulto: {
-    list: (idAdulto: string) => request<HistorialConsumoAdulto[]>(`/adultos/${idAdulto}/historial-consumo`),
-    create: (idAdulto: string, data: Omit<HistorialConsumoAdulto, "id_historial_consumo" | "id_adulto_significativo">) =>
-      request<HistorialConsumoAdulto>(`/adultos/${idAdulto}/historial-consumo`, { method: "POST", body: JSON.stringify(data) }),
+    list: (idFamiliar: string) => request<HistorialConsumoAdulto[]>(`/familiares/${idFamiliar}/historial-consumo`),
+    create: (idFamiliar: string, data: Omit<HistorialConsumoAdulto, "id_historial_consumo" | "id_familiar">) =>
+      request<HistorialConsumoAdulto>(`/familiares/${idFamiliar}/historial-consumo`, { method: "POST", body: JSON.stringify(data) }),
     get: (id: string) => request<HistorialConsumoAdulto>(`/historial-consumo-adulto/${id}`),
     update: (id: string, data: HistorialConsumoAdultoUpdate) =>
       request<HistorialConsumoAdulto>(`/historial-consumo-adulto/${id}`, { method: "PUT", body: JSON.stringify(data) }),
@@ -327,18 +327,18 @@ export const api = {
   },
 
   discapacidadAdulto: {
-    list: (idAdulto: string) => request<DiscapacidadAdulto[]>(`/adultos/${idAdulto}/discapacidades`),
-    create: (idAdulto: string, data: Omit<DiscapacidadAdulto, "id_discapacidad" | "id_adulto_significativo">) =>
-      request<DiscapacidadAdulto>(`/adultos/${idAdulto}/discapacidades`, { method: "POST", body: JSON.stringify(data) }),
+    list: (idFamiliar: string) => request<DiscapacidadAdulto[]>(`/familiares/${idFamiliar}/discapacidades`),
+    create: (idFamiliar: string, data: Omit<DiscapacidadAdulto, "id_discapacidad" | "id_familiar">) =>
+      request<DiscapacidadAdulto>(`/familiares/${idFamiliar}/discapacidades`, { method: "POST", body: JSON.stringify(data) }),
     get: (id: string) => request<DiscapacidadAdulto>(`/discapacidad-adulto/${id}`),
     update: (id: string, data: DiscapacidadAdultoUpdate) =>
       request<DiscapacidadAdulto>(`/discapacidad-adulto/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   },
 
   antecedentesPenales: {
-    list: (idAdulto: string) => request<AntecedentesPenales[]>(`/adultos/${idAdulto}/antecedentes-penales`),
-    create: (idAdulto: string, data: Omit<AntecedentesPenales, "id_antecedentes_penales" | "id_adulto_significativo">) =>
-      request<AntecedentesPenales>(`/adultos/${idAdulto}/antecedentes-penales`, { method: "POST", body: JSON.stringify(data) }),
+    list: (idFamiliar: string) => request<AntecedentesPenales[]>(`/familiares/${idFamiliar}/antecedentes-penales`),
+    create: (idFamiliar: string, data: Omit<AntecedentesPenales, "id_antecedentes_penales" | "id_familiar">) =>
+      request<AntecedentesPenales>(`/familiares/${idFamiliar}/antecedentes-penales`, { method: "POST", body: JSON.stringify(data) }),
     get: (id: string) => request<AntecedentesPenales>(`/antecedente-penal/${id}`),
     update: (id: string, data: AntecedentesPenalesUpdate) =>
       request<AntecedentesPenales>(`/antecedente-penal/${id}`, { method: "PUT", body: JSON.stringify(data) }),
@@ -416,11 +416,11 @@ export const api = {
   e2p: {
     getQuestions: (version: number) => request<E2PQuestions>(`/e2p/versions/${version}`),
     listByNna: (idNna: string) => request<Instrumento[]>(`/nna/${idNna}/e2p`),
-    listByAdulto: (idAdulto: string) => request<Instrumento[]>(`/adultos/${idAdulto}/e2p`),
+    listByFamiliar: (idFamiliar: string) => request<Instrumento[]>(`/familiares/${idFamiliar}/e2p`),
     createByNna: (idNna: string, data: Omit<Instrumento, "id_instrumento" | "id_nna">) =>
       request<Instrumento>(`/nna/${idNna}/e2p`, { method: "POST", body: JSON.stringify(data) }),
-    createByAdulto: (idAdulto: string, data: Omit<Instrumento, "id_instrumento" | "id_nna">) =>
-      request<Instrumento>(`/adultos/${idAdulto}/e2p`, { method: "POST", body: JSON.stringify(data) }),
+    createByFamiliar: (idFamiliar: string, data: Omit<Instrumento, "id_instrumento" | "id_nna">) =>
+      request<Instrumento>(`/familiares/${idFamiliar}/e2p`, { method: "POST", body: JSON.stringify(data) }),
     get: (id: string) => request<Instrumento>(`/e2p/${id}`),
     getPuntaje: (id: string) => request<E2PPuntaje>(`/e2p/${id}/puntaje`),
     update: (id: string, data: InstrumentoUpdate) =>
@@ -429,11 +429,11 @@ export const api = {
 
   pmf: {
     listByNna: (idNna: string) => request<Instrumento[]>(`/nna/${idNna}/pmf`),
-    listByAdulto: (idAdulto: string) => request<Instrumento[]>(`/adultos/${idAdulto}/pmf`),
+    listByFamiliar: (idFamiliar: string) => request<Instrumento[]>(`/familiares/${idFamiliar}/pmf`),
     createByNna: (idNna: string, data: Omit<Instrumento, "id_instrumento" | "id_nna">) =>
       request<Instrumento>(`/nna/${idNna}/pmf`, { method: "POST", body: JSON.stringify(data) }),
-    createByAdulto: (idAdulto: string, data: Omit<Instrumento, "id_instrumento" | "id_nna">) =>
-      request<Instrumento>(`/adultos/${idAdulto}/pmf`, { method: "POST", body: JSON.stringify(data) }),
+    createByFamiliar: (idFamiliar: string, data: Omit<Instrumento, "id_instrumento" | "id_nna">) =>
+      request<Instrumento>(`/familiares/${idFamiliar}/pmf`, { method: "POST", body: JSON.stringify(data) }),
     get: (id: string) => request<Instrumento>(`/pmf/${id}`),
     update: (id: string, data: InstrumentoUpdate) =>
       request<Instrumento>(`/pmf/${id}`, { method: "PUT", body: JSON.stringify(data) }),
@@ -441,11 +441,11 @@ export const api = {
 
   ncfas: {
     listByNna: (idNna: string) => request<Instrumento[]>(`/nna/${idNna}/ncfas`),
-    listByAdulto: (idAdulto: string) => request<Instrumento[]>(`/adultos/${idAdulto}/ncfas`),
+    listByFamiliar: (idFamiliar: string) => request<Instrumento[]>(`/familiares/${idFamiliar}/ncfas`),
     createByNna: (idNna: string, data: Omit<Instrumento, "id_instrumento" | "id_nna">) =>
       request<Instrumento>(`/nna/${idNna}/ncfas`, { method: "POST", body: JSON.stringify(data) }),
-    createByAdulto: (idAdulto: string, data: Omit<Instrumento, "id_instrumento" | "id_nna">) =>
-      request<Instrumento>(`/adultos/${idAdulto}/ncfas`, { method: "POST", body: JSON.stringify(data) }),
+    createByFamiliar: (idFamiliar: string, data: Omit<Instrumento, "id_instrumento" | "id_nna">) =>
+      request<Instrumento>(`/familiares/${idFamiliar}/ncfas`, { method: "POST", body: JSON.stringify(data) }),
     get: (id: string) => request<Instrumento>(`/ncfas/${id}`),
     update: (id: string, data: InstrumentoUpdate) =>
       request<Instrumento>(`/ncfas/${id}`, { method: "PUT", body: JSON.stringify(data) }),
@@ -480,12 +480,12 @@ export const api = {
       request<AntecedenteFamiliar>(`/antecedente-familiar/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   },
 
-  entornoFamiliar: {
-    list: (idFamiliar: string) => request<EntornoFamiliar[]>(`/antecedente-familiar/${idFamiliar}/entorno`),
-    create: (idFamiliar: string, data: Omit<EntornoFamiliar, "id_entorno_familiar" | "id_antecedente_familiar">) =>
-      request<EntornoFamiliar>(`/antecedente-familiar/${idFamiliar}/entorno`, { method: "POST", body: JSON.stringify(data) }),
-    get: (id: string) => request<EntornoFamiliar>(`/entorno-familiar/${id}`),
-    update: (id: string, data: EntornoFamiliarUpdate) =>
-      request<EntornoFamiliar>(`/entorno-familiar/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  vinculoFamiliar: {
+    list: (idFamiliar: string) => request<VinculoFamiliar[]>(`/antecedente-familiar/${idFamiliar}/vinculo`),
+    create: (idFamiliar: string, data: Omit<VinculoFamiliar, "id_entorno_familiar" | "id_antecedente_familiar">) =>
+      request<VinculoFamiliar>(`/antecedente-familiar/${idFamiliar}/vinculo`, { method: "POST", body: JSON.stringify(data) }),
+    get: (id: string) => request<VinculoFamiliar>(`/vinculo-familiar/${id}`),
+    update: (id: string, data: VinculoFamiliarUpdate) =>
+      request<VinculoFamiliar>(`/vinculo-familiar/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   },
 };

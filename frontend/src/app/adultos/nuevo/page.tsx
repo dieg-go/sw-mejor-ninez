@@ -243,8 +243,8 @@ export default function NuevoAdultoPage() {
     setSubmitting(true);
 
     try {
-      // 1. Create adulto
-      const adulto = await api.adultos.create({
+      // 1. Create familiar
+      const familiar = await api.familiares.create({
         nombre: nombre || null,
         run: run || null,
         fecha_nacimiento: fmt(fechaNac),
@@ -252,19 +252,19 @@ export default function NuevoAdultoPage() {
         numero_telefono: telefono || null,
         tiene_antecedentes_penales: tienePenales || penales.length > 0,
       });
-      const idAdulto = adulto.id_adulto_significativo;
+      const idFamiliar = familiar.id_familiar;
 
       // 2. Antecedentes penales
       for (const desc of penales) {
         if (desc.trim()) {
-          await api.antecedentesPenales.create(idAdulto, { descripcion: desc });
+          await api.antecedentesPenales.create(idFamiliar, { descripcion: desc });
         }
       }
 
       // 3. Consumo
       for (const c of consumo) {
         if (c.nombre_sustancia.trim() || c.estado_consumo) {
-          await api.historialConsumoAdulto.create(idAdulto, {
+          await api.historialConsumoAdulto.create(idFamiliar, {
             nombre_sustancia: c.nombre_sustancia || null,
             estado_consumo: c.estado_consumo || null,
             fecha_inicio: fmt(c.fecha_inicio),
@@ -277,7 +277,7 @@ export default function NuevoAdultoPage() {
       // 4. Discapacidades
       for (const d of discapacidades) {
         if (d.tipo.trim()) {
-          await api.discapacidadAdulto.create(idAdulto, {
+          await api.discapacidadAdulto.create(idFamiliar, {
             tipo: d.tipo || null,
             porcentaje_grado: d.porcentaje_grado || null,
             observacion: d.observacion || null,
@@ -290,16 +290,16 @@ export default function NuevoAdultoPage() {
         const fam = await api.antecedenteFamiliar.create(nnaId, {
           fecha_antecedente_familiar: new Date().toISOString().split("T")[0],
         });
-        await api.entornoFamiliar.create(fam.id_antecedente_familiar, {
-          id_adulto_significativo: idAdulto,
+        await api.vinculoFamiliar.create(fam.id_antecedente_familiar, {
+          id_familiar: idFamiliar,
           parentesco: parentesco || null,
           es_adulto_responsable: esResponsable,
         });
       }
 
-      router.push(`/adultos/${idAdulto}`);
+      router.push(`/adultos/${idFamiliar}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al crear el adulto");
+      setError(err instanceof Error ? err.message : "Error al crear el familiar");
       setSubmitting(false);
     }
   };
@@ -312,7 +312,7 @@ export default function NuevoAdultoPage() {
         </Link>
       </div>
 
-      <h1 className="text-2xl font-semibold mb-6">Nuevo adulto significativo</h1>
+      <h1 className="text-2xl font-semibold mb-6">Nuevo familiar</h1>
 
       <form onSubmit={handleSubmit}>
         <FieldGroup>
@@ -320,7 +320,7 @@ export default function NuevoAdultoPage() {
           <Card>
             <CardHeader>
               <CardTitle>Datos básicos</CardTitle>
-              <CardDescription>Información del adulto significativo.</CardDescription>
+              <CardDescription>Información del familiar.</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -349,7 +349,7 @@ export default function NuevoAdultoPage() {
           <Card>
             <CardHeader>
               <CardTitle>Vincular a NNA</CardTitle>
-              <CardDescription>Opcional — asocia este adulto a un niño, niña o adolescente existente.</CardDescription>
+              <CardDescription>Opcional — asocia este familiar a un niño, niña o adolescente existente.</CardDescription>
             </CardHeader>
             <CardContent>
               <label className="flex items-center gap-2 text-sm mb-4">

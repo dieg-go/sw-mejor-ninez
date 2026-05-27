@@ -47,4 +47,4 @@ class DiscapacidadAdultoRead(DiscapacidadAdultoBase):
     model_config = ConfigDict(from_attributes=True)
 
     id_discapacidad: uuid.UUID
-    id_adulto_significativo: uuid.UUID
+    id_familiar: uuid.UUID

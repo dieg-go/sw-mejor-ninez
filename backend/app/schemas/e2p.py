@@ -6,7 +6,7 @@ from pydantic import BaseModel, ConfigDict
 
 
 class E2PCreate(BaseModel):
-    id_adulto_significativo: Optional[uuid.UUID] = None
+    id_familiar: Optional[uuid.UUID] = None
     fecha_evaluacion: Optional[date] = None
     fecha_proxima_evaluacion: Optional[date] = None
     version: Optional[int] = None
@@ -16,7 +16,7 @@ class E2PCreate(BaseModel):
 
 
 class E2PUpdate(BaseModel):
-    id_adulto_significativo: Optional[uuid.UUID] = None
+    id_familiar: Optional[uuid.UUID] = None
     fecha_evaluacion: Optional[date] = None
     fecha_proxima_evaluacion: Optional[date] = None
     version: Optional[int] = None

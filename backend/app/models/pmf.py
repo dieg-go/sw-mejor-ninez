@@ -7,7 +7,7 @@ from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from app.models.nna import NNA
-    from app.models.adulto import AdultoSignificativo
+    from app.models.adulto import Familiar
 
 
 class PMF(SQLModel, table=True):
@@ -17,8 +17,8 @@ class PMF(SQLModel, table=True):
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
     )
     id_nna: uuid.UUID = Field(foreign_key="NNA.id_nna", sa_type=UUID(as_uuid=True))
-    id_adulto_significativo: uuid.UUID = Field(
-        foreign_key="AdultoSignificativo.id_adulto_significativo", sa_type=UUID(as_uuid=True)
+    id_familiar: uuid.UUID = Field(
+        foreign_key="Familiar.id_familiar", sa_type=UUID(as_uuid=True)
     )
     fecha_evaluacion: Optional[date] = None
     fecha_proxima_evaluacion: Optional[date] = None
@@ -29,7 +29,7 @@ class PMF(SQLModel, table=True):
         back_populates="evaluaciones_pmf",
         sa_relationship_kwargs={"foreign_keys": "[PMF.id_nna]"},
     )
-    adulto_significativo: "AdultoSignificativo" = Relationship(
+    familiar: "Familiar" = Relationship(
         back_populates="evaluaciones_pmf",
-        sa_relationship_kwargs={"foreign_keys": "[PMF.id_adulto_significativo]"},
+        sa_relationship_kwargs={"foreign_keys": "[PMF.id_familiar]"},
     )

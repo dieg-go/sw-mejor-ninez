@@ -23,10 +23,10 @@ from app.schemas.discapacidad import (
     DiscapacidadNNAUpdate,
 )
 from app.services import (
-    create_adulto_child,
+    create_familiar_child,
     create_nna_child,
     get_nna_child,
-    list_adulto_children,
+    list_familiar_children,
     list_nna_children,
     update_child,
 )
@@ -71,19 +71,19 @@ async def update_consumo_nna(
 
 # ── Historial Consumo Adulto ─────────────────────────────────────────────────
 
-consumo_adulto_router = APIRouter(prefix="/api/adultos/{id_adulto}/historial-consumo", tags=["HistorialConsumoAdulto"])
+consumo_adulto_router = APIRouter(prefix="/api/familiares/{id_familiar}/historial-consumo", tags=["HistorialConsumoAdulto"])
 
 
 @consumo_adulto_router.get("", response_model=list[HistorialConsumoAdultoRead])
-async def list_consumo_adulto(id_adulto: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    return await list_adulto_children(db, HistorialConsumoAdulto, id_adulto)
+async def list_consumo_adulto(id_familiar: uuid.UUID, db: AsyncSession = Depends(get_db)):
+    return await list_familiar_children(db, HistorialConsumoAdulto, id_familiar)
 
 
 @consumo_adulto_router.post("", response_model=HistorialConsumoAdultoRead, status_code=201)
 async def create_consumo_adulto(
-    id_adulto: uuid.UUID, data: HistorialConsumoAdultoCreate, db: AsyncSession = Depends(get_db)
+    id_familiar: uuid.UUID, data: HistorialConsumoAdultoCreate, db: AsyncSession = Depends(get_db)
 ):
-    return await create_adulto_child(db, HistorialConsumoAdulto, id_adulto, data.model_dump())
+    return await create_familiar_child(db, HistorialConsumoAdulto, id_familiar, data.model_dump())
 
 
 consumo_adulto_item_router = APIRouter(prefix="/api/historial-consumo-adulto", tags=["HistorialConsumoAdulto"])
@@ -147,19 +147,19 @@ async def update_disc_nna(
 
 # ── Discapacidad Adulto ──────────────────────────────────────────────────────
 
-disc_adulto_router = APIRouter(prefix="/api/adultos/{id_adulto}/discapacidades", tags=["DiscapacidadAdulto"])
+disc_adulto_router = APIRouter(prefix="/api/familiares/{id_familiar}/discapacidades", tags=["DiscapacidadAdulto"])
 
 
 @disc_adulto_router.get("", response_model=list[DiscapacidadAdultoRead])
-async def list_disc_adulto(id_adulto: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    return await list_adulto_children(db, DiscapacidadAdulto, id_adulto)
+async def list_disc_adulto(id_familiar: uuid.UUID, db: AsyncSession = Depends(get_db)):
+    return await list_familiar_children(db, DiscapacidadAdulto, id_familiar)
 
 
 @disc_adulto_router.post("", response_model=DiscapacidadAdultoRead, status_code=201)
 async def create_disc_adulto(
-    id_adulto: uuid.UUID, data: DiscapacidadAdultoCreate, db: AsyncSession = Depends(get_db)
+    id_familiar: uuid.UUID, data: DiscapacidadAdultoCreate, db: AsyncSession = Depends(get_db)
 ):
-    return await create_adulto_child(db, DiscapacidadAdulto, id_adulto, data.model_dump())
+    return await create_familiar_child(db, DiscapacidadAdulto, id_familiar, data.model_dump())
 
 
 disc_adulto_item_router = APIRouter(prefix="/api/discapacidad-adulto", tags=["DiscapacidadAdulto"])

@@ -6,9 +6,9 @@ import { ArrowLeftIcon, CalendarIcon, PlusIcon, PencilIcon } from "lucide-react"
 import {
   api,
   type NNA,
-  type AdultoSignificativo,
+  type Familiar,
   type AntecedenteFamiliar,
-  type EntornoFamiliar,
+  type VinculoFamiliar,
 } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,7 +39,7 @@ export default function FamiliarPage({ params }: { params: Promise<{ id: string 
   const { id } = use(params);
   const [nna, setNna] = useState<NNA | null>(null);
   const [items, setItems] = useState<AntecedenteFamiliar[]>([]);
-  const [adultos, setAdultos] = useState<AdultoSignificativo[]>([]);
+  const [familiares, setFamiliares] = useState<Familiar[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -53,23 +53,23 @@ export default function FamiliarPage({ params }: { params: Promise<{ id: string 
   const [editSaving, setEditSaving] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
 
-  // Entorno sub-list state
+  // Vínculo sub-list state
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [entornos, setEntornos] = useState<EntornoFamiliar[]>([]);
+  const [vinculos, setVinculos] = useState<VinculoFamiliar[]>([]);
   const [subLoading, setSubLoading] = useState(false);
 
-  const [entornoForm, setEntornoForm] = useState({ id_adulto_significativo: "", parentesco: "", es_adulto_responsable: false });
-  const [entornoSaving, setEntornoSaving] = useState(false);
+  const [vinculoForm, setVinculoForm] = useState({ id_familiar: "", parentesco: "", es_adulto_responsable: false });
+  const [vinculoSaving, setVinculoSaving] = useState(false);
 
   useEffect(() => {
     (async () => {
       try {
-        const [nnaData, list, adList] = await Promise.all([
+        const [nnaData, list, famList] = await Promise.all([
           api.nna.get(id),
           api.antecedenteFamiliar.list(id),
-          api.adultos.list(),
+          api.familiares.list(),
         ]);
-        setNna(nnaData); setItems(list); setAdultos(adList);
+        setNna(nnaData); setItems(list); setFamiliares(famList);
       } catch (e: any) { setError(e.message); }
       finally { setLoading(false); }
     })();
@@ -109,35 +109,35 @@ export default function FamiliarPage({ params }: { params: Promise<{ id: string 
     finally { setEditSaving(false); }
   };
 
-  const loadEntornos = async (idFamiliar: string) => {
+  const loadVinculos = async (idFamiliar: string) => {
     setExpandedId(idFamiliar);
     setSubLoading(true);
     try {
-      const list = await api.entornoFamiliar.list(idFamiliar);
-      setEntornos(list);
-    } catch { setEntornos([]); }
+      const list = await api.vinculoFamiliar.list(idFamiliar);
+      setVinculos(list);
+    } catch { setVinculos([]); }
     finally { setSubLoading(false); }
   };
 
-  const createEntorno = async () => {
+  const createVinculo = async () => {
     if (!expandedId) return;
-    setEntornoSaving(true);
+    setVinculoSaving(true);
     try {
       const payload: any = {};
-      if (entornoForm.id_adulto_significativo) payload.id_adulto_significativo = entornoForm.id_adulto_significativo;
-      if (entornoForm.parentesco) payload.parentesco = entornoForm.parentesco;
-      payload.es_adulto_responsable = entornoForm.es_adulto_responsable;
-      const created = await api.entornoFamiliar.create(expandedId, payload);
-      setEntornos((prev) => [...prev, created]);
-      setEntornoForm({ id_adulto_significativo: "", parentesco: "", es_adulto_responsable: false });
+      if (vinculoForm.id_familiar) payload.id_familiar = vinculoForm.id_familiar;
+      if (vinculoForm.parentesco) payload.parentesco = vinculoForm.parentesco;
+      payload.es_adulto_responsable = vinculoForm.es_adulto_responsable;
+      const created = await api.vinculoFamiliar.create(expandedId, payload);
+      setVinculos((prev) => [...prev, created]);
+      setVinculoForm({ id_familiar: "", parentesco: "", es_adulto_responsable: false });
     } catch {}
-    finally { setEntornoSaving(false); }
+    finally { setVinculoSaving(false); }
   };
 
-  const getAdultoName = (idAdulto: string | null) => {
-    if (!idAdulto) return "—";
-    const a = adultos.find((x) => x.id_adulto_significativo === idAdulto);
-    return a?.nombre || idAdulto.slice(0, 8);
+  const getFamiliarName = (idFamiliar: string | null) => {
+    if (!idFamiliar) return "—";
+    const f = familiares.find((x) => x.id_familiar === idFamiliar);
+    return f?.nombre || idFamiliar.slice(0, 8);
   };
 
   if (loading) return <div className="flex items-center justify-center min-h-[50vh]"><Spinner className="size-6" /></div>;
@@ -217,14 +217,14 @@ export default function FamiliarPage({ params }: { params: Promise<{ id: string 
                       <Spinner className="size-4" />
                     ) : (
                       <div className="space-y-3">
-                        <h4 className="text-xs font-semibold text-muted-foreground">Entorno Familiar ({entornos.length})</h4>
-                        {entornos.length === 0 ? (
+                        <h4 className="text-xs font-semibold text-muted-foreground">Vínculo Familiar ({vinculos.length})</h4>
+                        {vinculos.length === 0 ? (
                           <p className="text-xs text-muted-foreground">Sin vínculos registrados.</p>
                         ) : (
                           <ul className="space-y-1 mb-3">
-                            {entornos.map((e) => (
+                            {vinculos.map((e) => (
                               <li key={e.id_entorno_familiar} className="text-sm flex items-center gap-2 flex-wrap">
-                                <span>{getAdultoName(e.id_adulto_significativo)}</span>
+                                <span>{getFamiliarName(e.id_familiar)}</span>
                                 <span className="text-muted-foreground">· {e.parentesco || "—"}</span>
                                 {e.es_adulto_responsable && <Badge variant="secondary" className="text-xs">Responsable</Badge>}
                               </li>
@@ -232,34 +232,34 @@ export default function FamiliarPage({ params }: { params: Promise<{ id: string 
                           </ul>
                         )}
                         <div className="flex items-center gap-2 flex-wrap">
-                          <Select value={entornoForm.id_adulto_significativo} onValueChange={(v) => setEntornoForm((p) => ({ ...p, id_adulto_significativo: v }))}>
-                            <SelectTrigger className="h-7 text-xs w-40"><SelectValue placeholder="Adulto" /></SelectTrigger>
+                          <Select value={vinculoForm.id_familiar} onValueChange={(v) => setVinculoForm((p) => ({ ...p, id_familiar: v }))}>
+                            <SelectTrigger className="h-7 text-xs w-40"><SelectValue placeholder="Familiar" /></SelectTrigger>
                             <SelectContent>
                               <SelectGroup>
-                                {adultos.map((a) => (
-                                  <SelectItem key={a.id_adulto_significativo} value={a.id_adulto_significativo}>{a.nombre || a.id_adulto_significativo.slice(0, 8)}</SelectItem>
+                                {familiares.map((f) => (
+                                  <SelectItem key={f.id_familiar} value={f.id_familiar}>{f.nombre || f.id_familiar.slice(0, 8)}</SelectItem>
                                 ))}
                               </SelectGroup>
                             </SelectContent>
                           </Select>
                           <Input
                             className="h-7 text-xs w-28"
-                            value={entornoForm.parentesco}
-                            onChange={(e) => setEntornoForm((p) => ({ ...p, parentesco: e.target.value }))}
+                            value={vinculoForm.parentesco}
+                            onChange={(e) => setVinculoForm((p) => ({ ...p, parentesco: e.target.value }))}
                             placeholder="Parentesco"
                           />
                           <div className="flex items-center gap-1">
-                            <Checkbox id={`resp-${item.id_antecedente_familiar}`} checked={entornoForm.es_adulto_responsable} onCheckedChange={(v) => setEntornoForm((p) => ({ ...p, es_adulto_responsable: !!v }))} />
+                            <Checkbox id={`resp-${item.id_antecedente_familiar}`} checked={vinculoForm.es_adulto_responsable} onCheckedChange={(v) => setVinculoForm((p) => ({ ...p, es_adulto_responsable: !!v }))} />
                             <Label htmlFor={`resp-${item.id_antecedente_familiar}`} className="text-xs">Resp.</Label>
                           </div>
-                          <Button size="sm" className="h-7 text-xs" onClick={createEntorno} disabled={entornoSaving}>+</Button>
+                          <Button size="sm" className="h-7 text-xs" onClick={createVinculo} disabled={vinculoSaving}>+</Button>
                         </div>
                         <Button variant="ghost" size="sm" onClick={() => setExpandedId(null)}>Ocultar</Button>
                       </div>
                     )
                   ) : (
-                    <Button variant="ghost" size="sm" onClick={() => loadEntornos(item.id_antecedente_familiar)}>
-                      Entorno Familiar
+                    <Button variant="ghost" size="sm" onClick={() => loadVinculos(item.id_antecedente_familiar)}>
+                      Vínculo Familiar
                     </Button>
                   )}
                 </div>

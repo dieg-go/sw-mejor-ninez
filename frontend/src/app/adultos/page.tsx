@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { api, type AdultoSignificativo } from "@/lib/api";
+import { api, type Familiar } from "@/lib/api";
 import {
   Table,
   TableBody,
@@ -17,28 +17,28 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
 
-export default function AdultoListPage() {
-  const [adultos, setAdultos] = useState<AdultoSignificativo[]>([]);
+export default function FamiliarListPage() {
+  const [familiares, setFamiliares] = useState<Familiar[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    api.adultos
+    api.familiares
       .list(0, 500)
-      .then(setAdultos)
+      .then(setFamiliares)
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
   }, []);
 
   const filtered = search
-    ? adultos.filter(
-        (a) =>
-          a.nombre?.toLowerCase().includes(search.toLowerCase()) ||
-          a.run?.toLowerCase().includes(search.toLowerCase()) ||
-          a.direccion?.toLowerCase().includes(search.toLowerCase())
+    ? familiares.filter(
+        (f) =>
+          f.nombre?.toLowerCase().includes(search.toLowerCase()) ||
+          f.run?.toLowerCase().includes(search.toLowerCase()) ||
+          f.direccion?.toLowerCase().includes(search.toLowerCase())
       )
-    : adultos;
+    : familiares;
 
   if (loading) {
     return (
@@ -60,9 +60,9 @@ export default function AdultoListPage() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold">Adultos Significativos</h1>
+        <h1 className="text-2xl font-semibold">Familiares</h1>
         <Button asChild>
-          <Link href="/adultos/nuevo">+ Nuevo Adulto</Link>
+          <Link href="/adultos/nuevo">+ Nuevo Familiar</Link>
         </Button>
       </div>
 
@@ -76,8 +76,8 @@ export default function AdultoListPage() {
 
       {filtered.length === 0 ? (
         <p className="text-center text-muted-foreground py-12">
-          {adultos.length === 0
-            ? "No hay adultos registrados."
+          {familiares.length === 0
+            ? "No hay familiares registrados."
             : "Sin resultados para esta búsqueda."}
         </p>
       ) : (
@@ -93,27 +93,27 @@ export default function AdultoListPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((adulto) => (
-                <TableRow key={adulto.id_adulto_significativo}>
+              {filtered.map((familiar) => (
+                <TableRow key={familiar.id_familiar}>
                   <TableCell className="px-4 py-3">
                     <Link
-                      href={`/adultos/${adulto.id_adulto_significativo}`}
+                      href={`/familiares/${familiar.id_familiar}`}
                       className="font-medium hover:underline"
                     >
-                      {adulto.nombre || "Sin nombre"}
+                      {familiar.nombre || "Sin nombre"}
                     </Link>
                   </TableCell>
                   <TableCell className="px-4 py-3 text-muted-foreground">
-                    {adulto.run || "—"}
+                    {familiar.run || "—"}
                   </TableCell>
                   <TableCell className="px-4 py-3 text-muted-foreground">
-                    {adulto.direccion || "—"}
+                    {familiar.direccion || "—"}
                   </TableCell>
                   <TableCell className="px-4 py-3 text-muted-foreground">
-                    {adulto.numero_telefono || "—"}
+                    {familiar.numero_telefono || "—"}
                   </TableCell>
                   <TableCell className="px-4 py-3">
-                    {adulto.tiene_antecedentes_penales ? (
+                    {familiar.tiene_antecedentes_penales ? (
                       <Badge variant="destructive">Sí</Badge>
                     ) : (
                       <Badge variant="outline">No</Badge>
@@ -123,7 +123,7 @@ export default function AdultoListPage() {
               ))}
             </TableBody>
             <TableCaption>
-              {filtered.length} de {adultos.length} registros
+              {filtered.length} de {familiares.length} registros
             </TableCaption>
           </Table>
         </div>

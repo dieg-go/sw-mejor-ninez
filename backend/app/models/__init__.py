@@ -1,5 +1,5 @@
 from app.models.nna import NNA
-from app.models.adulto import AdultoSignificativo, AntecedentesPenales
+from app.models.adulto import Familiar, AntecedentesPenales
 from app.models.consumo import HistorialConsumoNNA, HistorialConsumoAdulto
 from app.models.discapacidad import DiscapacidadNNA, DiscapacidadAdulto
 from app.models.ingreso import (
@@ -16,12 +16,12 @@ from app.models.antecedentes import (
     AntecedenteEscolar,
     AntecedenteFamiliar,
     AntecedenteSalud,
-    EntornoFamiliar,
+    VinculoFamiliar,
 )
 
 __all__ = [
     "NNA",
-    "AdultoSignificativo",
+    "Familiar",
     "AntecedentesPenales",
     "HistorialConsumoNNA",
     "HistorialConsumoAdulto",
@@ -40,5 +40,5 @@ __all__ = [
     "AntecedenteSalud",
     "AntecedenteEscolar",
     "AntecedenteFamiliar",
-    "EntornoFamiliar",
+    "VinculoFamiliar",
 ]

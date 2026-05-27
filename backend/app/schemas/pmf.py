@@ -6,7 +6,7 @@ from pydantic import BaseModel, ConfigDict
 
 
 class PMFCreate(BaseModel):
-    id_adulto_significativo: Optional[uuid.UUID] = None
+    id_familiar: Optional[uuid.UUID] = None
     fecha_evaluacion: Optional[date] = None
     fecha_proxima_evaluacion: Optional[date] = None
     resultado: Optional[str] = None
@@ -14,7 +14,7 @@ class PMFCreate(BaseModel):
 
 
 class PMFUpdate(BaseModel):
-    id_adulto_significativo: Optional[uuid.UUID] = None
+    id_familiar: Optional[uuid.UUID] = None
     fecha_evaluacion: Optional[date] = None
     fecha_proxima_evaluacion: Optional[date] = None
     resultado: Optional[str] = None

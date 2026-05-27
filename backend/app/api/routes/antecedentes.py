@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.models import AntecedenteEscolar, AntecedenteFamiliar, AntecedenteSalud, EntornoFamiliar
+from app.models import AntecedenteEscolar, AntecedenteFamiliar, AntecedenteSalud, VinculoFamiliar
 from app.schemas.antecedentes import (
     AntecedenteEscolarCreate,
     AntecedenteEscolarRead,
@@ -15,16 +15,16 @@ from app.schemas.antecedentes import (
     AntecedenteSaludCreate,
     AntecedenteSaludRead,
     AntecedenteSaludUpdate,
-    EntornoFamiliarCreate,
-    EntornoFamiliarRead,
-    EntornoFamiliarUpdate,
+    VinculoFamiliarCreate,
+    VinculoFamiliarRead,
+    VinculoFamiliarUpdate,
 )
 from app.services import (
-    create_entorno,
     create_nna_child,
+    create_vinculo,
     get_nna_child,
-    list_entorno,
     list_nna_children,
+    list_vinculo,
     update_child,
 )
 
@@ -146,41 +146,41 @@ async def update_familiar(
     return await update_child(db, obj, data.model_dump(exclude_unset=True))
 
 
-# ── Entorno Familiar (child of AntecedenteFamiliar) ──────────────────────────
+# ── Vinculo Familiar (child of AntecedenteFamiliar) ─────────────────────────
 
-entorno_router = APIRouter(
-    prefix="/api/antecedente-familiar/{id_familiar}/entorno", tags=["EntornoFamiliar"]
+vinculo_router = APIRouter(
+    prefix="/api/antecedente-familiar/{id_familiar}/vinculo", tags=["VinculoFamiliar"]
 )
 
 
-@entorno_router.get("", response_model=list[EntornoFamiliarRead])
-async def list_entorno_familiar(id_familiar: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    return await list_entorno(db, id_familiar)
+@vinculo_router.get("", response_model=list[VinculoFamiliarRead])
+async def list_vinculo_familiar(id_familiar: uuid.UUID, db: AsyncSession = Depends(get_db)):
+    return await list_vinculo(db, id_familiar)
 
 
-@entorno_router.post("", response_model=EntornoFamiliarRead, status_code=201)
-async def create_entorno_familiar(
-    id_familiar: uuid.UUID, data: EntornoFamiliarCreate, db: AsyncSession = Depends(get_db)
+@vinculo_router.post("", response_model=VinculoFamiliarRead, status_code=201)
+async def create_vinculo_familiar(
+    id_familiar: uuid.UUID, data: VinculoFamiliarCreate, db: AsyncSession = Depends(get_db)
 ):
-    return await create_entorno(db, id_familiar, data.model_dump())
+    return await create_vinculo(db, id_familiar, data.model_dump())
 
 
-entorno_item_router = APIRouter(prefix="/api/entorno-familiar", tags=["EntornoFamiliar"])
+vinculo_item_router = APIRouter(prefix="/api/vinculo-familiar", tags=["VinculoFamiliar"])
 
 
-@entorno_item_router.get("/{id_entorno}", response_model=EntornoFamiliarRead)
-async def get_entorno(id_entorno: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    obj = await get_nna_child(db, EntornoFamiliar, EntornoFamiliar.id_entorno_familiar, id_entorno)
+@vinculo_item_router.get("/{id_vinculo}", response_model=VinculoFamiliarRead)
+async def get_vinculo(id_vinculo: uuid.UUID, db: AsyncSession = Depends(get_db)):
+    obj = await get_nna_child(db, VinculoFamiliar, VinculoFamiliar.id_entorno_familiar, id_vinculo)
     if not obj:
-        raise HTTPException(status_code=404, detail="Entorno familiar no encontrado")
+        raise HTTPException(status_code=404, detail="Vínculo familiar no encontrado")
     return obj
 
 
-@entorno_item_router.put("/{id_entorno}", response_model=EntornoFamiliarRead)
-async def update_entorno(
-    id_entorno: uuid.UUID, data: EntornoFamiliarUpdate, db: AsyncSession = Depends(get_db)
+@vinculo_item_router.put("/{id_vinculo}", response_model=VinculoFamiliarRead)
+async def update_vinculo(
+    id_vinculo: uuid.UUID, data: VinculoFamiliarUpdate, db: AsyncSession = Depends(get_db)
 ):
-    obj = await get_nna_child(db, EntornoFamiliar, EntornoFamiliar.id_entorno_familiar, id_entorno)
+    obj = await get_nna_child(db, VinculoFamiliar, VinculoFamiliar.id_entorno_familiar, id_vinculo)
     if not obj:
-        raise HTTPException(status_code=404, detail="Entorno familiar no encontrado")
+        raise HTTPException(status_code=404, detail="Vínculo familiar no encontrado")
     return await update_child(db, obj, data.model_dump(exclude_unset=True))

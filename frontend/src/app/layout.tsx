@@ -88,7 +88,7 @@ export default function RootLayout({
                         href="/adultos"
                         className="text-sm text-muted-foreground hover:text-foreground"
                       >
-                        Adultos
+                        Familiares
                       </NavigationMenuLink>
                     </NavigationMenuItem>
                   </NavigationMenuList>

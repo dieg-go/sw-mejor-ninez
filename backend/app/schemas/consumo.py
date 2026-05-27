@@ -58,4 +58,4 @@ class HistorialConsumoAdultoRead(HistorialConsumoAdultoBase):
     model_config = ConfigDict(from_attributes=True)
 
     id_historial_consumo: uuid.UUID
-    id_adulto_significativo: uuid.UUID
+    id_familiar: uuid.UUID

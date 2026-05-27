@@ -3,7 +3,7 @@
 import { use, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowLeftIcon, CalendarIcon, PlusIcon, PencilIcon } from "lucide-react";
-import { api, type NNA, type Instrumento, type AdultoSignificativo, type E2PQuestions, type E2PPuntaje } from "@/lib/api";
+import { api, type NNA, type Instrumento, type Familiar, type E2PQuestions, type E2PPuntaje } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -93,14 +93,14 @@ function likertRadios(questionId: number, value: number | undefined, onChange: (
 export default function E2PPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const [nna, setNna] = useState<NNA | null>(null);
-  const [adultos, setAdultos] = useState<AdultoSignificativo[]>([]);
+  const [familiares, setFamiliares] = useState<Familiar[]>([]);
   const [items, setItems] = useState<Instrumento[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Create form
   const [showForm, setShowForm] = useState(false);
-  const [idAdulto, setIdAdulto] = useState("");
+  const [idFamiliar, setIdFamiliar] = useState("");
   const [resultado, setResultado] = useState("");
   const [observacion, setObservacion] = useState("");
   const [fechaEval, setFechaEval] = useState<Date | undefined>(undefined);
@@ -115,7 +115,7 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
 
   // Edit form
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editIdAdulto, setEditIdAdulto] = useState("");
+  const [editIdFamiliar, setEditIdFamiliar] = useState("");
   const [editResultado, setEditResultado] = useState("");
   const [editObservacion, setEditObservacion] = useState("");
   const [editFechaEval, setEditFechaEval] = useState<Date | undefined>(undefined);
@@ -147,9 +147,9 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
   useEffect(() => {
     (async () => {
       try {
-        const [nnaData, adList] = await Promise.all([api.nna.get(id), api.adultos.list()]);
+        const [nnaData, famList] = await Promise.all([api.nna.get(id), api.familiares.list()]);
         setNna(nnaData);
-        setAdultos(adList);
+        setFamiliares(famList);
         await loadItems();
       } catch (e: any) { setError(e.message); setLoading(false); }
     })();
@@ -177,7 +177,7 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
   };
 
   const resetCreate = () => {
-    setIdAdulto(""); setResultado(""); setObservacion("");
+    setIdFamiliar(""); setResultado(""); setObservacion("");
     setFechaEval(undefined); setFechaProx(undefined);
     setVersion(null); setQuestions(null); setAnswers({});
   };
@@ -190,7 +190,7 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
 
   const buildPayload = (ver: number | null, ans: Record<string, number>) => {
     const p: any = {};
-    if (idAdulto) p.id_adulto_significativo = idAdulto;
+    if (idFamiliar) p.id_familiar = idFamiliar;
     if (resultado) p.resultado = resultado;
     if (observacion) p.observacion = observacion;
     if (fechaEval) p.fecha_evaluacion = fechaEval.toISOString().split("T")[0];
@@ -215,7 +215,7 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
 
   const startEdit = async (item: Instrumento) => {
     setEditingId(item.id_instrumento);
-    setEditIdAdulto(item.id_adulto_significativo || "");
+    setEditIdFamiliar(item.id_familiar || "");
     setEditResultado(item.resultado || "");
     setEditObservacion(item.observacion || "");
     setEditFechaEval(item.fecha_evaluacion ? new Date(item.fecha_evaluacion + "T00:00:00") : undefined);
@@ -235,7 +235,7 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
 
   const buildEditPayload = () => {
     const p: any = {};
-    if (editIdAdulto) p.id_adulto_significativo = editIdAdulto;
+    if (editIdFamiliar) p.id_familiar = editIdFamiliar;
     if (editResultado) p.resultado = editResultado;
     if (editObservacion) p.observacion = editObservacion;
     if (editFechaEval) p.fecha_evaluacion = editFechaEval.toISOString().split("T")[0];
@@ -259,10 +259,10 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
     finally { setEditSaving(false); }
   };
 
-  const getAdultoName = (idAdulto: string | null) => {
-    if (!idAdulto) return "—";
-    const a = adultos.find((x) => x.id_adulto_significativo === idAdulto);
-    return a?.nombre || idAdulto.slice(0, 8);
+  const getFamiliarName = (idFamiliar: string | null) => {
+    if (!idFamiliar) return "—";
+    const f = familiares.find((x) => x.id_familiar === idFamiliar);
+    return f?.nombre || idFamiliar.slice(0, 8);
   };
 
   // Group questions by category
@@ -301,14 +301,14 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
             <form onSubmit={handleCreate} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-xs">Adulto Significativo</Label>
-                  <Select value={idAdulto} onValueChange={setIdAdulto}>
+                  <Label className="text-xs">Familiar</Label>
+                  <Select value={idFamiliar} onValueChange={setIdFamiliar}>
                     <SelectTrigger className="mt-1 w-full"><SelectValue placeholder="Seleccionar" /></SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
-                        <SelectItem value="none">— Sin adulto —</SelectItem>
-                        {adultos.map((a) => (
-                          <SelectItem key={a.id_adulto_significativo} value={a.id_adulto_significativo}>{a.nombre || a.id_adulto_significativo.slice(0, 8)}</SelectItem>
+                        <SelectItem value="none">— Sin familiar —</SelectItem>
+                        {familiares.map((f) => (
+                          <SelectItem key={f.id_familiar} value={f.id_familiar}>{f.nombre || f.id_familiar.slice(0, 8)}</SelectItem>
                         ))}
                       </SelectGroup>
                     </SelectContent>
@@ -393,13 +393,13 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
                   <form onSubmit={handleUpdate} className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <Label className="text-xs">Adulto</Label>
-                        <Select value={editIdAdulto} onValueChange={setEditIdAdulto}>
+                        <Label className="text-xs">Familiar</Label>
+                        <Select value={editIdFamiliar} onValueChange={setEditIdFamiliar}>
                           <SelectTrigger className="mt-1 w-full"><SelectValue placeholder="Seleccionar" /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="none">— Sin adulto —</SelectItem>
-                            {adultos.map((a) => (
-                              <SelectItem key={a.id_adulto_significativo} value={a.id_adulto_significativo}>{a.nombre || a.id_adulto_significativo.slice(0, 8)}</SelectItem>
+                            <SelectItem value="none">— Sin familiar —</SelectItem>
+                            {familiares.map((f) => (
+                              <SelectItem key={f.id_familiar} value={f.id_familiar}>{f.nombre || f.id_familiar.slice(0, 8)}</SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
@@ -469,7 +469,7 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
                 ) : (
                   <div className="flex items-start justify-between">
                     <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
-                      <div><span className="text-xs text-muted-foreground">Adulto: </span>{getAdultoName(item.id_adulto_significativo)}</div>
+                      <div><span className="text-xs text-muted-foreground">Familiar: </span>{getFamiliarName(item.id_familiar)}</div>
                       <div><span className="text-xs text-muted-foreground">Resultado: </span>{item.resultado || "—"}</div>
                       <div><span className="text-xs text-muted-foreground">Evaluación: </span>{formatDate(item.fecha_evaluacion)}</div>
                       <div><span className="text-xs text-muted-foreground">Próxima: </span>{formatDate(item.fecha_proxima_evaluacion)}</div>

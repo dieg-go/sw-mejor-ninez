@@ -6,7 +6,7 @@ from sqlmodel import select
 
 from app.models import (
     NNA,
-    AdultoSignificativo,
+    Familiar,
     AntecedenteEscolar,
     AntecedenteFamiliar,
     AntecedenteIngreso,
@@ -16,7 +16,6 @@ from app.models import (
     DiscapacidadNNA,
     DocumentacionIngreso,
     E2P,
-    EntornoFamiliar,
     GestionBusquedaFamiliar,
     HistorialConsumoAdulto,
     HistorialConsumoNNA,
@@ -26,7 +25,38 @@ from app.models import (
     PMF,
     RegistroCausalIngreso,
     RegistroDerechoVulnerado,
+    VinculoFamiliar,
 )
+
+
+class FamiliarService:
+    def __init__(self, session: AsyncSession):
+        self.session = session
+
+    async def list(self, skip: int = 0, limit: int = 100) -> list[Familiar]:
+        result = await self.session.execute(select(Familiar).offset(skip).limit(limit))
+        return list(result.scalars().all())
+
+    async def get(self, id_familiar: uuid.UUID) -> Optional[Familiar]:
+        result = await self.session.execute(
+            select(Familiar).where(Familiar.id_familiar == id_familiar)
+        )
+        return result.scalar_one_or_none()
+
+    async def create(self, data: dict[str, Any]) -> Familiar:
+        familiar = Familiar(**data)
+        self.session.add(familiar)
+        await self.session.commit()
+        await self.session.refresh(familiar)
+        return familiar
+
+    async def update(self, familiar: Familiar, data: dict[str, Any]) -> Familiar:
+        for key, val in data.items():
+            setattr(familiar, key, val)
+        self.session.add(familiar)
+        await self.session.commit()
+        await self.session.refresh(familiar)
+        return familiar
 
 
 class NNAService:
@@ -55,40 +85,6 @@ class NNAService:
         await self.session.commit()
         await self.session.refresh(nna)
         return nna
-
-
-class AdultoService:
-    def __init__(self, session: AsyncSession):
-        self.session = session
-
-    async def list(self, skip: int = 0, limit: int = 100) -> list[AdultoSignificativo]:
-        result = await self.session.execute(
-            select(AdultoSignificativo).offset(skip).limit(limit)
-        )
-        return list(result.scalars().all())
-
-    async def get(self, id_adulto: uuid.UUID) -> Optional[AdultoSignificativo]:
-        result = await self.session.execute(
-            select(AdultoSignificativo).where(
-                AdultoSignificativo.id_adulto_significativo == id_adulto
-            )
-        )
-        return result.scalar_one_or_none()
-
-    async def create(self, data: dict[str, Any]) -> AdultoSignificativo:
-        adulto = AdultoSignificativo(**data)
-        self.session.add(adulto)
-        await self.session.commit()
-        await self.session.refresh(adulto)
-        return adulto
-
-    async def update(self, adulto: AdultoSignificativo, data: dict[str, Any]) -> AdultoSignificativo:
-        for key, val in data.items():
-            setattr(adulto, key, val)
-        self.session.add(adulto)
-        await self.session.commit()
-        await self.session.refresh(adulto)
-        return adulto
 
 
 # ── NNA children ─────────────────────────────────────────────────────────────
@@ -124,21 +120,21 @@ async def update_child(session: AsyncSession, obj: Any, data: dict[str, Any]) ->
     return obj
 
 
-# ── Adulto children ──────────────────────────────────────────────────────────
+# ── Familiar children ────────────────────────────────────────────────────────
 
-async def list_adulto_children(
-    session: AsyncSession, model: Any, id_adulto: uuid.UUID
+async def list_familiar_children(
+    session: AsyncSession, model: Any, id_familiar: uuid.UUID
 ) -> list[Any]:
     result = await session.execute(
-        select(model).where(model.id_adulto_significativo == id_adulto)
+        select(model).where(model.id_familiar == id_familiar)
     )
     return list(result.scalars().all())
 
 
-async def create_adulto_child(
-    session: AsyncSession, model: Any, id_adulto: uuid.UUID, data: dict[str, Any]
+async def create_familiar_child(
+    session: AsyncSession, model: Any, id_familiar: uuid.UUID, data: dict[str, Any]
 ) -> Any:
-    obj = model(id_adulto_significativo=id_adulto, **data)
+    obj = model(id_familiar=id_familiar, **data)
     session.add(obj)
     await session.commit()
     await session.refresh(obj)
@@ -166,23 +162,23 @@ async def create_ingreso_child(
     return obj
 
 
-# ── Familiar children (entorno) ──────────────────────────────────────────────
+# ── Familiar children (vinculo) ──────────────────────────────────────────────
 
-async def list_entorno(
+async def list_vinculo(
     session: AsyncSession, id_antecedente_familiar: uuid.UUID
-) -> list[EntornoFamiliar]:
+) -> list[VinculoFamiliar]:
     result = await session.execute(
-        select(EntornoFamiliar).where(
-            EntornoFamiliar.id_antecedente_familiar == id_antecedente_familiar
+        select(VinculoFamiliar).where(
+            VinculoFamiliar.id_antecedente_familiar == id_antecedente_familiar
         )
     )
     return list(result.scalars().all())
 
 
-async def create_entorno(
+async def create_vinculo(
     session: AsyncSession, id_antecedente_familiar: uuid.UUID, data: dict[str, Any]
-) -> EntornoFamiliar:
-    obj = EntornoFamiliar(id_antecedente_familiar=id_antecedente_familiar, **data)
+) -> VinculoFamiliar:
+    obj = VinculoFamiliar(id_antecedente_familiar=id_antecedente_familiar, **data)
     session.add(obj)
     await session.commit()
     await session.refresh(obj)

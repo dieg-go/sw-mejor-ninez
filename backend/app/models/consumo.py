@@ -7,7 +7,7 @@ from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from app.models.nna import NNA
-    from app.models.adulto import AdultoSignificativo
+    from app.models.adulto import Familiar
 
 
 class HistorialConsumoNNA(SQLModel, table=True):
@@ -33,8 +33,8 @@ class HistorialConsumoAdulto(SQLModel, table=True):
     id_historial_consumo: uuid.UUID = Field(
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
     )
-    id_adulto_significativo: uuid.UUID = Field(
-        foreign_key="AdultoSignificativo.id_adulto_significativo", sa_type=UUID(as_uuid=True)
+    id_familiar: uuid.UUID = Field(
+        foreign_key="Familiar.id_familiar", sa_type=UUID(as_uuid=True)
     )
     nombre_sustancia: Optional[str] = None
     estado_consumo: Optional[str] = None
@@ -42,4 +42,4 @@ class HistorialConsumoAdulto(SQLModel, table=True):
     fecha_termino: Optional[date] = None
     en_tratamiento: bool = False
 
-    adulto: "AdultoSignificativo" = Relationship(back_populates="historial_consumo")
+    familiar: "Familiar" = Relationship(back_populates="historial_consumo")

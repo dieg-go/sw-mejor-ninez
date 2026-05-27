@@ -74,24 +74,24 @@ class AntecedenteFamiliarRead(AntecedenteFamiliarBase):
     id_nna: uuid.UUID
 
 
-class EntornoFamiliarBase(BaseModel):
+class VinculoFamiliarBase(BaseModel):
     parentesco: Optional[str] = None
     es_adulto_responsable: bool = False
 
 
-class EntornoFamiliarCreate(EntornoFamiliarBase):
-    id_adulto_significativo: Optional[uuid.UUID] = None
+class VinculoFamiliarCreate(VinculoFamiliarBase):
+    id_familiar: Optional[uuid.UUID] = None
 
 
-class EntornoFamiliarUpdate(BaseModel):
+class VinculoFamiliarUpdate(BaseModel):
     parentesco: Optional[str] = None
     es_adulto_responsable: Optional[bool] = None
-    id_adulto_significativo: Optional[uuid.UUID] = None
+    id_familiar: Optional[uuid.UUID] = None
 
 
-class EntornoFamiliarRead(EntornoFamiliarBase):
+class VinculoFamiliarRead(VinculoFamiliarBase):
     model_config = ConfigDict(from_attributes=True)
 
     id_entorno_familiar: uuid.UUID
     id_antecedente_familiar: uuid.UUID
-    id_adulto_significativo: Optional[uuid.UUID] = None
+    id_familiar: Optional[uuid.UUID] = None

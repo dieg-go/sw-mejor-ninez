@@ -5,7 +5,7 @@ from typing import Optional
 from pydantic import BaseModel, ConfigDict
 
 
-class AdultoSignificativoBase(BaseModel):
+class FamiliarBase(BaseModel):
     nombre: Optional[str] = None
     fecha_nacimiento: Optional[date] = None
     run: Optional[str] = None
@@ -14,11 +14,11 @@ class AdultoSignificativoBase(BaseModel):
     tiene_antecedentes_penales: bool = False
 
 
-class AdultoSignificativoCreate(AdultoSignificativoBase):
+class FamiliarCreate(FamiliarBase):
     pass
 
 
-class AdultoSignificativoUpdate(BaseModel):
+class FamiliarUpdate(BaseModel):
     nombre: Optional[str] = None
     fecha_nacimiento: Optional[date] = None
     run: Optional[str] = None
@@ -27,10 +27,10 @@ class AdultoSignificativoUpdate(BaseModel):
     tiene_antecedentes_penales: Optional[bool] = None
 
 
-class AdultoSignificativoRead(AdultoSignificativoBase):
+class FamiliarRead(FamiliarBase):
     model_config = ConfigDict(from_attributes=True)
 
-    id_adulto_significativo: uuid.UUID
+    id_familiar: uuid.UUID
 
 
 class AntecedentePenalBase(BaseModel):
@@ -49,4 +49,4 @@ class AntecedentePenalRead(AntecedentePenalBase):
     model_config = ConfigDict(from_attributes=True)
 
     id_antecedentes_penales: uuid.UUID
-    id_adulto_significativo: uuid.UUID
+    id_familiar: uuid.UUID

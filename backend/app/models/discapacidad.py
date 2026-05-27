@@ -6,7 +6,7 @@ from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from app.models.nna import NNA
-    from app.models.adulto import AdultoSignificativo
+    from app.models.adulto import Familiar
 
 
 class DiscapacidadNNA(SQLModel, table=True):
@@ -29,11 +29,11 @@ class DiscapacidadAdulto(SQLModel, table=True):
     id_discapacidad: uuid.UUID = Field(
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
     )
-    id_adulto_significativo: uuid.UUID = Field(
-        foreign_key="AdultoSignificativo.id_adulto_significativo", sa_type=UUID(as_uuid=True)
+    id_familiar: uuid.UUID = Field(
+        foreign_key="Familiar.id_familiar", sa_type=UUID(as_uuid=True)
     )
     tipo: Optional[str] = None
     porcentaje_grado: Optional[int] = None
     observacion: Optional[str] = None
 
-    adulto: "AdultoSignificativo" = Relationship(back_populates="discapacidades")
+    familiar: "Familiar" = Relationship(back_populates="discapacidades")

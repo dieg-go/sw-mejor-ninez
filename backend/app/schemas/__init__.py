@@ -1,8 +1,8 @@
 from app.schemas.nna import NNARead, NNACreate, NNAUpdate
 from app.schemas.adulto import (
-    AdultoSignificativoRead,
-    AdultoSignificativoCreate,
-    AdultoSignificativoUpdate,
+    FamiliarRead,
+    FamiliarCreate,
+    FamiliarUpdate,
     AntecedentePenalRead,
     AntecedentePenalCreate,
     AntecedentePenalUpdate,
@@ -73,18 +73,18 @@ from app.schemas.antecedentes import (
     AntecedenteFamiliarRead,
     AntecedenteFamiliarCreate,
     AntecedenteFamiliarUpdate,
-    EntornoFamiliarRead,
-    EntornoFamiliarCreate,
-    EntornoFamiliarUpdate,
+    VinculoFamiliarRead,
+    VinculoFamiliarCreate,
+    VinculoFamiliarUpdate,
 )
 
 __all__ = [
     "NNARead",
     "NNACreate",
     "NNAUpdate",
-    "AdultoSignificativoRead",
-    "AdultoSignificativoCreate",
-    "AdultoSignificativoUpdate",
+    "FamiliarRead",
+    "FamiliarCreate",
+    "FamiliarUpdate",
     "AntecedentePenalRead",
     "AntecedentePenalCreate",
     "AntecedentePenalUpdate",
@@ -139,7 +139,7 @@ __all__ = [
     "AntecedenteFamiliarRead",
     "AntecedenteFamiliarCreate",
     "AntecedenteFamiliarUpdate",
-    "EntornoFamiliarRead",
-    "EntornoFamiliarCreate",
-    "EntornoFamiliarUpdate",
+    "VinculoFamiliarRead",
+    "VinculoFamiliarCreate",
+    "VinculoFamiliarUpdate",
 ]
