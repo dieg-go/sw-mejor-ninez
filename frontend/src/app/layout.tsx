@@ -85,7 +85,7 @@ export default function RootLayout({
                     </NavigationMenuItem>
                     <NavigationMenuItem>
                       <NavigationMenuLink
-                        href="/adultos"
+                        href="/familiar"
                         className="text-sm text-muted-foreground hover:text-foreground"
                       >
                         Familiares

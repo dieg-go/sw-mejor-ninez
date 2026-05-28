@@ -1,5 +1,5 @@
 from app.models.nna import NNA
-from app.models.adulto import Familiar, AntecedentesPenales
+from app.models.familiar import Familiar, AntecedentesPenales
 from app.models.consumo import HistorialConsumoNNA, HistorialConsumoAdulto
 from app.models.discapacidad import DiscapacidadNNA, DiscapacidadAdulto
 from app.models.ingreso import (

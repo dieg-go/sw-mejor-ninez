@@ -2,39 +2,27 @@
 
 ## Project
 
-**SW Mejor Niñez** — monorepo: Next.js 16 frontend + FastAPI backend + PostgreSQL 17.
-
-### Purpose
-This project is a **Decision Support System (DSS)** developed for the Chilean National Specialized Protection Service for Children and Adolescents ("Mejor Niñez"). Its primary goal is to **automate the classification and prioritization of cases** to optimize the decision-making process of the psychosocial team in charge of protecting highly vulnerable children and adolescents (NNA - Niños, Niñas y Adolescentes).
-
-Currently, the service faces severe saturation and delays due to the fragmentation of files in unstructured formats (PDFs/paper) and the multidimensional complexity of each case.
-
-**Key Objectives & Features:**
-- **Digitization & Centralization**: Transforms unstructured legal, clinical, and family backgrounds into a highly normalized relational database.
-- **Transparent Risk Classification**: Utilizes a Business Rules Engine (Rule-Based System / Decision Trees) rather than opaque "black-box" AI algorithms. It evaluates a feature vector (e.g., age, legal cause severity, psychological instrument scores like PMF, E2P, NCFAS, history of substance abuse) to generate an automated, transparent, and legally auditable risk classification (Low, Medium, High).
-- **Team Optimization**: Descongests the psychosocial team from manual, repetitive administrative tasks, giving them the time and data support needed to focus on direct, timely interventions to safeguard the well-being of the minors.
+**SW Mejor Niñez** — Decision Support System for Chilean child protective services.
+Monorepo: Next.js 16 frontend + FastAPI backend + PostgreSQL 17.
 
 ## Quickstart
 
-**Full Docker stack** (DB + backend + frontend, builds images):
+**Full Docker stack**:
 ```bash
-docker compose up -d --build
-# Then visit http://localhost:3000
+docker compose up -d --build    # http://localhost:3000
 ```
 
-**Dev mode** (each service individually):
+**Dev mode** (services individually):
 ```bash
 # Database (port 5433)
 docker compose up -d db
 
-# Seed data (optional — creates 3 NNA, 5 adultos, ~40 child records)
+# Backend (localhost:8000) — run from backend/
 cd backend
 python -m venv .venv
 # Activate: .venv\Scripts\activate (Windows) or source .venv/bin/activate (Unix)
 pip install -r requirements.txt
-python seed.py
-
-# Backend (localhost:8000)
+python seed.py          # optional: 3 NNA, 5 familiares, ~40 child records
 uvicorn main:app --reload
 
 # Frontend (localhost:3000)
@@ -43,293 +31,92 @@ pnpm install
 pnpm dev
 ```
 
-Alternative: use `dev.ps1` (Windows PowerShell) which starts DB, backend, and frontend in separate windows. Parameters: `-NoDb`, `-NoBackend`, `-NoFrontend`.
+Or use `dev.ps1` (Windows, opens separate windows). Parameters: `-NoDb`, `-NoBackend`, `-NoFrontend`.
 
 ## Commands
 
 | What | Command | Working dir |
 |------|---------|-------------|
 | Dev server | `pnpm dev` | `frontend/` |
-| Production build | `pnpm build` | `frontend/` |
-| Lint | `eslint` (via `pnpm lint`) | `frontend/` |
+| Build | `pnpm build` | `frontend/` |
+| Lint | `pnpm lint` | `frontend/` |
 | Backend dev | `uvicorn main:app --reload` | `backend/` |
 | Backend tests | `pytest` | `backend/` |
-| Seed database | `python seed.py` | `backend/` |
-| Create migration | `python -m alembic revision --autogenerate -m "description"` | `backend/` |
+| Seed DB | `python seed.py` | `backend/` |
+| Create migration | `python -m alembic revision --autogenerate -m "desc"` | `backend/` |
 | Apply migrations | `python -m alembic upgrade head` | `backend/` |
 
 ## Tech Stack
 
-### Frontend
-- **Next.js 16.2.6** (App Router, TypeScript)
-- **React 19.2.4**
-- **Tailwind CSS v4** — uses `@import "tailwindcss"` (not `@tailwind base/components/utilities`). Theme via CSS `@theme inline {}`.
-- **shadcn/ui** (radix-nova style, `shadcn@4.7.0`). 22 components installed (see list below). Default UI toolkit — use these over raw HTML elements.
-- **radix-ui** (direct dependency, used by shadcn)
-- **next-themes** for class-based dark/light mode toggle
-- **pnpm** as package manager (v10+); `pnpm-workspace.yaml` exists but no workspace packages defined yet
-- **ESLint 9** flat config (`eslint.config.mjs`)
-- **Geist**, **Geist Mono**, and **Inter** fonts via `next/font/google`
-- Additional deps: `date-fns`, `lucide-react`, `react-day-picker`, `clsx` + `tailwind-merge`, `class-variance-authority`, `tw-animate-css`
-
-### Backend
-- **FastAPI 0.115.6** with async
-- **SQLModel 0.0.22** — async engine via `asyncpg`, sync via `psycopg2`
-- **Pydantic v2** (2.10.4) + `pydantic-settings` for config from `.env`
-- **Alembic 1.14.1** configured with initial migration in `migrations/versions/`
-- **pytest 8.3.4** + `pytest-asyncio 0.25.0` (no test files yet — `tests/__init__.py` is empty)
-
-### Infrastructure
-- **PostgreSQL 17** (Alpine) via Docker Compose
-- Database: `sw_mejor_ninez`, user/pass: `postgres/postgres`, port **5433** (mapped from 5432)
-- Volume: `pgdata` for persistent data
-- **Dockerfiles** in both `backend/` and `frontend/` for production builds
-- `docker compose up -d --build` starts the full stack (db + backend + frontend)
+- **Frontend**: Next.js 16.2 (App Router, `use(params)` for async route params), React 19, Tailwind CSS v4, shadcn/ui (radix-nova), next-themes, pnpm. All data pages are client components (`useEffect` + `useState`).
+- **Backend**: FastAPI 0.115 (async), SQLModel 0.0.22 (asyncpg + psycopg2), Pydantic v2, Alembic 1.14. Three-layer: Routes → Services → Models. Schemas separate from models.
+- **DB**: PostgreSQL 17 (Alpine). DB `sw_mejor_ninez`, user/pass `postgres/postgres`, port **5433** (host-mapped from 5432). Inside Docker Compose, containers use `db:5432`.
+- **Infra**: Docker Compose with three services (db/backend/frontend). Dockerfiles in both `backend/` and `frontend/`.
 
 ## Code Organization
 
 ```
 backend/
-├── main.py              # Re-export: from app.main import app
-├── requirements.txt
-├── .env                 # Not committed; contains DATABASE_URL
-├── seed.py              # Creates 3 NNA, 5 adultos, ~40 child records
-├── alembic.ini
-├── migrations/
-│   ├── env.py
-│   └── versions/
-│       ├── 0b733fafb9a6_initial.py                      # Uses SQLModel.metadata.create_all()
-│       └── ef7302f55ef1_e2p_version_and_respuestas.py    # Adds version + respuestas columns to E2P
-└── app/
-    ├── __init__.py
-    ├── main.py          # FastAPI app, CORS, registers all routers, /health
-    ├── api/
-    │   ├── __init__.py  # Empty
-    │   └── routes/
-    │       ├── __init__.py    # Imports all routers into `routers` list
-    │       ├── nna.py         # NNA CRUD
-    │       ├── adultos.py     # AdultoSignificativo CRUD + antecedentes penales
-    │       ├── children.py    # HistorialConsumo, Discapacidad (NNA + Adulto), AntecedentesPenales item
-    │       ├── ingreso.py     # AntecedenteIngreso, Causal, DerechoVulnerado, DocumentacionIngreso
-    │       ├── e2p.py         # E2P CRUD (NNA + Adulto), puntaje, questions by version
-    │       ├── pmf.py         # PMF CRUD (NNA + Adulto)
-    │       ├── ncfas.py       # NCFAS CRUD (NNA + Adulto)
-    │       ├── antecedentes.py # AntecedenteSalud, Escolar, Familiar, EntornoFamiliar
-    │       └── historial.py   # HistorialRedProteccional, GestionBusquedaFamiliar, InformeTribunal
-    ├── models/           # SQLModel models (21 tables, split by domain)
-    │   ├── __init__.py   # Re-exports all models + __all__
-    │   ├── nna.py        # NNA (core child entity)
-    │   ├── adulto.py     # AdultoSignificativo, AntecedentesPenales
-    │   ├── consumo.py    # HistorialConsumoNNA, HistorialConsumoAdulto
-    │   ├── discapacidad.py # DiscapacidadNNA, DiscapacidadAdulto
-    │   ├── ingreso.py    # AntecedenteIngreso, DocumentacionIngreso, RegistroCausalIngreso, RegistroDerechoVulnerado
-    │   ├── historial.py  # HistorialRedProteccional, GestionBusquedaFamiliar, InformeTribunal
-    │   ├── e2p.py        # E2P (dual FK, version int, respuestas JSON)
-    │   ├── pmf.py        # PMF (dual FK: id_nna + id_adulto_significativo)
-    │   ├── ncfas.py      # NCFAS (dual FK: id_nna + id_adulto_significativo)
-    │   └── antecedentes.py # AntecedenteSalud, AntecedenteEscolar, AntecedenteFamiliar, EntornoFamiliar
-    ├── schemas/          # Pydantic v2 schemas (separate from models)
-    │   ├── __init__.py   # Re-exports all schemas
-    │   ├── nna.py        # NNARead (from_attributes), NNACreate, NNAUpdate
-    │   ├── adulto.py     # AdultoSignificativo Read/Create/Update, AntecedentePenal Read/Create/Update
-    │   ├── consumo.py
-    │   ├── discapacidad.py
-    │   ├── ingreso.py
-    │   ├── historial.py
-    │   ├── e2p.py        # E2PCreate, E2PUpdate, E2PRead
-    │   ├── pmf.py        # PMFCreate, PMFUpdate, PMFRead
-    │   ├── ncfas.py      # NCFASCreate, NCFASUpdate, NCFASRead
-    │   └── antecedentes.py
-    ├── data/             # Static JSON reference data loaded at runtime
-    │   ├── e2p_questions.json  # 8 age-based versions, each with Likert questions by category
-    │   └── e2p_escala.json     # Baremos/scoring scales (Baja/Intermedia/Alta zones per category per version)
-    ├── services/
-    │   └── __init__.py   # NNAService, AdultoService + generic child helpers
-    └── core/
-        ├── __init__.py   # Re-exports `settings` from config
-        ├── config.py     # Settings class (pydantic-settings), loads .env
-        └── database.py   # Async engine, sessionmaker, get_db()
+  main.py → app/main.py    # FastAPI app, CORS (localhost:3000 only), /health
+  app/
+    api/routes/            # One file per domain; __init__.py aggregates all routers
+    models/                # SQLModel tables (__tablename__ matches class name)
+    schemas/               # Pydantic v2: *Base/*Create/*Update/*Read per entity
+    services/__init__.py   # FamiliarService, NNAService + generic helper functions
+    data/                  # e2p_questions.json, e2p_escala.json (loaded at runtime)
+    core/                  # config.py (Settings), database.py (async engine)
+  migrations/versions/     # Initial + rename + e2p_version migrations
+  seed.py                  # Idempotent (skips if ≥2 NNA exist)
 
 frontend/
-├── src/
-│   ├── app/
-│   │   ├── layout.tsx   # Root layout (header nav with Home, +Nuevo caso, NNA, Adultos + ThemeToggle)
-│   │   ├── page.tsx     # Home page (links to /nuevo-caso and /nna)
-│   │   ├── globals.css  # Tailwind v4 + shadcn + tw-animate-css imports, theme vars
-│   │   ├── nna/
-│   │   │   ├── page.tsx      # NNA list (client component, search, shadcn Table)
-│   │   │   ├── [id]/
-│   │   │   │   ├── page.tsx  # NNA summary (fetches all sections, renders card grid linking to sub-pages)
-│   │   │   │   ├── ingreso/page.tsx         # Ingreso CRUD (list/create/edit)
-│   │   │   │   ├── documentacion/page.tsx   # Documentación CRUD
-│   │   │   │   ├── consumo/page.tsx         # Consumo CRUD
-│   │   │   │   ├── discapacidades/page.tsx  # Discapacidades CRUD
-│   │   │   │   ├── e2p/page.tsx             # E2P CRUD (Likert questionnaire, auto-version, score display)
-│   │   │   │   ├── pmf/page.tsx             # PMF CRUD
-│   │   │   │   ├── ncfas/page.tsx           # NCFAS CRUD
-│   │   │   │   ├── historial/page.tsx       # Historial Red CRUD
-│   │   │   │   ├── gestion/page.tsx         # Gestión Búsqueda CRUD
-│   │   │   │   ├── informes/page.tsx        # Informes Tribunal CRUD
-│   │   │   │   ├── salud/page.tsx           # Salud CRUD
-│   │   │   │   ├── escolar/page.tsx         # Escolar CRUD
-│   │   │   │   └── familiar/page.tsx        # Familiar + EntornoFamiliar CRUD
-│   │   │   └── nuevo/
-│   │   │       └── page.tsx  # Create NNA form (shadcn Form, DatePicker)
-│   │   ├── adultos/
-│   │   │   ├── page.tsx      # Adulto list (client component, search)
-│   │   │   ├── [id]/
-│   │   │   │   └── page.tsx  # Adulto detail (tabs: consumo, discapacidades, penales, instrumentos)
-│   │   │   └── nuevo/
-│   │   │       └── page.tsx  # Create adulto form (+ antecedentes penales inline)
-│   │   └── nuevo-caso/
-│   │       └── page.tsx      # 6-step wizard: NNA → Ingreso → Documentación → Adultos → Antecedentes → Revisión
-│   ├── lib/
-│   │   ├── api.ts        # Centralized API client with all endpoints + TypeScript types
-│   │   └── utils.ts      # cn() helper (clsx + tailwind-merge)
-│   └── components/
-│       ├── theme-provider.tsx  # next-themes wrapper
-│       ├── theme-toggle.tsx
-│       └── ui/           # 22 shadcn/ui components
-├── public/
-├── package.json
-├── tsconfig.json         # Path alias @/* → ./src/*
-├── eslint.config.mjs
-├── next.config.ts
-└── postcss.config.mjs    # @tailwindcss/postcss plugin
+  src/app/                 # App Router pages — all client components
+    nna/[id]/              # Summary page + 13 sub-pages (each full CRUD)
+    familiar/[id]/          # Familiar detail (tabs)
+    nuevo-caso/            # 6-step wizard
+  src/lib/api.ts           # Centralized API client + all TypeScript interfaces
+  src/components/ui/       # 22 shadcn/ui components
 ```
 
-## Architecture & Patterns
+## Key Conventions & Gotchas
 
-### Backend
+### Renamed models (recent — verify code, not old docs)
+- **`Familiar`** (table `Familiar`) replaces `AdultoSignificativo`. API prefix is `/api/familiares`. Service is `FamiliarService`.
+- **`VinculoFamiliar`** (table `VinculoFamiliar`) replaces `EntornoFamiliar`.
+- FK on instrumentos is `id_familiar` (not `id_adulto_significativo`).
+- Frontend routes use `/familiar/` for Familiar pages. The API client uses `api.familiares.*`.
 
-**Three-layer architecture**: Routes → Services → Models. Schemas are Pydantic v2 classes with `ConfigDict(from_attributes=True)` for Read types (ORM mode).
+### Instrumentos (E2P, PMF, NCFAS)
+- **Dual FK**: each has `id_nna` → NNA and `id_familiar` → Familiar. Routes for both parents: `/api/nna/{id}/e2p` and `/api/familiares/{id}/e2p`.
+- **E2P specifics**: model has `version: int` (required, 1-8) and `respuestas: dict` (JSON, question ID → Likert 0-4). Questions loaded from `app/data/e2p_questions.json`, scoring from `e2p_escala.json` (resolved via `Path(__file__).resolve().parent.parent.parent / "data"`). GET `/api/e2p/versions/{n}` for questions, GET `/api/e2p/{id}/puntaje` for scores.
+- **E2P version** is `Optional[int]` in schema but **not optional** at DB level. Frontend auto-detects version from NNA's age, but API calls must include it.
+- **Frontend `Instrumento` interface** is reused for all three (E2P/PMF/NCFAS). PMF and NCFAS don't have `version`/`respuestas` — don't send those fields for them.
 
-**Route pattern**: Each domain file defines multiple `APIRouter`s:
-- **Parent routes** (e.g., `GET /api/nna`, `POST /api/nna`) — list/create
-- **Nested child routes** (e.g., `GET /api/nna/{id_nna}/historial-consumo`) — list/create children
-- **Item routes** (e.g., `GET /api/historial-consumo-nna/{id_consumo}`) — get/update by PK
+### Database
+- Port **5433** locally (Docker maps 5433→5432). Inside Compose, hostname `db` on port 5432.
+- Alembic: use `python -m alembic` (not bare `alembic`). Needs running PostgreSQL.
+- `.env` lives in `backend/`, not repo root. Run `uvicorn` from `backend/` so pydantic-settings finds it.
+- All PKs are UUID (`default_factory=uuid.uuid4`). Omit when creating.
+- `tiene_antecedentes_penales` on Familiar is **denormalized** — must update when adding/removing `AntecedentesPenales`.
 
-All routes call service functions that follow the pattern `service = SomeService(db)`, then `await service.list(...)` / `await service.create(...)`, etc.
+### Backend patterns
+- **Service helpers**: class-based for NNA/Familiar (`NNAService`, `FamiliarService`). Stateless generic functions for children: `list_nna_children()`, `create_nna_child()`, `get_nna_child()`, `update_child()`, plus `familiar`, `ingreso`, and `vinculo` variants.
+- **Schema pattern**: Read schemas use `ConfigDict(from_attributes=True)`. Update schemas have all `Optional` fields (partial updates via `exclude_unset=True`). `NNAUpdate` intentionally duplicates fields (doesn't inherit from base) for `exclude_unset` to work correctly.
+- **Router registration**: `api/routes/__init__.py` imports all routers into a flat list; `app/main.py` iterates with `include_router()`.
+- **Alembic**: `env.py` does `import app.models` to register tables. New models must be added to `app/models/__init__.py`.
+- **Pydantic config style**: Schemas use `model_config = ConfigDict(from_attributes=True)`; `Settings` uses dict-style `model_config = {"env_file": ".env", ...}`. Don't mix styles within one class.
 
-**Service pattern**:
-- `NNAService` and `AdultoService` are classes (instantiated per-request with an `AsyncSession`)
-- Child entities use **generic stateless functions**: `create_nna_child()`, `list_nna_children()`, `get_nna_child()`, `update_child()`, and variants for `adulto`, `ingreso`, and `entorno` parents
-- All service functions accept a `model` class as first argument and raw `dict` for data
-- Updates use `setattr()` then `session.add()` + `commit()` + `refresh()`
+### Frontend patterns
+- **NNA sub-page pattern**: client component, `use(params)` for route param, `useEffect` fetch. "Nuevo" form toggles with `showForm`/`saving`/`formError`. "Editar" per-row with `editingId`/`editForm`/`editSaving`/`editError`. Dates: `Date | undefined` for Calendar → `"YYYY-MM-DD"` string for API. Display: `new Date(iso + "T00:00:00").toLocaleDateString("es-CL")` (the `T00:00:00` prevents timezone offset).
+- **API client**: single `api` object in `src/lib/api.ts` with nested method groups. Base URL from `NEXT_PUBLIC_API_URL` (defaults to `http://localhost:8000/api`). All TS interfaces are hand-maintained (not shared with backend).
+- **`/nuevo-caso` wizard**: 6 steps, creates records sequentially (NNA first for `id_nna`). Only NNA is required.
 
-**Schema pattern**: Read schemas use `ConfigDict(from_attributes=True)`. Create schemas inherit from a Base. Update schemas have all `Optional` fields (allowing partial updates via `model_dump(exclude_unset=True)`). There is a special case: `NNAUpdate` does NOT inherit from `NNABase` — it intentionally duplicates fields.
-
-**Config**: `Settings` class uses `pydantic-settings` with `env_file = ".env"`. DB connection is built from individual fields (`DB_HOST`, `DB_PORT`, etc.), not a single URL. Properties `database_url` (async) and `database_url_sync` are derived. `extra="allow"` permits extra env vars.
-
-**Models**: 21 SQLModel classes with UUID PKs (`sa_type=UUID(as_uuid=True)`, `default_factory=uuid.uuid4`). `TYPE_CHECKING` guards on relationship imports to avoid circular imports. Relationships use `back_populates` consistently.
-
-**Instrumentos (E2P, PMF, NCFAS)**: Each has two foreign keys: `id_nna` → NNA and `id_adulto_significativo` → AdultoSignificativo. Relationships use explicit `sa_relationship_kwargs={"foreign_keys": "..."}` to disambiguate. Models, schemas, and routes are split into separate files per instrument (`e2p.py`, `pmf.py`, `ncfas.py`).
-
-**E2P specifics**: The E2P model uniquely has `version: int` (required, 1-8, determining which age-based question set applies) and `respuestas: dict[str, Any]` (JSON field mapping question ID → Likert 0-4 value). The scoring endpoint `GET /api/e2p/{id}/puntaje` computes category scores against baremos loaded from `app/data/e2p_escala.json`, returning zone classification (Baja/Intermedia/Alta). Questions are served by `GET /api/e2p/versions/{version_num}`, loading from `app/data/e2p_questions.json`. Both JSON data files are resolved via `Path(__file__).resolve().parent.parent.parent / "data" / ...` relative to the route file.
-
-**Router registration**: `app/api/routes/__init__.py` imports all routers into a flat `routers` list. `app/main.py` iterates it with `app.include_router(router)`.
-
-### Frontend
-
-**Page pattern**: All data pages are **client components** (`"use client"`). They use `useEffect` + `useState` for data fetching via the centralized `api` object from `@/lib/api`. Loading/error/empty states are handled explicitly.
-
-**API client** (`src/lib/api.ts`):
-- Single `api` export object with nested method groups (e.g., `api.nna.list()`, `api.adultos.get(id)`)
-- All methods go through a generic `request<T>()` function that sets `Content-Type: application/json`
-- Base URL from `NEXT_PUBLIC_API_URL` env var (falls back to `http://localhost:8000/api`)
-- Contains full TypeScript interfaces for every entity (not shared with backend — hand-maintained)
-
-**NNA detail** (`/nna/[id]/page.tsx`): Summary page (~200 lines). Fetches all 13 sections in parallel via `Promise.all` (including separate e2p/pmf/ncfas), extracts the last record from each, and renders a grid of `<Card>` components linking to sub-pages. Each sub-page (e.g., `/nna/[id]/consumo`) is its own full CRUD page with list + inline create/edit forms.
-
-**NNA sub-page pattern**: Each sub-page follows the same structure:
-- Client component, `use(params)` for route param
-- Fetches NNA + entity list in `useEffect`
-- Inline "Nuevo" form (toggle with `showForm` state, `saving`/`formError` states)
-- Inline "Editar" per row (toggle with `editingId` state, separate `editForm`/`editSaving`/`editError` states)
-- Dates handled as `Date | undefined` for Calendar + converted to ISO strings (`"YYYY-MM-DD"`) for API
-- Booleans use `<Checkbox>` from shadcn
-
-**`/nuevo-caso` wizard**: 6-step multi-step form (NNA → Ingreso → Documentación → Adultos → Antecedentes → Revisión). All state lives in a single `WizardData` interface, passed down to step components. On submit, sequentially creates NNA → Ingreso (with causales/derechos) → Documentación → AntecedenteFamiliar → Adultos (with EntornoFamiliar links + antecedentes penales) → Salud/Escolar/Consumo/Discapacidades. Redirects to NNA detail on success.
-
-**Adulto detail** (`/adultos/[id]/page.tsx`): Still uses shadcn `<Tabs>` component (4 tabs: Consumo, Discapacidades, Antec. Penales, Instrumentos). Each tab fetches its own data lazily.
-
-**Create forms**:
-- `/nna/nuevo` — standalone NNA creation form
-- `/adultos/nuevo` — full adulto creation with inline antecedentes penales list, uses `+ Agregar` pattern for multiple items
-- `/nuevo-caso` — comprehensive wizard (see above)
-
-**Dark mode**: Uses `next-themes` with `attribute="class"` — the `.dark` class is toggled on `<html>`. The `ThemeProvider` wraps the body in `layout.tsx`. `ThemeToggle` component provides the toggle button. CSS uses `@custom-variant dark (&:is(.dark *))` selector.
-
-**shadcn/ui components** (22 installed): alert, badge, breadcrumb, button, calendar, card, checkbox, dropdown-menu, empty, field, input, label, navigation-menu, popover, select, separator, skeleton, spinner, table, tabs, toggle, theme-provider, theme-toggle. Config in `frontend/components.json` (style: "radix-nova", iconLibrary: "lucide", baseColor: "neutral").
-
-**Routing/Global CSS**: Header nav links: Home, + Nuevo caso, NNA, Adultos. `globals.css` imports three layers: `@import "tailwindcss"`, `@import "tw-animate-css"`, `@import "shadcn/tailwind.css"`. CSS variables for light/dark theme via `oklch()` colors. Links use `<Link href="...">`. Detail pages use `params: Promise<{ id: string }>` (Next.js 16 async params). Max width 5xl on all pages.
-
-## Gotchas
-
-1. **DB port is 5433, not 5432** — Docker maps 5433→5432 locally. BUT inside Docker Compose, containers connect via hostname `db:5432`. Both `alembic.ini` and `Settings` defaults use 5433. If you can't connect locally, check the port first.
-
-2. **Tailwind CSS v4, not v3** — uses `@import "tailwindcss"` (not `@tailwind base`). Theme via `@theme inline {}` in CSS. No `tailwind.config.js`. PostCSS uses `@tailwindcss/postcss`. Additional CSS imports: `@import "tw-animate-css"` and `@import "shadcn/tailwind.css"`.
-
-3. **ESLint 9 flat config** — `eslint.config.mjs` with `defineConfig`, not `.eslintrc.*`. Extends use spread: `...nextVitals, ...nextTs`. Includes `globalIgnores` for `.next/`, `out/`, `build/`, `next-env.d.ts`.
-
-4. **Backend `.env` location** — lives in `backend/`, not repo root. Run `uvicorn` from `backend/` so pydantic-settings finds it. The `.env` is NOT committed.
-
-5. **Database URL format** — `database_url` returns `postgresql+asyncpg://…` (async). `database_url_sync` returns `postgresql+psycopg2://…` (Alembic). Don't mix.
-
-6. **Alembic** — use `python -m alembic` (not bare `alembic`). `--autogenerate` needs running PostgreSQL. The initial migration uses `SQLModel.metadata.create_all()` / `drop_all()` in `upgrade()`/`downgrade()`.
-
-7. **UUID primary keys** — all tables use `uuid.UUID` with `default_factory=uuid.uuid4`. Omit PK when creating. API routes use `uuid.UUID` for path params: `/nna/{id_nna}` with `id_nna: uuid.UUID`.
-
-8. **`tiene_antecedentes_penales`** on `AdultoSignificativo` is denormalized. Must update it when adding/removing `AntecedentesPenales` records.
-
-9. **NNAUpdate schema** intentionally duplicates all fields (doesn't inherit from `NNABase`) — this is so `model_dump(exclude_unset=True)` works correctly for partial updates without accidentally including default values from a base class.
-
-10. **Instrumentos dual FK** — E2P, PMF, NCFAS tables have BOTH `id_nna` and `id_adulto_significativo`. Routes exist for both `/nna/{id}/e2p` and `/adultos/{id}/e2p`. When creating, you pass the parent's ID based on which route you hit. The E2P model also has `version` (int, required) and `respuestas` (JSON dict).
-
-11. **No tests exist** — `backend/tests/` is empty. The `pytest` command exists but there's nothing to run.
-
-12. **Frontend NNA detail is a summary page** — `nna/[id]/page.tsx` is ~200 lines, rendering card links to 13 sub-pages. Each sub-page is a full CRUD page with inline create/edit forms. The old monolithic ~880-line page with tabs no longer exists.
-
-13. **All frontend data pages are client components** — there's no server-side data fetching. Every page uses `useEffect` + `useState` pattern.
-
-14. **CORS restricted** to `http://localhost:3000` only.
-
-15. **`pnpm workspaces`** file exists but has no packages defined — `pnpm install` works directly in `frontend/`.
-
-16. **`__init__.py` imports in `app/core/`** — `app/core/__init__.py` does `from app.core.config import settings`, importing from a sibling. This works because `settings` is instantiated at module level first, but be careful adding new circular imports.
-
-17. **Next.js 16 async params** — dynamic route params are `Promise<{ id: string }>`, consumed with `use(params)`.
-
-18. **`dev.ps1` script** — Windows-only PowerShell launcher. Opens separate windows for DB, backend, and frontend.
-
-19. **Docker Compose full stack** — `docker compose up -d --build` starts all three services (db, backend, frontend). Backend connects to `db:5432` internally. Frontend uses `NEXT_PUBLIC_API_URL=http://localhost:8000/api`.
-
-20. **NNA sub-page date handling** — dates in forms use `Date | undefined` (Calendar component). They're converted to `"YYYY-MM-DD"` strings via `fmt()` helper before API calls. Incoming date strings from API are displayed via `new Date(iso + "T00:00:00").toLocaleDateString("es-CL")` — the `+ "T00:00:00"` prevents timezone offset issues.
-
-21. **`/nuevo-caso` orchestration** — the wizard creates records sequentially: NNA first (gets `id_nna`), then Ingreso with causales/derechos under it, then Documentación, then an AntecedenteFamiliar with EntornoFamiliar entries linking Adultos, then Salud/Escolar/Consumo/Discapacidades. Any step can be skipped (only NNA is required). On success, redirects to `/nna/{idNna}`.
-
-22. **Dockerfiles** exist in both `backend/` and `frontend/`. Backend uses `python:3.12-slim`, runs `uvicorn app.main:app --host 0.0.0.0 --port 8000`. Frontend uses multi-stage build with `node:22-alpine`, pnpm, and runs `pnpm start --hostname 0.0.0.0 --port 3000`.
-
-23. **E2P data files are loaded at runtime from relative paths** — `backend/app/data/e2p_questions.json` and `e2p_escala.json` are read via `Path(__file__).resolve().parent.parent.parent / "data" / ...`. The questions file has 8 version keys (`"1"` through `"8"`), each with `edad`, `puntaje` (scoring map), and `preguntas` (list of `{id, texto, categoria}`). The escala file has `escalas_e2p` mapping version keys like `"v_0_3_meses"` to per-category zone thresholds. The 8 version → escala key mapping is hardcoded in `e2p.py` route.
-
-24. **E2P auto-version detection** — The frontend E2P page auto-detects the correct version (1-8) from the NNA's `fecha_nacimiento` using month ranges: [0-3], [4-10], [11-18], [19-36], [37-60], [61-84], [85-144], [145-204]. This triggers a question fetch and pre-selects the version on form open. The `ageToVersion()` function is local to the E2P page.
-
-25. **Frontend AGENTS.md and CLAUDE.md** in `frontend/` both contain `@../AGENTS.md` — they delegate to the root AGENTS.md. Always update only the root file.
-
-26. **Empty directories** — `shared/` (intended for shared types, currently empty) and `backend/app/instruments/` (empty, possibly placeholder). Do not add files to these without explicit instruction.
-
-27. **E2P `version` is required at DB level but optional in API schema** — `E2PCreate.version` is `Optional[int]`, but the model field `version: int = Field()` is **not optional**. Creating an E2P without `version` will fail at the database/ORM level. The frontend always sends version (auto-detected from NNA's age), but a direct API call must include it.
-
-28. **Frontend `Instrumento` interface is reused for E2P, PMF, and NCFAS** — all three instruments share the same TypeScript interface in `src/lib/api.ts`, with `version` and `respuestas` as optional fields. PMF and NCFAS don't use these fields (they only exist on the E2P model), but the frontend API client doesn't discriminate. When creating PMF/NCFAS records, don't send `version` or `respuestas`.
-
-29. **pnpm `--ignore-scripts` in Docker builds** — the frontend Dockerfile uses `--ignore-scripts` for both install steps. This skips `postinstall` hooks (e.g., Next.js telemetry, husky, etc.). If you add a dependency that requires a postinstall script to function, remove this flag or add the specific script.
-
-30. **`cleanup.bat`** — Windows batch file in repo root. Removes Python cache, venv, node_modules, and `.next` directories. Not part of any automated workflow; manual utility only.
-
-31. **Backend `model_config` syntax varies** — Schemas use `model_config = ConfigDict(from_attributes=True)` (Pydantic v2 class-based), while `Settings` uses `model_config = {"env_file": ".env", ...}` (dict-based). Both are valid Pydantic v2 styles; don't mix them within a single class.
-
-32. **Alembic `env.py` imports `app.models`** — the migration env does `import app.models  # noqa: F401` to register all tables in `SQLModel.metadata`. When adding new model files, ensure they're imported in `app/models/__init__.py` so Alembic can detect them.
-
-33. **Seed file is idempotent** — `seed.py` checks if ≥2 NNA exist before inserting. It won't duplicate data on re-runs. Creates 3 NNA, 5 adultos, and ~40 child records with realistic Chilean names/RUNs.
-
-34. **Frontend date format** — all dates displayed in UI use `es-CL` locale: `toLocaleDateString("es-CL")`. Dates sent to API are ISO strings `"YYYY-MM-DD"`. Incoming date strings from API are parsed with `new Date(iso + "T00:00:00")` to avoid timezone offset shifts.
+### Environment & tooling
+- **Tailwind CSS v4**: `@import "tailwindcss"` (NOT `@tailwind base`). Theme via `@theme inline {}` in CSS. No `tailwind.config.js`. PostCSS uses `@tailwindcss/postcss`.
+- **ESLint 9 flat config**: `eslint.config.mjs` with `defineConfig`. Extends via spread: `...nextVitals, ...nextTs`.
+- **Next.js 16 async params**: dynamic route params are `Promise<{ id: string }>`, consumed with `use(params)`.
+- **CORS**: restricted to `http://localhost:3000` only.
+- **pnpm `--ignore-scripts`** in Docker builds — skips postinstall hooks. If adding a dep needing postinstall, remove the flag.
+- **No tests yet**: `pytest` is configured but `backend/tests/` is empty.
+- **Seed is idempotent**: checks `≥2 NNA` before inserting.
+- **Empty dirs**: `shared/` (intended for shared types) and `backend/app/instruments/` (stale pycache only). Don't add files without instruction.
+- **Delegation**: `frontend/AGENTS.md` delegates to this root file with `@../AGENTS.md`. Update only this root file.

@@ -1,5 +1,5 @@
 from app.api.routes.nna import router as nna_router
-from app.api.routes.adultos import router as familiares_router, familiar_penal_router
+from app.api.routes.familiares import router as familiares_router, familiar_penal_router
 from app.api.routes.children import (
     consumo_nna_router,
     consumo_adulto_router,

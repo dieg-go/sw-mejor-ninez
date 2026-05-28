@@ -51,17 +51,17 @@ interface DocEntry {
   fecha_recepcion: Date | null;
   observacion: string;
 }
-interface AntecedenteAdulto {
+interface AntecedenteFamiliar {
   descripcion: string;
 }
-interface AdultoEntry {
+interface FamiliarEntry {
   nombre: string;
   run: string;
   fecha_nacimiento: Date | null;
   direccion: string;
   numero_telefono: string;
   tiene_antecedentes_penales: boolean;
-  antecedentes: AntecedenteAdulto[];
+  antecedentes: AntecedenteFamiliar[];
   parentesco: string;
   es_adulto_responsable: boolean;
 }
@@ -98,7 +98,7 @@ interface WizardData {
   // Step 3
   docs: DocEntry[];
   // Step 4
-  adultos: AdultoEntry[];
+  familiares: FamiliarEntry[];
   // Step 5
   salud: {
     inscrito_en_consultorio: boolean;
@@ -131,7 +131,7 @@ function emptyWizard(): WizardData {
       derechos: [],
     },
     docs: [],
-    adultos: [],
+    familiares: [],
     salud: { inscrito_en_consultorio: false, establecimiento: "", prevision: "" },
     escolar: { escolarizado: false, establecimiento: "", ultimo_ano_curso: "" },
     consumo: [],
@@ -447,75 +447,75 @@ function StepDocs({ data, onData, onBack, onNext }: { data: WizardData; onData: 
   );
 }
 
-// ═══ Step 4: Adultos ═════════════════════════════════════════════════════════
+// ═══ Step 4: Familiares ══════════════════════════════════════════════════════
 
-function StepAdultos({ data, onData, onBack, onNext }: { data: WizardData; onData: (d: WizardData) => void; onBack: () => void; onNext: () => void }) {
-  const addAdulto = () => onData({
+function StepFamiliares({ data, onData, onBack, onNext }: { data: WizardData; onData: (d: WizardData) => void; onBack: () => void; onNext: () => void }) {
+  const addFamiliar = () => onData({
     ...data,
-    adultos: [...data.adultos, { nombre: "", run: "", fecha_nacimiento: null, direccion: "", numero_telefono: "", tiene_antecedentes_penales: false, antecedentes: [], parentesco: "", es_adulto_responsable: false }],
+    familiares: [...data.familiares, { nombre: "", run: "", fecha_nacimiento: null, direccion: "", numero_telefono: "", tiene_antecedentes_penales: false, antecedentes: [], parentesco: "", es_adulto_responsable: false }],
   });
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Adultos Significativos</CardTitle>
-        <CardDescription>Personas relevantes en el entorno del NNA.</CardDescription>
+        <CardTitle>Familiares</CardTitle>
+        <CardDescription>Familiares del NNA.</CardDescription>
       </CardHeader>
       <CardContent>
         <FieldGroup>
-          {data.adultos.length === 0 && <p className="text-sm text-muted-foreground mb-4">Sin adultos registrados.</p>}
-          {data.adultos.map((a, i) => (
+          {data.familiares.length === 0 && <p className="text-sm text-muted-foreground mb-4">Sin familiares registrados.</p>}
+          {data.familiares.map((a, i) => (
             <div key={i} className="border rounded-lg p-4 mb-4">
               <div className="flex items-center justify-between mb-3">
-                <h4 className="text-sm font-medium">Adulto {i + 1}</h4>
+                <h4 className="text-sm font-medium">Familiar {i + 1}</h4>
                 <Button type="button" variant="ghost" size="sm" className="text-destructive" onClick={() => {
-                  onData({ ...data, adultos: data.adultos.filter((_, j) => j !== i) });
+                  onData({ ...data, familiares: data.familiares.filter((_, j) => j !== i) });
                 }}>Eliminar</Button>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Field>
                   <FieldLabel>Nombre</FieldLabel>
                   <Input value={a.nombre} onChange={(e) => {
-                    const as = [...data.adultos]; as[i] = { ...as[i], nombre: e.target.value }; onData({ ...data, adultos: as });
+                    const fs = [...data.familiares]; fs[i] = { ...fs[i], nombre: e.target.value }; onData({ ...data, familiares: fs });
                   }} placeholder="Nombre completo" />
                 </Field>
                 <Field>
                   <FieldLabel>RUN</FieldLabel>
                   <Input value={a.run} onChange={(e) => {
-                    const as = [...data.adultos]; as[i] = { ...as[i], run: e.target.value }; onData({ ...data, adultos: as });
+                    const fs = [...data.familiares]; fs[i] = { ...fs[i], run: e.target.value }; onData({ ...data, familiares: fs });
                   }} placeholder="12.345.678-9" />
                 </Field>
                 <DateField label="Fecha de nacimiento" value={a.fecha_nacimiento} onChange={(d) => {
-                  const as = [...data.adultos]; as[i] = { ...as[i], fecha_nacimiento: d ?? null }; onData({ ...data, adultos: as });
+                  const fs = [...data.familiares]; fs[i] = { ...fs[i], fecha_nacimiento: d ?? null }; onData({ ...data, familiares: fs });
                 }} />
                 <Field>
                   <FieldLabel>Dirección</FieldLabel>
                   <Input value={a.direccion} onChange={(e) => {
-                    const as = [...data.adultos]; as[i] = { ...as[i], direccion: e.target.value }; onData({ ...data, adultos: as });
+                    const fs = [...data.familiares]; fs[i] = { ...fs[i], direccion: e.target.value }; onData({ ...data, familiares: fs });
                   }} placeholder="Dirección" />
                 </Field>
                 <Field>
                   <FieldLabel>Teléfono</FieldLabel>
                   <Input value={a.numero_telefono} onChange={(e) => {
-                    const as = [...data.adultos]; as[i] = { ...as[i], numero_telefono: e.target.value }; onData({ ...data, adultos: as });
+                    const fs = [...data.familiares]; fs[i] = { ...fs[i], numero_telefono: e.target.value }; onData({ ...data, familiares: fs });
                   }} placeholder="+569..." />
                 </Field>
                 <Field>
                   <FieldLabel>Parentesco con el NNA</FieldLabel>
                   <Input value={a.parentesco} onChange={(e) => {
-                    const as = [...data.adultos]; as[i] = { ...as[i], parentesco: e.target.value }; onData({ ...data, adultos: as });
+                    const fs = [...data.familiares]; fs[i] = { ...fs[i], parentesco: e.target.value }; onData({ ...data, familiares: fs });
                   }} placeholder="Madre / Padre / Tío..." />
                 </Field>
               </div>
               <label className="flex items-center gap-2 text-sm mt-3">
                 <Checkbox checked={a.tiene_antecedentes_penales} onCheckedChange={(v) => {
-                  const as = [...data.adultos]; as[i] = { ...as[i], tiene_antecedentes_penales: !!v }; onData({ ...data, adultos: as });
+                  const fs = [...data.familiares]; fs[i] = { ...fs[i], tiene_antecedentes_penales: !!v }; onData({ ...data, familiares: fs });
                 }} />
                 Tiene antecedentes penales
               </label>
               <label className="flex items-center gap-2 text-sm mt-2">
                 <Checkbox checked={a.es_adulto_responsable} onCheckedChange={(v) => {
-                  const as = [...data.adultos]; as[i] = { ...as[i], es_adulto_responsable: !!v }; onData({ ...data, adultos: as });
+                  const fs = [...data.familiares]; fs[i] = { ...fs[i], es_adulto_responsable: !!v }; onData({ ...data, familiares: fs });
                 }} />
                 Es adulto responsable
               </label>
@@ -525,29 +525,29 @@ function StepAdultos({ data, onData, onBack, onNext }: { data: WizardData; onDat
                   {a.antecedentes.map((ant, j) => (
                     <div key={j} className="flex items-center gap-2 mb-2">
                       <Input placeholder="Descripción del antecedente" value={ant.descripcion} onChange={(e) => {
-                        const as = [...data.adultos];
-                        const ants = [...as[i].antecedentes];
+                        const fs = [...data.familiares];
+                        const ants = [...fs[i].antecedentes];
                         ants[j] = { ...ants[j], descripcion: e.target.value };
-                        as[i] = { ...as[i], antecedentes: ants };
-                        onData({ ...data, adultos: as });
+                        fs[i] = { ...fs[i], antecedentes: ants };
+                        onData({ ...data, familiares: fs });
                       }} />
                       <Button type="button" variant="ghost" size="sm" className="text-destructive shrink-0" onClick={() => {
-                        const as = [...data.adultos];
-                        as[i] = { ...as[i], antecedentes: as[i].antecedentes.filter((_, k) => k !== j) };
-                        onData({ ...data, adultos: as });
+                        const fs = [...data.familiares];
+                        fs[i] = { ...fs[i], antecedentes: fs[i].antecedentes.filter((_, k) => k !== j) };
+                        onData({ ...data, familiares: fs });
                       }}>×</Button>
                     </div>
                   ))}
                   <Button type="button" variant="outline" size="sm" onClick={() => {
-                    const as = [...data.adultos];
-                    as[i] = { ...as[i], antecedentes: [...as[i].antecedentes, { descripcion: "" }] };
-                    onData({ ...data, adultos: as });
+                    const fs = [...data.familiares];
+                    fs[i] = { ...fs[i], antecedentes: [...fs[i].antecedentes, { descripcion: "" }] };
+                    onData({ ...data, familiares: fs });
                   }}>+ Agregar antecedente</Button>
                 </div>
               )}
             </div>
           ))}
-          <Button type="button" variant="outline" size="sm" onClick={addAdulto}>+ Agregar adulto</Button>
+          <Button type="button" variant="outline" size="sm" onClick={addFamiliar}>+ Agregar familiar</Button>
 
           <div className="flex items-center justify-between gap-3 pt-2">
             <Button variant="outline" onClick={onBack}><ArrowLeftIcon /> Anterior</Button>
@@ -716,7 +716,7 @@ function StepReview({
   const hasExtra =
     data.ingreso.quien_solicita_ingreso ||
     data.docs.length > 0 ||
-    data.adultos.length > 0 ||
+    data.familiares.length > 0 ||
     data.consumo.length > 0 ||
     data.discapacidades.length > 0;
 
@@ -760,11 +760,11 @@ function StepReview({
             </section>
           )}
 
-          {data.adultos.length > 0 && (
+          {data.familiares.length > 0 && (
             <section>
-              <h4 className="text-sm font-medium mb-2">Adultos ({data.adultos.length})</h4>
+              <h4 className="text-sm font-medium mb-2">Familiares ({data.familiares.length})</h4>
               <div className="flex flex-wrap gap-1">
-                {data.adultos.map((a, i) => (
+                {data.familiares.map((a, i) => (
                   <Badge key={i} variant="secondary">
                     {a.nombre || "Sin nombre"}{a.parentesco ? ` (${a.parentesco})` : ""}
                     {a.es_adulto_responsable ? " · Responsable" : ""}
@@ -883,11 +883,11 @@ export default function NuevoCasoPage() {
       }
 
       // 4. Create Familiares + link to NNA via VinculoFamiliar
-      if (data.adultos.length > 0) {
+      if (data.familiares.length > 0) {
         const fam = await api.antecedenteFamiliar.create(idNna, {
           fecha_antecedente_familiar: new Date().toISOString().split("T")[0],
         });
-        for (const a of data.adultos) {
+        for (const a of data.familiares) {
           const familiar = await api.familiares.create({
             nombre: a.nombre || null,
             run: a.run || null,
@@ -966,7 +966,7 @@ export default function NuevoCasoPage() {
       {step === 0 && <StepNNA data={data} onData={setData} onNext={goNext} />}
       {step === 1 && <StepIngreso data={data} onData={setData} onBack={goBack} onNext={goNext} />}
       {step === 2 && <StepDocs data={data} onData={setData} onBack={goBack} onNext={goNext} />}
-      {step === 3 && <StepAdultos data={data} onData={setData} onBack={goBack} onNext={goNext} />}
+      {step === 3 && <StepFamiliares data={data} onData={setData} onBack={goBack} onNext={goNext} />}
       {step === 4 && <StepAntecedentes data={data} onData={setData} onBack={goBack} onNext={goNext} />}
       {step === 5 && <StepReview data={data} onBack={goBack} submitting={submitting} onSubmit={handleSubmit} error={error} />}
     </div>

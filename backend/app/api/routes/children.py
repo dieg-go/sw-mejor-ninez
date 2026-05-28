@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.models import AntecedentesPenales, DiscapacidadAdulto, DiscapacidadNNA, HistorialConsumoAdulto, HistorialConsumoNNA
-from app.schemas.adulto import AntecedentePenalRead, AntecedentePenalUpdate
+from app.schemas.familiar import AntecedentePenalRead, AntecedentePenalUpdate
 from app.schemas.consumo import (
     HistorialConsumoAdultoCreate,
     HistorialConsumoAdultoRead,

@@ -1,5 +1,5 @@
 from app.schemas.nna import NNARead, NNACreate, NNAUpdate
-from app.schemas.adulto import (
+from app.schemas.familiar import (
     FamiliarRead,
     FamiliarCreate,
     FamiliarUpdate,

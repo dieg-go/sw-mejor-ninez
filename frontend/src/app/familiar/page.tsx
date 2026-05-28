@@ -62,7 +62,7 @@ export default function FamiliarListPage() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold">Familiares</h1>
         <Button asChild>
-          <Link href="/adultos/nuevo">+ Nuevo Familiar</Link>
+          <Link href="/familiar/nuevo">+ Nuevo Familiar</Link>
         </Button>
       </div>
 
@@ -97,7 +97,7 @@ export default function FamiliarListPage() {
                 <TableRow key={familiar.id_familiar}>
                   <TableCell className="px-4 py-3">
                     <Link
-                      href={`/familiares/${familiar.id_familiar}`}
+                      href={`/familiar/${familiar.id_familiar}`}
                       className="font-medium hover:underline"
                     >
                       {familiar.nombre || "Sin nombre"}

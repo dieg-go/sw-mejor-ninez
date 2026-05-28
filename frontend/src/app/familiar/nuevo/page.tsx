@@ -209,7 +209,7 @@ function DiscapacidadSection({
 
 // ═══ Main Page ═══════════════════════════════════════════════════════════════
 
-export default function NuevoAdultoPage() {
+export default function NuevoFamiliarPage() {
   const router = useRouter();
 
   // Form state
@@ -297,7 +297,7 @@ export default function NuevoAdultoPage() {
         });
       }
 
-      router.push(`/adultos/${idFamiliar}`);
+      router.push(`/familiar/${idFamiliar}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al crear el familiar");
       setSubmitting(false);
@@ -307,7 +307,7 @@ export default function NuevoAdultoPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
       <div className="mb-4">
-        <Link href="/adultos" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+        <Link href="/familiar" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
           <ArrowLeftIcon /> Volver al listado
         </Link>
       </div>
@@ -325,21 +325,21 @@ export default function NuevoAdultoPage() {
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Field>
-                  <FieldLabel htmlFor="ad-nombre">Nombre</FieldLabel>
-                  <Input id="ad-nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Nombre completo" />
+                  <FieldLabel htmlFor="fa-nombre">Nombre</FieldLabel>
+                  <Input id="fa-nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Nombre completo" />
                 </Field>
                 <Field>
-                  <FieldLabel htmlFor="ad-run">RUN</FieldLabel>
-                  <Input id="ad-run" value={run} onChange={(e) => setRun(e.target.value)} placeholder="12.345.678-9" />
+                  <FieldLabel htmlFor="fa-run">RUN</FieldLabel>
+                  <Input id="fa-run" value={run} onChange={(e) => setRun(e.target.value)} placeholder="12.345.678-9" />
                 </Field>
                 <DateField label="Fecha de nacimiento" value={fechaNac} onChange={(d) => setFechaNac(d ?? null)} />
                 <Field>
-                  <FieldLabel htmlFor="ad-tel">Teléfono</FieldLabel>
-                  <Input id="ad-tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} placeholder="+569..." />
+                  <FieldLabel htmlFor="fa-tel">Teléfono</FieldLabel>
+                  <Input id="fa-tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} placeholder="+569..." />
                 </Field>
                 <Field className="sm:col-span-2">
-                  <FieldLabel htmlFor="ad-dir">Dirección</FieldLabel>
-                  <Input id="ad-dir" value={direccion} onChange={(e) => setDireccion(e.target.value)} placeholder="Dirección" />
+                  <FieldLabel htmlFor="fa-dir">Dirección</FieldLabel>
+                  <Input id="fa-dir" value={direccion} onChange={(e) => setDireccion(e.target.value)} placeholder="Dirección" />
                 </Field>
               </div>
             </CardContent>
@@ -418,7 +418,7 @@ export default function NuevoAdultoPage() {
           <Card>
             <CardHeader>
               <CardTitle>Discapacidades</CardTitle>
-              <CardDescription>Registro de discapacidades del adulto.</CardDescription>
+              <CardDescription>Registro de discapacidades del familiar.</CardDescription>
             </CardHeader>
             <CardContent>
               <DiscapacidadSection items={discapacidades} onChange={setDiscapacidades} />
@@ -430,10 +430,10 @@ export default function NuevoAdultoPage() {
           <div className="flex items-center gap-3 pt-2">
             <Button type="submit" disabled={submitting}>
               {submitting && <Spinner data-icon="inline-start" />}
-              {submitting ? "Guardando..." : "Guardar adulto"}
+              {submitting ? "Guardando..." : "Guardar familiar"}
             </Button>
             <Button variant="outline" asChild>
-              <Link href="/adultos">Cancelar</Link>
+              <Link href="/familiar">Cancelar</Link>
             </Button>
           </div>
         </FieldGroup>

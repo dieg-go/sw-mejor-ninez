@@ -7,7 +7,7 @@ from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from app.models.nna import NNA
-    from app.models.adulto import Familiar
+    from app.models.familiar import Familiar
 
 
 class NCFAS(SQLModel, table=True):

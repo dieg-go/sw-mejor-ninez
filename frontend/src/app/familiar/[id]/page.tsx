@@ -110,7 +110,7 @@ export default function FamiliarDetailPage({
       <div className="max-w-5xl mx-auto px-4 py-8">
         <p className="text-destructive">{error || "Familiar no encontrado"}</p>
         <Button variant="outline" asChild className="mt-4">
-          <Link href="/adultos">
+          <Link href="/familiar">
             <ArrowLeftIcon />
             Volver
           </Link>
@@ -122,7 +122,7 @@ export default function FamiliarDetailPage({
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       <Button variant="ghost" asChild className="-ml-2 mb-4">
-        <Link href="/adultos">
+        <Link href="/familiar">
           <ArrowLeftIcon />
           Volver al listado
         </Link>

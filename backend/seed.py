@@ -429,7 +429,7 @@ async def seed():
         ))
 
         await session.commit()
-        print("Seed data created: 3 NNA, 5 adultos, ~40 child records.")
+        print("Seed data created: 3 NNA, 5 familiares, ~40 child records.")
 
 
 if __name__ == "__main__":
