@@ -92,6 +92,6 @@ class VinculoFamiliarUpdate(BaseModel):
 class VinculoFamiliarRead(VinculoFamiliarBase):
     model_config = ConfigDict(from_attributes=True)
 
-    id_entorno_familiar: uuid.UUID
+    id_vinculo_familiar: uuid.UUID
     id_antecedente_familiar: uuid.UUID
     id_familiar: Optional[uuid.UUID] = None

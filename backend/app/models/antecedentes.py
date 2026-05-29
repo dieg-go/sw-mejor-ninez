@@ -56,7 +56,7 @@ class AntecedenteFamiliar(SQLModel, table=True):
 class VinculoFamiliar(SQLModel, table=True):
     __tablename__ = "VinculoFamiliar"
 
-    id_entorno_familiar: uuid.UUID = Field(
+    id_vinculo_familiar: uuid.UUID = Field(
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
     )
     id_antecedente_familiar: uuid.UUID = Field(
@@ -69,4 +69,4 @@ class VinculoFamiliar(SQLModel, table=True):
     es_adulto_responsable: bool = False
 
     antecedente_familiar: "AntecedenteFamiliar" = Relationship(back_populates="vinculo_familiar")
-    familiar: "Familiar" = Relationship(back_populates="entorno_familiar")
+    familiar: "Familiar" = Relationship(back_populates="vinculos_familiares")

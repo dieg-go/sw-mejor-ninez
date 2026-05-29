@@ -94,9 +94,33 @@ frontend/
 ### Database
 - Port **5433** locally (Docker maps 5433→5432). Inside Compose, hostname `db` on port 5432.
 - Alembic: use `python -m alembic` (not bare `alembic`). Needs running PostgreSQL.
+- **Auto-migration**: `backend/entrypoint.sh` runs `alembic upgrade head` before starting uvicorn, so `docker compose up -d --build` always syncs the DB.
 - `.env` lives in `backend/`, not repo root. Run `uvicorn` from `backend/` so pydantic-settings finds it.
 - All PKs are UUID (`default_factory=uuid.uuid4`). Omit when creating.
 - `tiene_antecedentes_penales` on Familiar is **denormalized** — must update when adding/removing `AntecedentesPenales`.
+
+### Rollback procedure (git + DB sync)
+When resetting code to an earlier commit, downgrade the DB to match:
+```bash
+# 1. Find the latest migration at the target commit
+git show <target-commit>:backend/migrations/versions/
+
+# 2. Downgrade DB to that revision
+cd backend
+python -m alembic downgrade <target-revision-id>
+
+# 3. If migrations are missing (DB ahead of code), full reset:
+docker compose down -v
+docker compose up -d db
+python -m alembic upgrade head
+python seed.py
+docker compose up -d --build
+
+# 4. Verify sync
+docker exec sw-mejor-ninez-db psql -U postgres -d sw_mejor_ninez \
+  -c "SELECT version_num FROM alembic_version;"
+```
+Migrations are code — they must move forward/backward with commits. The rename migration (`20260526_2116`) is idempotent and skips if old table names don't exist.
 
 ### Backend patterns
 - **Service helpers**: class-based for NNA/Familiar (`NNAService`, `FamiliarService`). Stateless generic functions for children: `list_nna_children()`, `create_nna_child()`, `get_nna_child()`, `update_child()`, plus `familiar`, `ingreso`, and `vinculo` variants.

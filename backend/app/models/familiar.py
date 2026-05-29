@@ -30,7 +30,7 @@ class Familiar(SQLModel, table=True):
     historial_consumo: list["HistorialConsumoAdulto"] = Relationship(back_populates="familiar")
     discapacidades: list["DiscapacidadAdulto"] = Relationship(back_populates="familiar")
     antecedentes_penales: list["AntecedentesPenales"] = Relationship(back_populates="familiar")
-    entorno_familiar: list["VinculoFamiliar"] = Relationship(back_populates="familiar")
+    vinculos_familiares: list["VinculoFamiliar"] = Relationship(back_populates="familiar")
     evaluaciones_e2p: list["E2P"] = Relationship(
         back_populates="familiar",
         sa_relationship_kwargs={"foreign_keys": "E2P.id_familiar"},

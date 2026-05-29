@@ -241,14 +241,14 @@ export interface AntecedenteFamiliar {
 export type AntecedenteFamiliarUpdate = Partial<Omit<AntecedenteFamiliar, "id_antecedente_familiar" | "id_nna">>;
 
 export interface VinculoFamiliar {
-  id_entorno_familiar: string;
+  id_vinculo_familiar: string;
   id_antecedente_familiar: string;
   id_familiar: string | null;
   parentesco: string | null;
   es_adulto_responsable: boolean;
 }
 
-export type VinculoFamiliarUpdate = Partial<Omit<VinculoFamiliar, "id_entorno_familiar" | "id_antecedente_familiar">>;
+export type VinculoFamiliarUpdate = Partial<Omit<VinculoFamiliar, "id_vinculo_familiar" | "id_antecedente_familiar">>;
 
 // ── E2P Questions ────────────────────────────────────────────────────────────
 
@@ -482,7 +482,7 @@ export const api = {
 
   vinculoFamiliar: {
     list: (idFamiliar: string) => request<VinculoFamiliar[]>(`/antecedente-familiar/${idFamiliar}/vinculo`),
-    create: (idFamiliar: string, data: Omit<VinculoFamiliar, "id_entorno_familiar" | "id_antecedente_familiar">) =>
+    create: (idFamiliar: string, data: Omit<VinculoFamiliar, "id_vinculo_familiar" | "id_antecedente_familiar">) =>
       request<VinculoFamiliar>(`/antecedente-familiar/${idFamiliar}/vinculo`, { method: "POST", body: JSON.stringify(data) }),
     get: (id: string) => request<VinculoFamiliar>(`/vinculo-familiar/${id}`),
     update: (id: string, data: VinculoFamiliarUpdate) =>

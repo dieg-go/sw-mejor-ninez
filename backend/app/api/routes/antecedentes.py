@@ -170,7 +170,7 @@ vinculo_item_router = APIRouter(prefix="/api/vinculo-familiar", tags=["VinculoFa
 
 @vinculo_item_router.get("/{id_vinculo}", response_model=VinculoFamiliarRead)
 async def get_vinculo(id_vinculo: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    obj = await get_nna_child(db, VinculoFamiliar, VinculoFamiliar.id_entorno_familiar, id_vinculo)
+    obj = await get_nna_child(db, VinculoFamiliar, VinculoFamiliar.id_vinculo_familiar, id_vinculo)
     if not obj:
         raise HTTPException(status_code=404, detail="Vínculo familiar no encontrado")
     return obj
@@ -180,7 +180,7 @@ async def get_vinculo(id_vinculo: uuid.UUID, db: AsyncSession = Depends(get_db))
 async def update_vinculo(
     id_vinculo: uuid.UUID, data: VinculoFamiliarUpdate, db: AsyncSession = Depends(get_db)
 ):
-    obj = await get_nna_child(db, VinculoFamiliar, VinculoFamiliar.id_entorno_familiar, id_vinculo)
+    obj = await get_nna_child(db, VinculoFamiliar, VinculoFamiliar.id_vinculo_familiar, id_vinculo)
     if not obj:
         raise HTTPException(status_code=404, detail="Vínculo familiar no encontrado")
     return await update_child(db, obj, data.model_dump(exclude_unset=True))

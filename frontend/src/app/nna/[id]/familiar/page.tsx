@@ -223,7 +223,7 @@ export default function FamiliarPage({ params }: { params: Promise<{ id: string 
                         ) : (
                           <ul className="space-y-1 mb-3">
                             {vinculos.map((e) => (
-                              <li key={e.id_entorno_familiar} className="text-sm flex items-center gap-2 flex-wrap">
+                              <li key={e.id_vinculo_familiar} className="text-sm flex items-center gap-2 flex-wrap">
                                 <span>{getFamiliarName(e.id_familiar)}</span>
                                 <span className="text-muted-foreground">· {e.parentesco || "—"}</span>
                                 {e.es_adulto_responsable && <Badge variant="secondary" className="text-xs">Responsable</Badge>}

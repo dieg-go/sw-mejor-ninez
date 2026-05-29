@@ -13,13 +13,13 @@ CREATE TABLE "NNA" (
 );
 
 CREATE TABLE "Familiar" (
-  "id_familiar" uuid PRIMARY KEY,
+  "id_familiar" integer PRIMARY KEY,
+  "id_vinculo_familiar" integer,
   "nombre" varchar,
   "fecha_nacimiento" date,
   "run" varchar,
   "direccion" varchar,
-  "numero_telefono" varchar,
-  "tiene_antecedentes_penales" boolean DEFAULT false
+  "numero_telefono" varchar
 );
 
 CREATE TABLE "HistorialConsumoNNA" (
@@ -164,7 +164,7 @@ CREATE TABLE "PreguntaE2P" (
   "id_rango_edad_e2p" int,
   "numero_pregunta" int,
   "texto_pregunta" varchar,
-  "categoria_pregunta" int
+  "categoria_pregunta" varchar
 );
 
 CREATE TABLE "RespuestaE2P" (
@@ -189,7 +189,7 @@ CREATE TABLE "PMF" (
   "id_familiar" integer,
   "fecha_evaluacion" date,
   "fecha_proxima_evaluacion" date,
-  "respuestas" varchar[],
+  "respuestas" varchar,
   "observacion" varchar
 );
 
@@ -222,17 +222,17 @@ CREATE TABLE "AntecedenteEscolar" (
 );
 
 CREATE TABLE "AntecedenteFamiliar" (
-  "id_antecedente_familiar" uuid PRIMARY KEY,
-  "id_nna" uuid,
+  "id_antecedente_familiar" integer PRIMARY KEY,
+  "id_nna" integer,
   "fecha_antecedente_familiar" date
 );
 
 CREATE TABLE "VinculoFamiliar" (
-  "id_entorno_familiar" uuid PRIMARY KEY,
-  "id_antecedente_familiar" uuid,
-  "id_familiar" uuid,
+  "id_vinculo_familiar" int PRIMARY KEY,
+  "id_antecedente_familiar" integer,
+  "id_familiar" integer,
   "parentesco" varchar,
-  "es_adulto_responsable" boolean DEFAULT false
+  "es_adulto_responsable" boolean
 );
 
 ALTER TABLE "HistorialConsumoNNA" ADD FOREIGN KEY ("id_nna") REFERENCES "NNA" ("id_nna") DEFERRABLE INITIALLY IMMEDIATE;
@@ -284,6 +284,7 @@ ALTER TABLE "PreguntaE2P" ADD FOREIGN KEY ("id_rango_edad_e2p") REFERENCES "Rang
 ALTER TABLE "RespuestaE2P" ADD FOREIGN KEY ("id_resumen_e2p") REFERENCES "ResumenE2P" ("id_resumen_e2p") DEFERRABLE INITIALLY IMMEDIATE;
 
 ALTER TABLE "RespuestaE2P" ADD FOREIGN KEY ("id_pregunta_e2p") REFERENCES "PreguntaE2P" ("id_pregunta_e2p") DEFERRABLE INITIALLY IMMEDIATE;
+
 ALTER TABLE "InterpretacionE2P" ADD FOREIGN KEY ("id_rango_edad_e2p") REFERENCES "RangoEdadE2P" ("id_rango_edad_e2p") DEFERRABLE INITIALLY IMMEDIATE;
 
 ALTER TABLE "VinculoFamiliar" ADD FOREIGN KEY ("id_familiar") REFERENCES "Familiar" ("id_familiar") DEFERRABLE INITIALLY IMMEDIATE;
