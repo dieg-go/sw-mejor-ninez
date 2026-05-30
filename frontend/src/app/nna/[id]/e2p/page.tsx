@@ -69,6 +69,12 @@ const ZONE_COLORS: Record<string, string> = {
   Alta: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300",
 };
 
+const RESULTADO_STYLES: Record<string, string> = {
+  Riesgo: "bg-red-100 text-red-800 border-red-300 dark:bg-red-950 dark:text-red-300 dark:border-red-800",
+  Monitoreo: "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-800",
+  Optimo: "bg-green-100 text-green-800 border-green-300 dark:bg-green-950 dark:text-green-300 dark:border-green-800",
+};
+
 function likertRadios(questionId: number, value: number | undefined, onChange: (qId: number, val: number) => void, disabled: boolean) {
   return (
     <div className="flex gap-3 flex-wrap mt-1">
@@ -101,7 +107,6 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
   // Create form
   const [showForm, setShowForm] = useState(false);
   const [idFamiliar, setIdFamiliar] = useState("");
-  const [resultado, setResultado] = useState("");
   const [observacion, setObservacion] = useState("");
   const [fechaEval, setFechaEval] = useState<Date | undefined>(undefined);
   const [fechaProx, setFechaProx] = useState<Date | undefined>(undefined);
@@ -116,7 +121,6 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
   // Edit form
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editIdFamiliar, setEditIdFamiliar] = useState("");
-  const [editResultado, setEditResultado] = useState("");
   const [editObservacion, setEditObservacion] = useState("");
   const [editFechaEval, setEditFechaEval] = useState<Date | undefined>(undefined);
   const [editFechaProx, setEditFechaProx] = useState<Date | undefined>(undefined);
@@ -177,7 +181,7 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
   };
 
   const resetCreate = () => {
-    setIdFamiliar(""); setResultado(""); setObservacion("");
+    setIdFamiliar(""); setObservacion("");
     setFechaEval(undefined); setFechaProx(undefined);
     setVersion(null); setQuestions(null); setAnswers({});
   };
@@ -191,7 +195,6 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
   const buildPayload = (ver: number | null, ans: Record<string, number>) => {
     const p: any = {};
     if (idFamiliar) p.id_familiar = idFamiliar;
-    if (resultado) p.resultado = resultado;
     if (observacion) p.observacion = observacion;
     if (fechaEval) p.fecha_evaluacion = fechaEval.toISOString().split("T")[0];
     if (fechaProx) p.fecha_proxima_evaluacion = fechaProx.toISOString().split("T")[0];
@@ -216,7 +219,6 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
   const startEdit = async (item: Instrumento) => {
     setEditingId(item.id_instrumento);
     setEditIdFamiliar(item.id_familiar || "");
-    setEditResultado(item.resultado || "");
     setEditObservacion(item.observacion || "");
     setEditFechaEval(item.fecha_evaluacion ? new Date(item.fecha_evaluacion + "T00:00:00") : undefined);
     setEditFechaProx(item.fecha_proxima_evaluacion ? new Date(item.fecha_proxima_evaluacion + "T00:00:00") : undefined);
@@ -236,7 +238,6 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
   const buildEditPayload = () => {
     const p: any = {};
     if (editIdFamiliar) p.id_familiar = editIdFamiliar;
-    if (editResultado) p.resultado = editResultado;
     if (editObservacion) p.observacion = editObservacion;
     if (editFechaEval) p.fecha_evaluacion = editFechaEval.toISOString().split("T")[0];
     else p.fecha_evaluacion = null;
@@ -339,10 +340,6 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
                   </Popover>
                 </div>
                 <div>
-                  <Label className="text-xs">Resultado</Label>
-                  <Input className="mt-1" value={resultado} onChange={(e) => setResultado(e.target.value)} placeholder="Resultado" />
-                </div>
-                <div>
                   <Label className="text-xs">Observación</Label>
                   <Input className="mt-1" value={observacion} onChange={(e) => setObservacion(e.target.value)} placeholder="Observaciones" />
                 </div>
@@ -428,10 +425,6 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
                           <PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={editFechaProx} onSelect={setEditFechaProx} /></PopoverContent>
                         </Popover>
                       </div>
-                      <div>
-                        <Label className="text-xs">Resultado</Label>
-                        <Input className="mt-1" value={editResultado} onChange={(e) => setEditResultado(e.target.value)} />
-                      </div>
                       <div className="sm:col-span-2">
                         <Label className="text-xs">Observación</Label>
                         <Input className="mt-1" value={editObservacion} onChange={(e) => setEditObservacion(e.target.value)} />
@@ -470,7 +463,16 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
                   <div className="flex items-start justify-between">
                     <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
                       <div><span className="text-xs text-muted-foreground">Familiar: </span>{getFamiliarName(item.id_familiar)}</div>
-                      <div><span className="text-xs text-muted-foreground">Resultado: </span>{item.resultado || "—"}</div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">Resultado: </span>
+                        {item.resultado ? (
+                          <span className={cn("inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold", RESULTADO_STYLES[item.resultado] || "bg-muted border-muted-foreground/20")}>
+                            {item.resultado}
+                          </span>
+                        ) : (
+                          <span className="text-sm">—</span>
+                        )}
+                      </div>
                       <div><span className="text-xs text-muted-foreground">Evaluación: </span>{formatDate(item.fecha_evaluacion)}</div>
                       <div><span className="text-xs text-muted-foreground">Próxima: </span>{formatDate(item.fecha_proxima_evaluacion)}</div>
                       {item.version != null && (

@@ -11,7 +11,6 @@ class E2PCreate(BaseModel):
     fecha_proxima_evaluacion: Optional[date] = None
     version: Optional[int] = None
     respuestas: Optional[dict[str, Any]] = None
-    resultado: Optional[str] = None
     observacion: Optional[str] = None
 
 
@@ -21,15 +20,21 @@ class E2PUpdate(BaseModel):
     fecha_proxima_evaluacion: Optional[date] = None
     version: Optional[int] = None
     respuestas: Optional[dict[str, Any]] = None
-    resultado: Optional[str] = None
     observacion: Optional[str] = None
 
 
-class E2PRead(E2PCreate):
+class E2PRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id_instrumento: uuid.UUID
     id_nna: uuid.UUID
+    id_familiar: Optional[uuid.UUID] = None
+    fecha_evaluacion: Optional[date] = None
+    fecha_proxima_evaluacion: Optional[date] = None
+    version: Optional[int] = None
+    respuestas: Optional[dict[str, Any]] = None
+    resultado: Optional[str] = None
+    observacion: Optional[str] = None
 
 
 class PreguntaE2PRead(BaseModel):
@@ -51,3 +56,15 @@ class BaremoE2PRead(BaseModel):
     zona: str
     puntaje_min: int
     puntaje_max: int
+
+
+class PuntajeE2PRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id_puntaje_e2p: uuid.UUID
+    id_instrumento: uuid.UUID
+    categoria: str
+    puntaje_bruto: int
+    puntaje_max: int
+    zona: str
+    rango_zona: str

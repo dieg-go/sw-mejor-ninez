@@ -35,6 +35,7 @@ class E2P(SQLModel, table=True):
         sa_relationship_kwargs={"foreign_keys": "[E2P.id_familiar]"},
     )
     respuestas_list: list["RespuestaE2P"] = Relationship(back_populates="evaluacion")
+    puntajes: list["PuntajeE2P"] = Relationship(back_populates="evaluacion")
 
 
 class PreguntaE2P(SQLModel, table=True):
@@ -80,3 +81,21 @@ class BaremoE2P(SQLModel, table=True):
     zona: str = Field()
     puntaje_min: int = Field()
     puntaje_max: int = Field()
+
+
+class PuntajeE2P(SQLModel, table=True):
+    __tablename__ = "PuntajeE2P"
+
+    id_puntaje_e2p: uuid.UUID = Field(
+        default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
+    )
+    id_instrumento: uuid.UUID = Field(
+        foreign_key="E2P.id_instrumento", sa_type=UUID(as_uuid=True)
+    )
+    categoria: str = Field()
+    puntaje_bruto: int = Field()
+    puntaje_max: int = Field()
+    zona: str = Field()
+    rango_zona: str = Field()
+
+    evaluacion: "E2P" = Relationship(back_populates="puntajes")

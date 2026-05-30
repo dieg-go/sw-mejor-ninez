@@ -80,6 +80,7 @@ frontend/
 0b733fafb9a6 (initial) → ef7302f55ef1 (e2p_version+respuestas)
   → 20260526_2116 (rename Adulto→Familiar, Entorno→Vinculo) → 65efebdbb730 (rename FK column)
   → ae12f00b467b (normalize_e2p — PreguntaE2P, RespuestaE2P, BaremoE2P tables)
+  → f4285c627ed7 (puntaje_e2p_table — PuntajeE2P table)
 ```
 The rename migration (`20260526_2116`) is idempotent — skips if old table names don't exist.
 

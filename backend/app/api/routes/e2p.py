@@ -7,13 +7,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
 from app.core.database import get_db
-from app.models.e2p import E2P, BaremoE2P, PreguntaE2P, RespuestaE2P
+from app.models.e2p import E2P, BaremoE2P, PreguntaE2P, RespuestaE2P, PuntajeE2P
 from app.schemas.e2p import (
     E2PCreate,
     E2PRead,
     E2PUpdate,
     BaremoE2PRead,
     PreguntaE2PRead,
+    PuntajeE2PRead,
 )
 from app.services import (
     create_familiar_child,
@@ -26,16 +27,10 @@ from app.services import (
 
 _DATA_DIR = Path(__file__).resolve().parent.parent.parent / "data"
 _QUESTIONS_PATH = _DATA_DIR / "e2p_questions.json"
-_ESCALA_PATH = _DATA_DIR / "e2p_escala.json"
 
 
 def _load_questions_json():
     with open(_QUESTIONS_PATH, encoding="utf-8") as f:
-        return json.load(f)
-
-
-def _load_escala_json():
-    with open(_ESCALA_PATH, encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -103,6 +98,133 @@ async def _build_respuestas_dict(
     return result
 
 
+def _determinar_resultado(puntajes: list[dict]) -> str | None:
+    """Clasifica el resultado global del E2P a partir de las zonas por categoria."""
+    bajas = sum(1 for p in puntajes if p["zona"] == "Baja")
+    inter = sum(1 for p in puntajes if p["zona"] == "Intermedia")
+    altas = sum(1 for p in puntajes if p["zona"] == "Alta")
+    vinc_baja = any(
+        p["categoria"] == "Vinculares" and p["zona"] == "Baja"
+        for p in puntajes
+    )
+
+    if bajas >= 2 or vinc_baja:
+        return "Riesgo"
+    if (bajas == 1 and not vinc_baja) or (bajas == 0 and inter >= 2):
+        return "Monitoreo"
+    if bajas == 0 and altas >= 3:
+        return "Optimo"
+    return None
+
+
+async def _calcular_puntajes(
+    db: AsyncSession,
+    id_instrumento: uuid.UUID,
+    version: int,
+):
+    existing = (
+        await db.execute(
+            select(PuntajeE2P).where(
+                PuntajeE2P.id_instrumento == id_instrumento
+            )
+        )
+    ).scalars().all()
+    for p in existing:
+        await db.delete(p)
+
+    questions_data = _load_questions_json()
+
+    version_key = str(version)
+    version_info = questions_data["versiones"].get(version_key)
+    if not version_info:
+        return
+
+    puntaje_map = version_info.get("puntaje") or {}
+
+    baremos_db = (
+        await db.execute(
+            select(BaremoE2P).where(BaremoE2P.version == version)
+        )
+    ).scalars().all()
+
+    baremo_by_cat: dict[str, list[dict]] = {}
+    for b in baremos_db:
+        baremo_by_cat.setdefault(b.categoria, []).append({
+            "zona": b.zona,
+            "min": b.puntaje_min,
+            "max": b.puntaje_max,
+        })
+
+    rows = (
+        await db.execute(
+            select(RespuestaE2P.valor, PreguntaE2P.categoria)
+            .join(PreguntaE2P, RespuestaE2P.id_pregunta_e2p == PreguntaE2P.id_pregunta_e2p)
+            .where(RespuestaE2P.id_instrumento == id_instrumento)
+        )
+    ).all()
+
+    if not rows:
+        e2p_empty = (
+            await db.execute(
+                select(E2P).where(E2P.id_instrumento == id_instrumento)
+            )
+        ).scalar_one_or_none()
+        if e2p_empty and e2p_empty.resultado is not None:
+            e2p_empty.resultado = None
+            db.add(e2p_empty)
+        await db.commit()
+        return
+
+    categorias: dict[str, dict] = {}
+    for row in rows:
+        valor, categoria = row
+        if categoria not in categorias:
+            categorias[categoria] = {"puntaje_bruto": 0, "puntaje_max": 0, "cantidad": 0}
+        categorias[categoria]["cantidad"] += 1
+        categorias[categoria]["puntaje_max"] += max(puntaje_map.values()) if puntaje_map else 4
+        if puntaje_map:
+            categorias[categoria]["puntaje_bruto"] += puntaje_map.get(str(valor), 0)
+        elif 0 <= valor <= 4:
+            categorias[categoria]["puntaje_bruto"] += valor
+
+    def clasificar_baremo(categoria: str, puntaje_bruto: int) -> dict:
+        zonas = baremo_by_cat.get(categoria, [])
+        for zona in zonas:
+            if zona["min"] <= puntaje_bruto <= zona["max"]:
+                return zona
+        return {"zona": "Sin clasificación", "min": 0, "max": 0}
+
+    for nombre, datos in categorias.items():
+        zona = clasificar_baremo(nombre, datos["puntaje_bruto"])
+        db.add(
+            PuntajeE2P(
+                id_instrumento=id_instrumento,
+                categoria=nombre,
+                puntaje_bruto=datos["puntaje_bruto"],
+                puntaje_max=datos["puntaje_max"],
+                zona=zona["zona"],
+                rango_zona=f'{zona["min"]}-{zona["max"]}',
+            )
+        )
+
+    puntajes_data = [
+        {"categoria": nombre, "zona": clasificar_baremo(nombre, datos["puntaje_bruto"])["zona"]}
+        for nombre, datos in categorias.items()
+    ]
+    resultado = _determinar_resultado(puntajes_data)
+    if resultado is not None:
+        e2p = (
+            await db.execute(
+                select(E2P).where(E2P.id_instrumento == id_instrumento)
+            )
+        ).scalar_one_or_none()
+        if e2p:
+            e2p.resultado = resultado
+            db.add(e2p)
+
+    await db.commit()
+
+
 # ── NNA routes ───────────────────────────────────────────────────────────────
 
 e2p_router = APIRouter(prefix="/api/nna/{id_nna}/e2p", tags=["E2P"])
@@ -128,6 +250,7 @@ async def create_e2p(
     obj = await create_nna_child(db, E2P, id_nna, payload)
     if respuestas and data.version:
         await _sync_respuestas(db, obj.id_instrumento, data.version, respuestas)
+        await _calcular_puntajes(db, obj.id_instrumento, data.version)
     result = E2PRead.model_validate(obj)
     result.respuestas = await _build_respuestas_dict(db, obj.id_instrumento)
     return result
@@ -163,6 +286,7 @@ async def update_e2p(
     if respuestas is not None:
         version = updated.version
         await _sync_respuestas(db, id_e2p, version, respuestas)
+        await _calcular_puntajes(db, id_e2p, version)
 
     await db.refresh(updated)
     result = E2PRead.model_validate(updated)
@@ -172,17 +296,6 @@ async def update_e2p(
 
 # ── Puntaje ──────────────────────────────────────────────────────────────────
 
-_VERSION_TO_ESCALA = {
-    1: "v_0_3_meses",
-    2: "v_4_10_meses",
-    3: "v_11_18_meses",
-    4: "v_19_36_meses",
-    5: "v_3_5_anos",
-    6: "v_6_7_anos",
-    7: "v_8_12_anos",
-    8: "v_13_17_anos",
-}
-
 
 @e2p_item_router.get("/{id_e2p}/puntaje")
 async def get_e2p_puntaje(id_e2p: uuid.UUID, db: AsyncSession = Depends(get_db)):
@@ -190,87 +303,40 @@ async def get_e2p_puntaje(id_e2p: uuid.UUID, db: AsyncSession = Depends(get_db))
     if not obj:
         raise HTTPException(status_code=404, detail="E2P no encontrado")
 
-    escala_key = _VERSION_TO_ESCALA.get(obj.version)
-    if not escala_key:
-        raise HTTPException(
-            status_code=400, detail=f"Versión {obj.version} sin baremos definidos"
-        )
-
-    questions_data = _load_questions_json()
-
-    version_key = str(obj.version)
-    version_info = questions_data["versiones"].get(version_key)
-    if not version_info:
-        raise HTTPException(status_code=404, detail=f"Versión {obj.version} no encontrada en datos")
-
-    puntaje_map = version_info.get("puntaje") or {}
-
-    baremos_db = (
+    puntajes_db = (
         await db.execute(
-            select(BaremoE2P).where(BaremoE2P.version == obj.version)
+            select(PuntajeE2P).where(
+                PuntajeE2P.id_instrumento == id_e2p
+            )
         )
     ).scalars().all()
 
-    baremo_by_cat: dict[str, list[dict]] = {}
-    for b in baremos_db:
-        baremo_by_cat.setdefault(b.categoria, []).append({
-            "zona": b.zona,
-            "min": b.puntaje_min,
-            "max": b.puntaje_max,
-        })
+    respuestas_dict = await _build_respuestas_dict(db, id_e2p)
 
-    rows = (
-        await db.execute(
-            select(RespuestaE2P.valor, PreguntaE2P.categoria, PreguntaE2P.numero)
-            .join(PreguntaE2P, RespuestaE2P.id_pregunta_e2p == PreguntaE2P.id_pregunta_e2p)
-            .where(RespuestaE2P.id_instrumento == id_e2p)
-        )
-    ).all()
+    if not puntajes_db:
+        raise HTTPException(status_code=400, detail="E2P sin puntajes registrados")
 
-    if not rows:
-        raise HTTPException(status_code=400, detail="E2P sin respuestas registradas")
+    categorias = [
+        {
+            "categoria": p.categoria,
+            "puntaje_bruto": p.puntaje_bruto,
+            "puntaje_max": p.puntaje_max,
+            "zona": p.zona,
+            "rango_zona": p.rango_zona,
+        }
+        for p in puntajes_db
+    ]
 
-    categorias: dict[str, dict] = {}
-
-    for row in rows:
-        valor, categoria, _ = row
-        if categoria not in categorias:
-            categorias[categoria] = {"puntaje_bruto": 0, "puntaje_max": 0, "cantidad": 0}
-        categorias[categoria]["cantidad"] += 1
-        categorias[categoria]["puntaje_max"] += max(puntaje_map.values()) if puntaje_map else 4
-        if puntaje_map:
-            categorias[categoria]["puntaje_bruto"] += puntaje_map.get(str(valor), 0)
-        elif 0 <= valor <= 4:
-            categorias[categoria]["puntaje_bruto"] += valor
-
-    def clasificar_baremo(categoria: str, puntaje_bruto: int) -> dict:
-        zonas = baremo_by_cat.get(categoria, [])
-        for zona in zonas:
-            if zona["min"] <= puntaje_bruto <= zona["max"]:
-                return zona
-        return {"zona": "Sin clasificación", "min": 0, "max": 0}
-
-    resultados = []
-    for nombre, datos in categorias.items():
-        zona = clasificar_baremo(nombre, datos["puntaje_bruto"])
-        resultados.append({
-            "categoria": nombre,
-            "puntaje_bruto": datos["puntaje_bruto"],
-            "puntaje_max": datos["puntaje_max"],
-            "zona": zona["zona"],
-            "rango_zona": f'{zona["min"]}-{zona["max"]}',
-        })
-
-    respuestas_dict = {}
-    for row in rows:
-        respuestas_dict[str(row[2])] = row[0]
+    questions_data = _load_questions_json()
+    version_key = str(obj.version)
+    version_info = questions_data["versiones"].get(version_key, {})
 
     return {
         "version": obj.version,
-        "edad": version_info["edad"],
+        "edad": version_info.get("edad", ""),
         "escala": questions_data.get("escala", {}),
-        "categorias": resultados,
-        "respuestas": respuestas_dict,
+        "categorias": categorias,
+        "respuestas": respuestas_dict or {},
     }
 
 
@@ -303,6 +369,7 @@ async def create_e2p_familiar(
     obj = await create_familiar_child(db, E2P, id_familiar, payload)
     if respuestas and data.version:
         await _sync_respuestas(db, obj.id_instrumento, data.version, respuestas)
+        await _calcular_puntajes(db, obj.id_instrumento, data.version)
     result = E2PRead.model_validate(obj)
     result.respuestas = await _build_respuestas_dict(db, obj.id_instrumento)
     return result
