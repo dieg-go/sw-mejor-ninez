@@ -7,40 +7,16 @@ Monorepo: Next.js 16 frontend + FastAPI backend + PostgreSQL 17.
 
 ## Quickstart
 
-**Full Docker stack**:
 ```bash
 docker compose up -d --build    # http://localhost:3000
 ```
-
-**Dev mode** (services individually):
-```bash
-# Database (port 5433)
-docker compose up -d db
-
-# Backend (localhost:8000) — run from backend/
-cd backend
-python -m venv .venv
-# Activate: .venv\Scripts\activate (Windows) or source .venv/bin/activate (Unix)
-pip install -r requirements.txt
-python seed.py          # optional: 3 NNA, 5 familiares, ~40 child records
-uvicorn main:app --reload
-
-# Frontend (localhost:3000)
-cd frontend
-pnpm install
-pnpm dev
-```
-
-Or use `dev.ps1` (Windows, opens separate windows). Parameters: `-NoDb`, `-NoBackend`, `-NoFrontend`.
 
 ## Commands
 
 | What | Command | Working dir |
 |------|---------|-------------|
-| Dev server | `pnpm dev` | `frontend/` |
 | Build | `pnpm build` | `frontend/` |
 | Lint | `pnpm lint` | `frontend/` |
-| Backend dev | `uvicorn main:app --reload` | `backend/` |
 | Backend tests | `pytest` | `backend/` |
 | Seed DB | `python seed.py` | `backend/` |
 | Create migration | `python -m alembic revision --autogenerate -m "desc"` | `backend/` |
@@ -65,7 +41,7 @@ backend/
     services/__init__.py   # FamiliarService, NNAService + generic helper functions
     data/                  # e2p_questions.json, e2p_escala.json (loaded at runtime)
     core/                  # config.py (Settings), database.py (async engine)
-  migrations/versions/     # Initial + rename + e2p_version migrations
+  migrations/versions/     # Initial + rename + e2p normalization + FK column
   seed.py                  # Idempotent (skips if ≥2 NNA exist)
 
 frontend/
@@ -74,7 +50,7 @@ frontend/
     familiar/[id]/          # Familiar detail (tabs)
     nuevo-caso/            # 6-step wizard
   src/lib/api.ts           # Centralized API client + all TypeScript interfaces
-  src/components/ui/       # 22 shadcn/ui components
+  src/components/ui/       # 21 shadcn/ui components
 ```
 
 ## Key Conventions & Gotchas
@@ -99,6 +75,14 @@ frontend/
 - All PKs are UUID (`default_factory=uuid.uuid4`). Omit when creating.
 - `tiene_antecedentes_penales` on Familiar is **denormalized** — must update when adding/removing `AntecedentesPenales`.
 
+### Migration chain
+```
+0b733fafb9a6 (initial) → ef7302f55ef1 (e2p_version+respuestas)
+  → 20260526_2116 (rename Adulto→Familiar, Entorno→Vinculo) → 65efebdbb730 (rename FK column)
+  → ae12f00b467b (normalize_e2p — PreguntaE2P, RespuestaE2P, BaremoE2P tables)
+```
+The rename migration (`20260526_2116`) is idempotent — skips if old table names don't exist.
+
 ### Rollback procedure (git + DB sync)
 When resetting code to an earlier commit, downgrade the DB to match:
 ```bash
@@ -111,16 +95,13 @@ python -m alembic downgrade <target-revision-id>
 
 # 3. If migrations are missing (DB ahead of code), full reset:
 docker compose down -v
-docker compose up -d db
-python -m alembic upgrade head
-python seed.py
 docker compose up -d --build
+cd backend; python seed.py
 
 # 4. Verify sync
 docker exec sw-mejor-ninez-db psql -U postgres -d sw_mejor_ninez \
   -c "SELECT version_num FROM alembic_version;"
 ```
-Migrations are code — they must move forward/backward with commits. The rename migration (`20260526_2116`) is idempotent and skips if old table names don't exist.
 
 ### Backend patterns
 - **Service helpers**: class-based for NNA/Familiar (`NNAService`, `FamiliarService`). Stateless generic functions for children: `list_nna_children()`, `create_nna_child()`, `get_nna_child()`, `update_child()`, plus `familiar`, `ingreso`, and `vinculo` variants.
@@ -143,4 +124,7 @@ Migrations are code — they must move forward/backward with commits. The rename
 - **No tests yet**: `pytest` is configured but `backend/tests/` is empty.
 - **Seed is idempotent**: checks `≥2 NNA` before inserting.
 - **Empty dirs**: `shared/` (intended for shared types) and `backend/app/instruments/` (stale pycache only). Don't add files without instruction.
+- **No separate typecheck** command in frontend. `pnpm build` includes TS type-checking as part of the Next.js build.
+- **`opencode.json`** is in `.gitignore` — local-only config, never committed.
 - **Delegation**: `frontend/AGENTS.md` delegates to this root file with `@../AGENTS.md`. Update only this root file.
+- **No `dev.ps1` needed**: services run via `docker compose up -d --build`. For quick frontend iteration, `cd frontend && pnpm dev` against the Docker backend.

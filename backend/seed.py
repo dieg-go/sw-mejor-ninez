@@ -1,6 +1,8 @@
 import asyncio
+import json
 import uuid
 from datetime import date, timedelta
+from pathlib import Path
 
 from sqlmodel import select
 
@@ -12,9 +14,11 @@ from app.models import (
     AntecedenteIngreso,
     AntecedenteSalud,
     AntecedentesPenales,
+    BaremoE2P,
     DiscapacidadNNA,
     DocumentacionIngreso,
     E2P,
+    PreguntaE2P,
     VinculoFamiliar,
     GestionBusquedaFamiliar,
     HistorialConsumoAdulto,
@@ -33,8 +37,77 @@ def fecha_hace(dias: int) -> date:
     return date.today() - timedelta(days=dias)
 
 
+_DATA_DIR = Path(__file__).resolve().parent / "app" / "data"
+
+
+async def seed_e2p_static(session):
+    count_preguntas = (
+        await session.execute(select(PreguntaE2P))
+    ).scalars().first()
+    if count_preguntas:
+        print("PreguntaE2P ya tiene datos — skipping static seed.")
+        return
+
+    with open(_DATA_DIR / "e2p_questions.json", encoding="utf-8") as f:
+        questions_data = json.load(f)
+    with open(_DATA_DIR / "e2p_escala.json", encoding="utf-8") as f:
+        escala_data = json.load(f)
+
+    preguntas_rows = []
+    for version_str, version_info in questions_data["versiones"].items():
+        version = int(version_str)
+        for q in version_info["preguntas"]:
+            preguntas_rows.append(
+                PreguntaE2P(
+                    version=version,
+                    numero=q["id"],
+                    texto=q["texto"],
+                    categoria=q["categoria"],
+                )
+            )
+
+    session.add_all(preguntas_rows)
+
+    baremo_rows = []
+    for escala_key, categorias in escala_data["escalas_e2p"].items():
+        version = _escala_key_to_version(escala_key)
+        for cat_name, zonas in categorias.items():
+            for zona in zonas:
+                baremo_rows.append(
+                    BaremoE2P(
+                        version=version,
+                        categoria=cat_name.capitalize(),
+                        zona=zona["zona"],
+                        puntaje_min=zona["min"],
+                        puntaje_max=zona["max"],
+                    )
+                )
+
+    session.add_all(baremo_rows)
+    await session.commit()
+    print(f"Static E2P data seeded: {len(preguntas_rows)} preguntas, {len(baremo_rows)} baremos.")
+
+
+_ESCALA_KEY_MAP = {
+    "v_0_3_meses": 1,
+    "v_4_10_meses": 2,
+    "v_11_18_meses": 3,
+    "v_19_36_meses": 4,
+    "v_3_5_anos": 5,
+    "v_6_7_anos": 6,
+    "v_8_12_anos": 7,
+    "v_13_17_anos": 8,
+}
+
+
+def _escala_key_to_version(key: str) -> int:
+    return _ESCALA_KEY_MAP.get(key, 0)
+
+
 async def seed():
     async with async_session() as session:
+        await seed_e2p_static(session)
+
         count_nna = (await session.execute(select(NNA))).scalars().all()
         if len(count_nna) >= 2:
             print(f"Seed data already exists ({len(count_nna)} NNA) — skipping.")
@@ -163,7 +236,6 @@ async def seed():
                 fecha_evaluacion=fecha_hace(30),
                 fecha_proxima_evaluacion=fecha_hace(-30),
                 version=4,
-                respuestas={"1": 4, "2": 3, "3": 4, "4": 3, "5": 4, "6": 3, "7": 2, "8": 4, "9": 4, "10": 3},
                 resultado="Fortalecimiento en curso",
                 observacion="Se observa mejora en vínculo materno-filial.",
             ),
@@ -378,7 +450,6 @@ async def seed():
             fecha_evaluacion=fecha_hace(45),
             fecha_proxima_evaluacion=fecha_hace(-30),
             version=1,
-            respuestas={"1": 5, "2": 4, "3": 5, "4": 3, "5": 5, "6": 4, "7": 5, "8": 4, "9": 5, "10": 4},
             resultado="Positivo",
             observacion="Abuela muestra buen manejo de la discapacidad de la NNA.",
         ))

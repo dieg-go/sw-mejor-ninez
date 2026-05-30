@@ -30,3 +30,24 @@ class E2PRead(E2PCreate):
 
     id_instrumento: uuid.UUID
     id_nna: uuid.UUID
+
+
+class PreguntaE2PRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id_pregunta_e2p: uuid.UUID
+    version: int
+    numero: int
+    texto: str
+    categoria: str
+
+
+class BaremoE2PRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id_baremo_e2p: uuid.UUID
+    version: int
+    categoria: str
+    zona: str
+    puntaje_min: int
+    puntaje_max: int
