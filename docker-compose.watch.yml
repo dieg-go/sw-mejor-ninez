@@ -1,0 +1,14 @@
+# docker compose watch override — hot-reload for development
+#
+# Usage:  docker compose -f docker-compose.yml -f docker-compose.watch.yml watch
+#
+# Backend: syncs code changes into container and restarts uvicorn with --reload.
+#          Note: skips entrypoint.sh (no alembic migration on restart).
+#          Run migrations manually: docker compose exec backend python -m alembic upgrade head
+#
+# Frontend: excluded — local `cd frontend && pnpm dev` against Docker backend
+#           is faster (HMR in ~100ms vs Docker rebuild in ~30s).
+
+services:
+  backend:
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload

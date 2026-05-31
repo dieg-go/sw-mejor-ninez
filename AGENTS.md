@@ -28,6 +28,7 @@ docker compose up -d --build    # http://localhost:3000
 - **Backend**: FastAPI 0.115 (async), SQLModel 0.0.22 (asyncpg + psycopg2), Pydantic v2, Alembic 1.14. Three-layer: Routes → Services → Models. Schemas separate from models.
 - **DB**: PostgreSQL 17 (Alpine). DB `sw_mejor_ninez`, user/pass `postgres/postgres`, port **5433** (host-mapped from 5432). Inside Docker Compose, containers use `db:5432`.
 - **Infra**: Docker Compose with three services (db/backend/frontend). Dockerfiles in both `backend/` and `frontend/`.
+- **Dev watch**: `docker compose -f docker-compose.yml -f docker-compose.watch.yml watch` syncs `backend/app/` code changes into the container and restarts uvicorn automatically. The override file (`docker-compose.watch.yml`) swaps the backend CMD from `entrypoint.sh` to `uvicorn --reload`, so new deps/migrations require manual steps: `docker compose exec backend pip install...` and `docker compose exec backend python -m alembic upgrade head`. Frontend is NOT synced — use `cd frontend && pnpm dev` locally for UI iteration.
 
 ## Code Organization
 
@@ -81,6 +82,7 @@ frontend/
   → 20260526_2116 (rename Adulto→Familiar, Entorno→Vinculo) → 65efebdbb730 (rename FK column)
   → ae12f00b467b (normalize_e2p — PreguntaE2P, RespuestaE2P, BaremoE2P tables)
   → f4285c627ed7 (puntaje_e2p_table — PuntajeE2P table)
+  → 6ee297be7960 (add_usuario_table)
 ```
 The rename migration (`20260526_2116`) is idempotent — skips if old table names don't exist.
 
@@ -123,9 +125,14 @@ docker exec sw-mejor-ninez-db psql -U postgres -d sw_mejor_ninez \
 - **CORS**: restricted to `http://localhost:3000` only.
 - **pnpm `--ignore-scripts`** in Docker builds — skips postinstall hooks. If adding a dep needing postinstall, remove the flag.
 - **No tests yet**: `pytest` is configured but `backend/tests/` is empty.
-- **Seed is idempotent**: checks `≥2 NNA` before inserting.
+- **Seed is idempotent**: checks `≥2 NNA` before inserting. Also creates default admin user (`admin@mejorninez.cl` / `admin123`) if none exists.
 - **Empty dirs**: `shared/` (intended for shared types) and `backend/app/instruments/` (stale pycache only). Don't add files without instruction.
 - **No separate typecheck** command in frontend. `pnpm build` includes TS type-checking as part of the Next.js build.
 - **`opencode.json`** is in `.gitignore` — local-only config, never committed.
 - **Delegation**: `frontend/AGENTS.md` delegates to this root file with `@../AGENTS.md`. Update only this root file.
 - **`dev.ps1`**: convenience script that runs DB via Docker + backend/frontend in separate PowerShell windows. `docker compose up -d --build` (single command, all Docker) is the recommended way. For quick frontend iteration, `cd frontend && pnpm dev` against the Docker backend.
+
+### Authentication
+- **JWT-based**: email + password login via `POST /api/auth/login` returns `access_token`. All other API routes require `Authorization: Bearer <token>`. Token expiry: 8 hours by default.
+- **Backend**: `app/core/security.py` — bcrypt for password hashing, python-jose for JWT. `get_current_user` FastAPI dependency reads user from DB on each request. `Usuario` model in `app/models/usuario.py`. Auth routes in `app/api/routes/auth.py` (public, no auth required).
+- **Frontend**: JWT stored in `localStorage` as `auth_token`. `src/lib/auth.ts` — `login()`, `logout()`, `getToken()`, `isAuthenticated()`. API client in `src/lib/api.ts` auto-attaches Bearer token and redirects to `/login` on 401. Login page at `/login`. Header shows nav links + user name only when authenticated.

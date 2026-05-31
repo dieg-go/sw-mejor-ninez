@@ -1,15 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
-import {
-  NavigationMenu,
-  NavigationMenuList,
-  NavigationMenuItem,
-  NavigationMenuLink,
-} from "@/components/ui/navigation-menu";
+import { AppHeader } from "@/components/app-header";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -55,47 +49,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <header className="border-b bg-background">
-              <div className="max-w-5xl mx-auto px-4 h-12 flex items-center justify-between">
-                <NavigationMenu>
-                  <NavigationMenuList>
-                    <NavigationMenuItem>
-                      <NavigationMenuLink
-                        href="/"
-                        className="text-sm font-semibold"
-                      >
-                        SW Mejor Niñez
-                      </NavigationMenuLink>
-                    </NavigationMenuItem>
-                    <NavigationMenuItem>
-                      <NavigationMenuLink
-                        href="/nuevo-caso"
-                        className="text-sm text-muted-foreground hover:text-foreground"
-                      >
-                        + Nuevo caso
-                      </NavigationMenuLink>
-                    </NavigationMenuItem>
-                    <NavigationMenuItem>
-                      <NavigationMenuLink
-                        href="/nna"
-                        className="text-sm text-muted-foreground hover:text-foreground"
-                      >
-                        NNA
-                      </NavigationMenuLink>
-                    </NavigationMenuItem>
-                    <NavigationMenuItem>
-                      <NavigationMenuLink
-                        href="/familiar"
-                        className="text-sm text-muted-foreground hover:text-foreground"
-                      >
-                        Familiares
-                      </NavigationMenuLink>
-                    </NavigationMenuItem>
-                  </NavigationMenuList>
-                </NavigationMenu>
-                <ThemeToggle/>
-              </div>
-            </header>
+            <AppHeader />
             <main className="flex-1">{children}</main>
           </ThemeProvider>
         </body>

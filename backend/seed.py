@@ -30,7 +30,9 @@ from app.models import (
     PMF,
     RegistroCausalIngreso,
     RegistroDerechoVulnerado,
+    Usuario,
 )
+from app.core.security import hash_password
 
 
 def fecha_hace(dias: int) -> date:
@@ -104,8 +106,26 @@ def _escala_key_to_version(key: str) -> int:
     return _ESCALA_KEY_MAP.get(key, 0)
 
 
+async def seed_admin_user(session):
+    result = await session.execute(select(Usuario))
+    existing = result.scalars().first()
+    if existing:
+        print("Admin user already exists — skipping.")
+        return
+
+    admin = Usuario(
+        email="admin@mejorninez.cl",
+        hashed_password=hash_password("admin123"),
+        nombre="Administrador",
+    )
+    session.add(admin)
+    await session.commit()
+    print("Admin user created: admin@mejorninez.cl / admin123")
+
+
 async def seed():
     async with async_session() as session:
+        await seed_admin_user(session)
         await seed_e2p_static(session)
 
         count_nna = (await session.execute(select(NNA))).scalars().all()

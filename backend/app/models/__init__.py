@@ -18,6 +18,7 @@ from app.models.antecedentes import (
     AntecedenteSalud,
     VinculoFamiliar,
 )
+from app.models.usuario import Usuario
 
 __all__ = [
     "NNA",
@@ -45,4 +46,5 @@ __all__ = [
     "AntecedenteEscolar",
     "AntecedenteFamiliar",
     "VinculoFamiliar",
+    "Usuario",
 ]

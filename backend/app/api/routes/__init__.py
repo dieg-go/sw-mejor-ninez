@@ -55,6 +55,7 @@ from app.api.routes.antecedentes import (
     salud_item_router,
     salud_router,
 )
+from app.api.routes.auth import auth_router
 
 routers = [
     nna_router,
