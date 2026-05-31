@@ -63,7 +63,7 @@ frontend/
 
 ### Instrumentos (E2P, PMF, NCFAS)
 - **Dual FK**: each has `id_nna` → NNA and `id_familiar` → Familiar. Routes for both parents: `/api/nna/{id}/e2p` and `/api/familiares/{id}/e2p`.
-- **E2P specifics**: model has `version: int` (required, 1-8) and `respuestas: dict` (JSON, question ID → Likert 0-4). Questions loaded from `app/data/e2p_questions.json`, scoring from `e2p_escala.json` (resolved via `Path(__file__).resolve().parent.parent.parent / "data"`). GET `/api/e2p/versions/{n}` for questions, GET `/api/e2p/{id}/puntaje` for scores.
+- **E2P specifics**: model has `version: int` (required, 1-8). Responses are **normalized** — stored in `RespuestaE2P` rows (migration `ae12f00b467b`), NOT as a JSON column on E2P. The API still accepts `respuestas: dict` (question number → Likert 0-4) in POST/PUT and syncs to normalized rows internally. Questions loaded from `PreguntaE2P` table (fallback to `app/data/e2p_questions.json`). Scoring from `BaremoE2P` table (seeded from `e2p_escala.json` by `seed.py`). Run-time path resolution: `Path(__file__).resolve().parent.parent.parent / "data"`. GET `/api/e2p/versions/{n}` for questions, GET `/api/e2p/{id}/puntaje` for scores.
 - **E2P version** is `Optional[int]` in schema but **not optional** at DB level. Frontend auto-detects version from NNA's age, but API calls must include it.
 - **Frontend `Instrumento` interface** is reused for all three (E2P/PMF/NCFAS). PMF and NCFAS don't have `version`/`respuestas` — don't send those fields for them.
 
@@ -128,4 +128,4 @@ docker exec sw-mejor-ninez-db psql -U postgres -d sw_mejor_ninez \
 - **No separate typecheck** command in frontend. `pnpm build` includes TS type-checking as part of the Next.js build.
 - **`opencode.json`** is in `.gitignore` — local-only config, never committed.
 - **Delegation**: `frontend/AGENTS.md` delegates to this root file with `@../AGENTS.md`. Update only this root file.
-- **No `dev.ps1` needed**: services run via `docker compose up -d --build`. For quick frontend iteration, `cd frontend && pnpm dev` against the Docker backend.
+- **`dev.ps1`**: convenience script that runs DB via Docker + backend/frontend in separate PowerShell windows. `docker compose up -d --build` (single command, all Docker) is the recommended way. For quick frontend iteration, `cd frontend && pnpm dev` against the Docker backend.
