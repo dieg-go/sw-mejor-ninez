@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import { AppHeader } from "@/components/app-header";
+import { AuthProvider } from "@/components/auth-provider";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -49,8 +50,10 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <AppHeader />
-            <main className="flex-1">{children}</main>
+            <AuthProvider>
+              <AppHeader />
+              <main className="flex-1">{children}</main>
+            </AuthProvider>
           </ThemeProvider>
         </body>
       </html>

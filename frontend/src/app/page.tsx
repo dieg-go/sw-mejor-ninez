@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
+const routes = [
+  { name: "Nuevo caso", href: "/nuevo-caso" },
+  { name: "Ver registro NNA", href: "/nna" },
+];
+
 export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center flex-1 px-4">

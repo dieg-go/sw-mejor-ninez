@@ -30,3 +30,6 @@ pgdata/
 dist/
 build/
 opencode.json
+
+# Vibes
+AGENTS.md

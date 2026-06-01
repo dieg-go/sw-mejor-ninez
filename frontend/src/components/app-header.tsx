@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   NavigationMenu,
   NavigationMenuList,
@@ -9,16 +8,19 @@ import {
 } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { getUser, isAuthenticated, logout, type AuthUser } from "@/lib/auth";
+import { logout } from "@/lib/auth";
+import { useAuth } from "@/components/auth-provider";
 
-function getInitialUser(): AuthUser | null {
-  if (typeof window === "undefined") return null;
-  if (!isAuthenticated()) return null;
-  return getUser();
-}
+const routes = [
+  { name: "Nuevo caso", href: "/nuevo-caso" },
+  { name: "NNA", href: "/nna" },
+  { name: "Familiares", href: "/familiar" },
+];
 
 export function AppHeader() {
-  const [user] = useState<AuthUser | null>(getInitialUser);
+  const { user, loading } = useAuth();
+
+  if (loading) return null;
 
   if (!user) {
     return (
