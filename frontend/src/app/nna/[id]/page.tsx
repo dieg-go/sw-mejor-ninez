@@ -95,9 +95,31 @@ export default function NNADetailPage({ params }: { params: Promise<{ id: string
         const esc = last(escolar);
         const fam = last(familiar);
 
+        let causaPrincipal: string | null = null;
+        let derechoPrincipal: string | null = null;
+        if (ing) {
+          try {
+            const [causales, derechos] = await Promise.all([
+              api.causalIngreso.list(ing.id_antecedente_ingreso),
+              api.derechoVulnerado.list(ing.id_antecedente_ingreso),
+            ]);
+            causaPrincipal = causales[0]?.nombre_causal || null;
+            derechoPrincipal = derechos[0]?.nombre_derecho || null;
+          } catch {}
+        }
+
         setNna(nnaData);
         setSummaries({
-          ingreso: ing ? { count: ingresos.length, snippet: `${ing.quien_solicita_ingreso || "—"} · ${ing.tribunal || "—"} · ${ing.fecha_ingreso_residencia || "—"}` } : null,
+          ingreso: ing ? (() => {
+            const parts = [
+              ing.quien_solicita_ingreso || "—",
+              ing.tribunal || "—",
+              ing.fecha_ingreso_residencia || "—",
+            ];
+            if (causaPrincipal) parts.push(`Causal: ${causaPrincipal}`);
+            else if (derechoPrincipal) parts.push(`Derecho: ${derechoPrincipal}`);
+            return { count: ingresos.length, snippet: parts.join(" · ") };
+          })() : null,
           documentacion: doc ? { count: docs.length, snippet: `${doc.tipo_documento || "—"} · ${doc.estado_recepcion ? "Recibido" : "Pendiente"}` } : null,
           consumo: con ? { count: consumo.length, snippet: `${con.nombre_sustancia || "—"} · ${con.estado_consumo || "—"}` } : null,
           discapacidades: dsc ? { count: disc.length, snippet: `${dsc.tipo || "—"} · ${dsc.porcentaje_grado ?? "—"}%` } : null,
