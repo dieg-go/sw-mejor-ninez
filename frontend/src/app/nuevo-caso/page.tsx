@@ -30,12 +30,11 @@ const STEPS = [
   "NNA",
   "Ingreso",
   "Documentación",
-  "Familiares",
-  "Antecedentes",
+  "Historial",
   "Revisión",
 ] as const;
 
-type StepIndex = 0 | 1 | 2 | 3 | 4 | 5;
+type StepIndex = 0 | 1 | 2 | 3 | 4;
 
 interface CausalEntry {
   nombre_causal: string;
@@ -51,31 +50,11 @@ interface DocEntry {
   fecha_recepcion: Date | null;
   observacion: string;
 }
-interface AntecedenteFamiliar {
-  descripcion: string;
-}
-interface FamiliarEntry {
-  nombre: string;
-  run: string;
-  fecha_nacimiento: Date | null;
-  direccion: string;
-  numero_telefono: string;
-  tiene_antecedentes_penales: boolean;
-  antecedentes: AntecedenteFamiliar[];
-  parentesco: string;
-  es_adulto_responsable: boolean;
-}
-interface ConsumoEntry {
-  nombre_sustancia: string;
-  consumo_indirecto_gestacional: boolean;
-  estado_consumo: string;
-  fecha_inicio: Date | null;
-  en_tratamiento: boolean;
-}
-interface DiscapacidadEntry {
-  tipo: string;
-  porcentaje_grado: number;
-  observacion: string;
+interface HistorialEntry {
+  nombre_programa: string;
+  fecha_ingreso: Date | null;
+  fecha_egreso: Date | null;
+  motivo_egreso: string;
 }
 
 interface WizardData {
@@ -98,20 +77,7 @@ interface WizardData {
   // Step 3
   docs: DocEntry[];
   // Step 4
-  familiares: FamiliarEntry[];
-  // Step 5
-  salud: {
-    inscrito_en_consultorio: boolean;
-    establecimiento: string;
-    prevision: string;
-  };
-  escolar: {
-    escolarizado: boolean;
-    establecimiento: string;
-    ultimo_ano_curso: string;
-  };
-  consumo: ConsumoEntry[];
-  discapacidades: DiscapacidadEntry[];
+  historial: HistorialEntry[];
 }
 
 function emptyWizard(): WizardData {
@@ -131,11 +97,7 @@ function emptyWizard(): WizardData {
       derechos: [],
     },
     docs: [],
-    familiares: [],
-    salud: { inscrito_en_consultorio: false, establecimiento: "", prevision: "" },
-    escolar: { escolarizado: false, establecimiento: "", ultimo_ano_curso: "" },
-    consumo: [],
-    discapacidades: [],
+    historial: [],
   };
 }
 
@@ -447,107 +409,54 @@ function StepDocs({ data, onData, onBack, onNext }: { data: WizardData; onData: 
   );
 }
 
-// ═══ Step 4: Familiares ══════════════════════════════════════════════════════
+// ═══ Step 4: Historial Red Proteccional ("Mochila") ══════════════════════════
 
-function StepFamiliares({ data, onData, onBack, onNext }: { data: WizardData; onData: (d: WizardData) => void; onBack: () => void; onNext: () => void }) {
-  const addFamiliar = () => onData({
+function StepHistorial({ data, onData, onBack, onNext }: { data: WizardData; onData: (d: WizardData) => void; onBack: () => void; onNext: () => void }) {
+  const addEntry = () => onData({
     ...data,
-    familiares: [...data.familiares, { nombre: "", run: "", fecha_nacimiento: null, direccion: "", numero_telefono: "", tiene_antecedentes_penales: false, antecedentes: [], parentesco: "", es_adulto_responsable: false }],
+    historial: [...data.historial, { nombre_programa: "", fecha_ingreso: null, fecha_egreso: null, motivo_egreso: "" }],
   });
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Familiares</CardTitle>
-        <CardDescription>Familiares del NNA.</CardDescription>
+        <CardTitle>Historial en Red Proteccional</CardTitle>
+        <CardDescription>Programas previos por los que ha pasado el NNA (&ldquo;mochila&rdquo;).</CardDescription>
       </CardHeader>
       <CardContent>
         <FieldGroup>
-          {data.familiares.length === 0 && <p className="text-sm text-muted-foreground mb-4">Sin familiares registrados.</p>}
-          {data.familiares.map((a, i) => (
+          {data.historial.length === 0 && <p className="text-sm text-muted-foreground mb-4">Sin programas registrados.</p>}
+          {data.historial.map((h, i) => (
             <div key={i} className="border rounded-lg p-4 mb-4">
               <div className="flex items-center justify-between mb-3">
-                <h4 className="text-sm font-medium">Familiar {i + 1}</h4>
+                <h4 className="text-sm font-medium">Programa {i + 1}</h4>
                 <Button type="button" variant="ghost" size="sm" className="text-destructive" onClick={() => {
-                  onData({ ...data, familiares: data.familiares.filter((_, j) => j !== i) });
+                  onData({ ...data, historial: data.historial.filter((_, j) => j !== i) });
                 }}>Eliminar</Button>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <Field>
-                  <FieldLabel>Nombre</FieldLabel>
-                  <Input value={a.nombre} onChange={(e) => {
-                    const fs = [...data.familiares]; fs[i] = { ...fs[i], nombre: e.target.value }; onData({ ...data, familiares: fs });
-                  }} placeholder="Nombre completo" />
+                <Field className="sm:col-span-2">
+                  <FieldLabel>Nombre del programa</FieldLabel>
+                  <Input value={h.nombre_programa} onChange={(e) => {
+                    const hs = [...data.historial]; hs[i] = { ...hs[i], nombre_programa: e.target.value }; onData({ ...data, historial: hs });
+                  }} placeholder="PPF / PIE / DAM / PPE..." />
                 </Field>
-                <Field>
-                  <FieldLabel>RUN</FieldLabel>
-                  <Input value={a.run} onChange={(e) => {
-                    const fs = [...data.familiares]; fs[i] = { ...fs[i], run: e.target.value }; onData({ ...data, familiares: fs });
-                  }} placeholder="12.345.678-9" />
-                </Field>
-                <DateField label="Fecha de nacimiento" value={a.fecha_nacimiento} onChange={(d) => {
-                  const fs = [...data.familiares]; fs[i] = { ...fs[i], fecha_nacimiento: d ?? null }; onData({ ...data, familiares: fs });
+                <DateField label="Fecha de ingreso" value={h.fecha_ingreso} onChange={(d) => {
+                  const hs = [...data.historial]; hs[i] = { ...hs[i], fecha_ingreso: d ?? null }; onData({ ...data, historial: hs });
                 }} />
-                <Field>
-                  <FieldLabel>Dirección</FieldLabel>
-                  <Input value={a.direccion} onChange={(e) => {
-                    const fs = [...data.familiares]; fs[i] = { ...fs[i], direccion: e.target.value }; onData({ ...data, familiares: fs });
-                  }} placeholder="Dirección" />
-                </Field>
-                <Field>
-                  <FieldLabel>Teléfono</FieldLabel>
-                  <Input value={a.numero_telefono} onChange={(e) => {
-                    const fs = [...data.familiares]; fs[i] = { ...fs[i], numero_telefono: e.target.value }; onData({ ...data, familiares: fs });
-                  }} placeholder="+569..." />
-                </Field>
-                <Field>
-                  <FieldLabel>Parentesco con el NNA</FieldLabel>
-                  <Input value={a.parentesco} onChange={(e) => {
-                    const fs = [...data.familiares]; fs[i] = { ...fs[i], parentesco: e.target.value }; onData({ ...data, familiares: fs });
-                  }} placeholder="Madre / Padre / Tío..." />
+                <DateField label="Fecha de egreso" value={h.fecha_egreso} onChange={(d) => {
+                  const hs = [...data.historial]; hs[i] = { ...hs[i], fecha_egreso: d ?? null }; onData({ ...data, historial: hs });
+                }} />
+                <Field className="sm:col-span-2">
+                  <FieldLabel>Motivo de egreso</FieldLabel>
+                  <Input value={h.motivo_egreso} onChange={(e) => {
+                    const hs = [...data.historial]; hs[i] = { ...hs[i], motivo_egreso: e.target.value }; onData({ ...data, historial: hs });
+                  }} placeholder="Éxito de la intervención / Abandono / Derivación..." />
                 </Field>
               </div>
-              <label className="flex items-center gap-2 text-sm mt-3">
-                <Checkbox checked={a.tiene_antecedentes_penales} onCheckedChange={(v) => {
-                  const fs = [...data.familiares]; fs[i] = { ...fs[i], tiene_antecedentes_penales: !!v }; onData({ ...data, familiares: fs });
-                }} />
-                Tiene antecedentes penales
-              </label>
-              <label className="flex items-center gap-2 text-sm mt-2">
-                <Checkbox checked={a.es_adulto_responsable} onCheckedChange={(v) => {
-                  const fs = [...data.familiares]; fs[i] = { ...fs[i], es_adulto_responsable: !!v }; onData({ ...data, familiares: fs });
-                }} />
-                Es adulto responsable
-              </label>
-              {a.tiene_antecedentes_penales && (
-                <div className="mt-3 pl-4 border-l-2">
-                  <h5 className="text-xs font-medium mb-2">Antecedentes penales</h5>
-                  {a.antecedentes.map((ant, j) => (
-                    <div key={j} className="flex items-center gap-2 mb-2">
-                      <Input placeholder="Descripción del antecedente" value={ant.descripcion} onChange={(e) => {
-                        const fs = [...data.familiares];
-                        const ants = [...fs[i].antecedentes];
-                        ants[j] = { ...ants[j], descripcion: e.target.value };
-                        fs[i] = { ...fs[i], antecedentes: ants };
-                        onData({ ...data, familiares: fs });
-                      }} />
-                      <Button type="button" variant="ghost" size="sm" className="text-destructive shrink-0" onClick={() => {
-                        const fs = [...data.familiares];
-                        fs[i] = { ...fs[i], antecedentes: fs[i].antecedentes.filter((_, k) => k !== j) };
-                        onData({ ...data, familiares: fs });
-                      }}>×</Button>
-                    </div>
-                  ))}
-                  <Button type="button" variant="outline" size="sm" onClick={() => {
-                    const fs = [...data.familiares];
-                    fs[i] = { ...fs[i], antecedentes: [...fs[i].antecedentes, { descripcion: "" }] };
-                    onData({ ...data, familiares: fs });
-                  }}>+ Agregar antecedente</Button>
-                </div>
-              )}
             </div>
           ))}
-          <Button type="button" variant="outline" size="sm" onClick={addFamiliar}>+ Agregar familiar</Button>
+          <Button type="button" variant="outline" size="sm" onClick={addEntry}>+ Agregar programa</Button>
 
           <div className="flex items-center justify-between gap-3 pt-2">
             <Button variant="outline" onClick={onBack}><ArrowLeftIcon /> Anterior</Button>
@@ -559,146 +468,7 @@ function StepFamiliares({ data, onData, onBack, onNext }: { data: WizardData; on
   );
 }
 
-// ═══ Step 5: Antecedentes ════════════════════════════════════════════════════
-
-function StepAntecedentes({ data, onData, onBack, onNext }: { data: WizardData; onData: (d: WizardData) => void; onBack: () => void; onNext: () => void }) {
-  const addConsumo = () => onData({
-    ...data,
-    consumo: [...data.consumo, { nombre_sustancia: "", consumo_indirecto_gestacional: false, estado_consumo: "", fecha_inicio: null, en_tratamiento: false }],
-  });
-  const addDisc = () => onData({
-    ...data,
-    discapacidades: [...data.discapacidades, { tipo: "", porcentaje_grado: 0, observacion: "" }],
-  });
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Antecedentes adicionales</CardTitle>
-        <CardDescription>Salud, escolaridad, consumo y discapacidades del NNA.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <FieldGroup>
-          {/* Salud */}
-          <div className="border rounded-lg p-4">
-            <h4 className="text-sm font-medium mb-3">Salud</h4>
-            <label className="flex items-center gap-2 text-sm mb-3">
-              <Checkbox checked={data.salud.inscrito_en_consultorio} onCheckedChange={(v) => onData({ ...data, salud: { ...data.salud, inscrito_en_consultorio: !!v } })} />
-              Inscrito en consultorio
-            </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Field>
-                <FieldLabel>Establecimiento</FieldLabel>
-                <Input value={data.salud.establecimiento} onChange={(e) => onData({ ...data, salud: { ...data.salud, establecimiento: e.target.value } })} placeholder="CESFAM / Hospital" />
-              </Field>
-              <Field>
-                <FieldLabel>Previsión</FieldLabel>
-                <Input value={data.salud.prevision} onChange={(e) => onData({ ...data, salud: { ...data.salud, prevision: e.target.value } })} placeholder="Fonasa / Isapre" />
-              </Field>
-            </div>
-          </div>
-
-          {/* Escolar */}
-          <div className="border rounded-lg p-4">
-            <h4 className="text-sm font-medium mb-3">Escolaridad</h4>
-            <label className="flex items-center gap-2 text-sm mb-3">
-              <Checkbox checked={data.escolar.escolarizado} onCheckedChange={(v) => onData({ ...data, escolar: { ...data.escolar, escolarizado: !!v } })} />
-              Escolarizado
-            </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Field>
-                <FieldLabel>Establecimiento</FieldLabel>
-                <Input value={data.escolar.establecimiento} onChange={(e) => onData({ ...data, escolar: { ...data.escolar, establecimiento: e.target.value } })} placeholder="Nombre del establecimiento" />
-              </Field>
-              <Field>
-                <FieldLabel>Último año cursado</FieldLabel>
-                <Input value={data.escolar.ultimo_ano_curso} onChange={(e) => onData({ ...data, escolar: { ...data.escolar, ultimo_ano_curso: e.target.value } })} placeholder="Ej: 8" />
-              </Field>
-            </div>
-          </div>
-
-          {/* Consumo */}
-          <div className="border rounded-lg p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="text-sm font-medium">Historial de consumo</h4>
-              <Button type="button" variant="outline" size="sm" onClick={addConsumo}>+ Agregar</Button>
-            </div>
-            {data.consumo.length === 0 && <p className="text-sm text-muted-foreground">Sin registros de consumo.</p>}
-            {data.consumo.map((c, i) => (
-              <div key={i} className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3 p-3 border rounded-lg">
-                <Input placeholder="Sustancia" value={c.nombre_sustancia} onChange={(e) => {
-                  const cs = [...data.consumo]; cs[i] = { ...cs[i], nombre_sustancia: e.target.value }; onData({ ...data, consumo: cs });
-                }} />
-                <Select value={c.estado_consumo} onValueChange={(v) => { const cs = [...data.consumo]; cs[i] = { ...cs[i], estado_consumo: v }; onData({ ...data, consumo: cs }); }}>
-                  <SelectTrigger><SelectValue placeholder="Estado" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Activo">Activo</SelectItem>
-                    <SelectItem value="Inactivo">Inactivo</SelectItem>
-                    <SelectItem value="En tratamiento">En tratamiento</SelectItem>
-                  </SelectContent>
-                </Select>
-                <DateField value={c.fecha_inicio} onChange={(d) => {
-                  const cs = [...data.consumo]; cs[i] = { ...cs[i], fecha_inicio: d ?? null }; onData({ ...data, consumo: cs });
-                }} />
-                <div className="flex items-center gap-4">
-                  <label className="flex items-center gap-2 text-sm">
-                    <Checkbox checked={c.consumo_indirecto_gestacional} onCheckedChange={(v) => {
-                      const cs = [...data.consumo]; cs[i] = { ...cs[i], consumo_indirecto_gestacional: !!v }; onData({ ...data, consumo: cs });
-                    }} />
-                    Indirecto gestacional
-                  </label>
-                  <label className="flex items-center gap-2 text-sm">
-                    <Checkbox checked={c.en_tratamiento} onCheckedChange={(v) => {
-                      const cs = [...data.consumo]; cs[i] = { ...cs[i], en_tratamiento: !!v }; onData({ ...data, consumo: cs });
-                    }} />
-                    En tratamiento
-                  </label>
-                  <Button type="button" variant="ghost" size="sm" className="text-destructive" onClick={() => {
-                    onData({ ...data, consumo: data.consumo.filter((_, j) => j !== i) });
-                  }}>×</Button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Discapacidades */}
-          <div className="border rounded-lg p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="text-sm font-medium">Discapacidades</h4>
-              <Button type="button" variant="outline" size="sm" onClick={addDisc}>+ Agregar</Button>
-            </div>
-            {data.discapacidades.length === 0 && <p className="text-sm text-muted-foreground">Sin discapacidades registradas.</p>}
-            {data.discapacidades.map((d, i) => (
-              <div key={i} className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-3 p-3 border rounded-lg">
-                <Input placeholder="Tipo" value={d.tipo} onChange={(e) => {
-                  const ds = [...data.discapacidades]; ds[i] = { ...ds[i], tipo: e.target.value }; onData({ ...data, discapacidades: ds });
-                }} />
-                <Input type="number" placeholder="Porcentaje (%)" value={d.porcentaje_grado || ""} onChange={(e) => {
-                  const ds = [...data.discapacidades]; ds[i] = { ...ds[i], porcentaje_grado: Number(e.target.value) }; onData({ ...data, discapacidades: ds });
-                }} />
-                <div className="flex items-center gap-2">
-                  <Input placeholder="Observación" value={d.observacion} onChange={(e) => {
-                    const ds = [...data.discapacidades]; ds[i] = { ...ds[i], observacion: e.target.value }; onData({ ...data, discapacidades: ds });
-                  }} />
-                  <Button type="button" variant="ghost" size="sm" className="text-destructive shrink-0" onClick={() => {
-                    onData({ ...data, discapacidades: data.discapacidades.filter((_, j) => j !== i) });
-                  }}>×</Button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex items-center justify-between gap-3 pt-2">
-            <Button variant="outline" onClick={onBack}><ArrowLeftIcon /> Anterior</Button>
-            <Button onClick={onNext}>Siguiente <ArrowRightIcon /></Button>
-          </div>
-        </FieldGroup>
-      </CardContent>
-    </Card>
-  );
-}
-
-// ═══ Step 6: Review ══════════════════════════════════════════════════════════
+// ═══ Step 5: Review ══════════════════════════════════════════════════════════
 
 function StepReview({
   data,
@@ -716,9 +486,7 @@ function StepReview({
   const hasExtra =
     data.ingreso.quien_solicita_ingreso ||
     data.docs.length > 0 ||
-    data.familiares.length > 0 ||
-    data.consumo.length > 0 ||
-    data.discapacidades.length > 0;
+    data.historial.length > 0;
 
   return (
     <Card>
@@ -760,31 +528,16 @@ function StepReview({
             </section>
           )}
 
-          {data.familiares.length > 0 && (
+          {data.historial.length > 0 && (
             <section>
-              <h4 className="text-sm font-medium mb-2">Familiares ({data.familiares.length})</h4>
+              <h4 className="text-sm font-medium mb-2">Historial Red Proteccional ({data.historial.length})</h4>
               <div className="flex flex-wrap gap-1">
-                {data.familiares.map((a, i) => (
+                {data.historial.map((h, i) => (
                   <Badge key={i} variant="secondary">
-                    {a.nombre || "Sin nombre"}{a.parentesco ? ` (${a.parentesco})` : ""}
-                    {a.es_adulto_responsable ? " · Responsable" : ""}
+                    {h.nombre_programa || "Sin nombre"}{h.fecha_ingreso ? ` (desde ${h.fecha_ingreso.toLocaleDateString("es-CL")})` : ""}
                   </Badge>
                 ))}
               </div>
-            </section>
-          )}
-
-          {(data.consumo.length > 0 || data.discapacidades.length > 0) && (
-            <section>
-              <h4 className="text-sm font-medium mb-2">Antecedentes</h4>
-              <p className="text-sm text-muted-foreground">
-                {[
-                  data.salud.establecimiento && "Salud",
-                  data.escolar.establecimiento && "Escolar",
-                  data.consumo.length > 0 && `${data.consumo.length} consumo`,
-                  data.discapacidades.length > 0 && `${data.discapacidades.length} discapacidades`,
-                ].filter(Boolean).join(" · ") || "—"}
-              </p>
             </section>
           )}
 
@@ -823,7 +576,7 @@ export default function NuevoCasoPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const goNext = () => setStep((s) => Math.min(s + 1, 5) as StepIndex);
+  const goNext = () => setStep((s) => Math.min(s + 1, 4) as StepIndex);
   const goBack = () => setStep((s) => Math.max(s - 1, 0) as StepIndex);
   const goStep = (s: StepIndex) => setStep(s);
 
@@ -882,65 +635,13 @@ export default function NuevoCasoPage() {
         });
       }
 
-      // 4. Create Familiares + link to NNA via VinculoFamiliar
-      if (data.familiares.length > 0) {
-        const fam = await api.antecedenteFamiliar.create(idNna, {
-          fecha_antecedente_familiar: new Date().toISOString().split("T")[0],
-        });
-        for (const a of data.familiares) {
-          const familiar = await api.familiares.create({
-            nombre: a.nombre || null,
-            run: a.run || null,
-            fecha_nacimiento: fmt(a.fecha_nacimiento),
-            direccion: a.direccion || null,
-            numero_telefono: a.numero_telefono || null,
-            tiene_antecedentes_penales: a.tiene_antecedentes_penales,
-          });
-          await api.vinculoFamiliar.create(fam.id_antecedente_familiar, {
-            id_familiar: familiar.id_familiar,
-            parentesco: a.parentesco || null,
-            es_adulto_responsable: a.es_adulto_responsable,
-          });
-          for (const ant of a.antecedentes) {
-            await api.antecedentesPenales.create(familiar.id_familiar, {
-              descripcion: ant.descripcion || null,
-            });
-          }
-        }
-      }
-
-      // 5. Create Antecedentes
-      if (data.salud.establecimiento || data.salud.prevision || data.salud.inscrito_en_consultorio) {
-        await api.antecedenteSalud.create(idNna, {
-          fecha_antecedente_salud: new Date().toISOString().split("T")[0],
-          inscrito_en_consultorio: data.salud.inscrito_en_consultorio,
-          establecimiento: data.salud.establecimiento || null,
-          prevision: data.salud.prevision || null,
-        });
-      }
-      if (data.escolar.establecimiento || data.escolar.escolarizado) {
-        await api.antecedenteEscolar.create(idNna, {
-          fecha_antecedente_escolar: new Date().toISOString().split("T")[0],
-          escolarizado: data.escolar.escolarizado,
-          establecimiento: data.escolar.establecimiento || null,
-          ultimo_ano_curso: data.escolar.ultimo_ano_curso ? Number(data.escolar.ultimo_ano_curso) : null,
-        });
-      }
-      for (const c of data.consumo) {
-        await api.historialConsumoNNA.create(idNna, {
-          nombre_sustancia: c.nombre_sustancia || null,
-          consumo_indirecto_gestacional: c.consumo_indirecto_gestacional,
-          estado_consumo: c.estado_consumo || null,
-          fecha_inicio: fmt(c.fecha_inicio),
-          fecha_termino: null,
-          en_tratamiento: c.en_tratamiento,
-        });
-      }
-      for (const d of data.discapacidades) {
-        await api.discapacidadNNA.create(idNna, {
-          tipo: d.tipo || null,
-          porcentaje_grado: d.porcentaje_grado || null,
-          observacion: d.observacion || null,
+      // 4. Create Historial Red Proteccional (mochila)
+      for (const h of data.historial) {
+        await api.historialRed.create(idNna, {
+          nombre_programa: h.nombre_programa || null,
+          fecha_ingreso: fmt(h.fecha_ingreso),
+          fecha_egreso: fmt(h.fecha_egreso),
+          motivo_egreso: h.motivo_egreso || null,
         });
       }
 
@@ -966,9 +667,8 @@ export default function NuevoCasoPage() {
       {step === 0 && <StepNNA data={data} onData={setData} onNext={goNext} />}
       {step === 1 && <StepIngreso data={data} onData={setData} onBack={goBack} onNext={goNext} />}
       {step === 2 && <StepDocs data={data} onData={setData} onBack={goBack} onNext={goNext} />}
-      {step === 3 && <StepFamiliares data={data} onData={setData} onBack={goBack} onNext={goNext} />}
-      {step === 4 && <StepAntecedentes data={data} onData={setData} onBack={goBack} onNext={goNext} />}
-      {step === 5 && <StepReview data={data} onBack={goBack} submitting={submitting} onSubmit={handleSubmit} error={error} />}
+      {step === 3 && <StepHistorial data={data} onData={setData} onBack={goBack} onNext={goNext} />}
+      {step === 4 && <StepReview data={data} onBack={goBack} submitting={submitting} onSubmit={handleSubmit} error={error} />}
     </div>
   );
 }
