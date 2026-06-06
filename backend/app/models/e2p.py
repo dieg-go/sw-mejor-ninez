@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 class E2P(SQLModel, table=True):
     __tablename__ = "E2P"
 
-    id_instrumento: uuid.UUID = Field(
+    id_e2p: uuid.UUID = Field(
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
     )
     id_nna: uuid.UUID = Field(foreign_key="NNA.id_nna", sa_type=UUID(as_uuid=True))
@@ -59,7 +59,7 @@ class RespuestaE2P(SQLModel, table=True):
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
     )
     id_instrumento: uuid.UUID = Field(
-        foreign_key="E2P.id_instrumento", sa_type=UUID(as_uuid=True)
+        foreign_key="E2P.id_e2p", sa_type=UUID(as_uuid=True)
     )
     id_pregunta_e2p: uuid.UUID = Field(
         foreign_key="PreguntaE2P.id_pregunta_e2p", sa_type=UUID(as_uuid=True)
@@ -90,7 +90,7 @@ class PuntajeE2P(SQLModel, table=True):
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
     )
     id_instrumento: uuid.UUID = Field(
-        foreign_key="E2P.id_instrumento", sa_type=UUID(as_uuid=True)
+        foreign_key="E2P.id_e2p", sa_type=UUID(as_uuid=True)
     )
     categoria: str = Field()
     puntaje_bruto: int = Field()

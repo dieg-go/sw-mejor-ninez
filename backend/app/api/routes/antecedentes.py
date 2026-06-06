@@ -146,23 +146,21 @@ async def update_familiar(
     return await update_child(db, obj, data.model_dump(exclude_unset=True))
 
 
-# ── Vinculo Familiar (child of AntecedenteFamiliar) ─────────────────────────
+# ── Vinculo Familiar (child of NNA) ──────────────────────────────────────────
 
-vinculo_router = APIRouter(
-    prefix="/api/antecedente-familiar/{id_familiar}/vinculo", tags=["VinculoFamiliar"]
-)
+vinculo_router = APIRouter(prefix="/api/nna/{id_nna}/vinculos", tags=["VinculoFamiliar"])
 
 
 @vinculo_router.get("", response_model=list[VinculoFamiliarRead])
-async def list_vinculo_familiar(id_familiar: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    return await list_vinculo(db, id_familiar)
+async def list_vinculo_familiar(id_nna: uuid.UUID, db: AsyncSession = Depends(get_db)):
+    return await list_vinculo(db, id_nna)
 
 
 @vinculo_router.post("", response_model=VinculoFamiliarRead, status_code=201)
 async def create_vinculo_familiar(
-    id_familiar: uuid.UUID, data: VinculoFamiliarCreate, db: AsyncSession = Depends(get_db)
+    id_nna: uuid.UUID, data: VinculoFamiliarCreate, db: AsyncSession = Depends(get_db)
 ):
-    return await create_vinculo(db, id_familiar, data.model_dump())
+    return await create_vinculo(db, id_nna, data.model_dump())
 
 
 vinculo_item_router = APIRouter(prefix="/api/vinculo-familiar", tags=["VinculoFamiliar"])

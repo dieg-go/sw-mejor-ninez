@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 class HistorialConsumoNNA(SQLModel, table=True):
     __tablename__ = "HistorialConsumoNNA"
 
-    id_historial_consumo: uuid.UUID = Field(
+    id_historial_consumo_nna: uuid.UUID = Field(
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
     )
     id_nna: uuid.UUID = Field(foreign_key="NNA.id_nna", sa_type=UUID(as_uuid=True))
@@ -30,7 +30,7 @@ class HistorialConsumoNNA(SQLModel, table=True):
 class HistorialConsumoAdulto(SQLModel, table=True):
     __tablename__ = "HistorialConsumoAdulto"
 
-    id_historial_consumo: uuid.UUID = Field(
+    id_historial_consumo_adulto: uuid.UUID = Field(
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
     )
     id_familiar: uuid.UUID = Field(

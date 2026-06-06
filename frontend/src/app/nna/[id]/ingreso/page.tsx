@@ -32,7 +32,7 @@ import { cn } from "@/lib/utils";
 
 const DEFAULT_INGRESO = {
   fecha_ingreso_residencia: "",
-  quien_solicita_ingreso: "",
+  id_solicitante_ingreso: "",
   orden_tribunal: false,
   fecha_causa: "",
   tribunal: "",
@@ -145,7 +145,7 @@ export default function IngresoPage({ params }: { params: Promise<{ id: string }
     setEditingId(ingreso.id_antecedente_ingreso);
     setEditForm({
       fecha_ingreso_residencia: ingreso.fecha_ingreso_residencia || "",
-      quien_solicita_ingreso: ingreso.quien_solicita_ingreso || "",
+      id_solicitante_ingreso: ingreso.id_solicitante_ingreso || "",
       orden_tribunal: ingreso.orden_tribunal,
       fecha_causa: ingreso.fecha_causa || "",
       tribunal: ingreso.tribunal || "",
@@ -279,8 +279,8 @@ export default function IngresoPage({ params }: { params: Promise<{ id: string }
                   <Label className="text-xs">Quién solicita ingreso</Label>
                   <Input
                     className="mt-1"
-                    value={form.quien_solicita_ingreso}
-                    onChange={(e) => setForm((prev) => ({ ...prev, quien_solicita_ingreso: e.target.value }))}
+                    value={form.id_solicitante_ingreso}
+                    onChange={(e) => setForm((prev) => ({ ...prev, id_solicitante_ingreso: e.target.value }))}
                     placeholder="Nombre / institución"
                   />
                 </div>
@@ -383,7 +383,7 @@ export default function IngresoPage({ params }: { params: Promise<{ id: string }
                       </div>
                       <div>
                         <Label className="text-xs">Quién solicita</Label>
-                        <Input className="mt-1" value={editForm.quien_solicita_ingreso} onChange={(e) => setEditForm((prev) => ({ ...prev, quien_solicita_ingreso: e.target.value }))} />
+                        <Input className="mt-1" value={editForm.id_solicitante_ingreso} onChange={(e) => setEditForm((prev) => ({ ...prev, id_solicitante_ingreso: e.target.value }))} />
                       </div>
                       <div className="flex items-center gap-2 pt-2">
                         <Checkbox id={`edit-orden-${ingreso.id_antecedente_ingreso}`} checked={editForm.orden_tribunal} onCheckedChange={(v) => setEditForm((prev) => ({ ...prev, orden_tribunal: !!v }))} />
@@ -431,7 +431,7 @@ export default function IngresoPage({ params }: { params: Promise<{ id: string }
                     <div className="flex items-start justify-between">
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-1 text-sm">
                         <div><span className="text-xs text-muted-foreground">Fecha ingreso: </span>{formatDate(ingreso.fecha_ingreso_residencia)}</div>
-                        <div><span className="text-xs text-muted-foreground">Solicitante: </span>{ingreso.quien_solicita_ingreso || "—"}</div>
+                        <div><span className="text-xs text-muted-foreground">Solicitante: </span>{ingreso.id_solicitante_ingreso || "—"}</div>
                         <div><span className="text-xs text-muted-foreground">Orden tribunal: </span>{ingreso.orden_tribunal ? <Badge variant="secondary">Sí</Badge> : "No"}</div>
                         <div><span className="text-xs text-muted-foreground">Tribunal: </span>{ingreso.tribunal || "—"}</div>
                         <div><span className="text-xs text-muted-foreground">Materia: </span>{ingreso.materia || "—"}</div>

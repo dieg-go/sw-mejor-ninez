@@ -6,10 +6,10 @@ from pydantic import BaseModel, ConfigDict
 
 
 class AntecedenteSaludBase(BaseModel):
+    id_centro_salud: Optional[uuid.UUID] = None
     fecha_antecedente_salud: Optional[date] = None
-    inscrito_en_consultorio: bool = False
-    establecimiento: Optional[str] = None
     prevision: Optional[str] = None
+    inscrito_en_centro_salud: bool = False
 
 
 class AntecedenteSaludCreate(AntecedenteSaludBase):
@@ -17,10 +17,10 @@ class AntecedenteSaludCreate(AntecedenteSaludBase):
 
 
 class AntecedenteSaludUpdate(BaseModel):
+    id_centro_salud: Optional[uuid.UUID] = None
     fecha_antecedente_salud: Optional[date] = None
-    inscrito_en_consultorio: Optional[bool] = None
-    establecimiento: Optional[str] = None
     prevision: Optional[str] = None
+    inscrito_en_centro_salud: Optional[bool] = None
 
 
 class AntecedenteSaludRead(AntecedenteSaludBase):
@@ -31,10 +31,10 @@ class AntecedenteSaludRead(AntecedenteSaludBase):
 
 
 class AntecedenteEscolarBase(BaseModel):
+    id_establecimiento_educacional: Optional[uuid.UUID] = None
     fecha_antecedente_escolar: Optional[date] = None
+    ultimo_ano_cursado: Optional[int] = None
     escolarizado: bool = False
-    establecimiento: Optional[str] = None
-    ultimo_ano_curso: Optional[int] = None
 
 
 class AntecedenteEscolarCreate(AntecedenteEscolarBase):
@@ -42,10 +42,10 @@ class AntecedenteEscolarCreate(AntecedenteEscolarBase):
 
 
 class AntecedenteEscolarUpdate(BaseModel):
+    id_establecimiento_educacional: Optional[uuid.UUID] = None
     fecha_antecedente_escolar: Optional[date] = None
+    ultimo_ano_cursado: Optional[int] = None
     escolarizado: Optional[bool] = None
-    establecimiento: Optional[str] = None
-    ultimo_ano_curso: Optional[int] = None
 
 
 class AntecedenteEscolarRead(AntecedenteEscolarBase):
@@ -56,7 +56,10 @@ class AntecedenteEscolarRead(AntecedenteEscolarBase):
 
 
 class AntecedenteFamiliarBase(BaseModel):
+    id_adulto_responsable: Optional[uuid.UUID] = None
     fecha_antecedente_familiar: Optional[date] = None
+    con_quien_vive: Optional[str] = None
+    con_quien_vive_detalle: Optional[str] = None
 
 
 class AntecedenteFamiliarCreate(AntecedenteFamiliarBase):
@@ -64,7 +67,10 @@ class AntecedenteFamiliarCreate(AntecedenteFamiliarBase):
 
 
 class AntecedenteFamiliarUpdate(BaseModel):
+    id_adulto_responsable: Optional[uuid.UUID] = None
     fecha_antecedente_familiar: Optional[date] = None
+    con_quien_vive: Optional[str] = None
+    con_quien_vive_detalle: Optional[str] = None
 
 
 class AntecedenteFamiliarRead(AntecedenteFamiliarBase):
@@ -75,23 +81,21 @@ class AntecedenteFamiliarRead(AntecedenteFamiliarBase):
 
 
 class VinculoFamiliarBase(BaseModel):
+    id_familiar: uuid.UUID
     parentesco: Optional[str] = None
-    es_adulto_responsable: bool = False
 
 
 class VinculoFamiliarCreate(VinculoFamiliarBase):
-    id_familiar: Optional[uuid.UUID] = None
+    pass
 
 
 class VinculoFamiliarUpdate(BaseModel):
-    parentesco: Optional[str] = None
-    es_adulto_responsable: Optional[bool] = None
     id_familiar: Optional[uuid.UUID] = None
+    parentesco: Optional[str] = None
 
 
 class VinculoFamiliarRead(VinculoFamiliarBase):
     model_config = ConfigDict(from_attributes=True)
 
     id_vinculo_familiar: uuid.UUID
-    id_antecedente_familiar: uuid.UUID
-    id_familiar: Optional[uuid.UUID] = None
+    id_nna: uuid.UUID

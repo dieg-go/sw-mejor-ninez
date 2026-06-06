@@ -64,7 +64,7 @@ interface WizardData {
   // Step 2
   ingreso: {
     fecha_ingreso_residencia: Date | null;
-    quien_solicita_ingreso: string;
+    id_solicitante_ingreso: string;
     orden_tribunal: boolean;
     fecha_causa: Date | null;
     tribunal: string;
@@ -86,7 +86,7 @@ function emptyWizard(): WizardData {
     nnaDate: null,
     ingreso: {
       fecha_ingreso_residencia: null,
-      quien_solicita_ingreso: "",
+      id_solicitante_ingreso: "",
       orden_tribunal: false,
       fecha_causa: null,
       tribunal: "",
@@ -270,7 +270,7 @@ function StepIngreso({ data, onData, onBack, onNext }: { data: WizardData; onDat
             <DateField label="Fecha de ingreso a residencia" value={ing.fecha_ingreso_residencia} onChange={(d) => set({ fecha_ingreso_residencia: d ?? null })} />
             <Field>
               <FieldLabel htmlFor="ing-quien">Quién solicita el ingreso</FieldLabel>
-              <Input id="ing-quien" value={ing.quien_solicita_ingreso} onChange={(e) => set({ quien_solicita_ingreso: e.target.value })} placeholder="Nombre o entidad" />
+              <Input id="ing-quien" value={ing.id_solicitante_ingreso} onChange={(e) => set({ id_solicitante_ingreso: e.target.value })} placeholder="Nombre o entidad" />
             </Field>
             <DateField label="Fecha de la causa" value={ing.fecha_causa} onChange={(d) => set({ fecha_causa: d ?? null })} />
             <Field>
@@ -484,7 +484,7 @@ function StepReview({
   error: string | null;
 }) {
   const hasExtra =
-    data.ingreso.quien_solicita_ingreso ||
+    data.ingreso.id_solicitante_ingreso ||
     data.docs.length > 0 ||
     data.historial.length > 0;
 
@@ -512,10 +512,10 @@ function StepReview({
             </dl>
           </section>
 
-          {data.ingreso.quien_solicita_ingreso && (
+          {data.ingreso.id_solicitante_ingreso && (
             <section>
               <h4 className="text-sm font-medium mb-2">Ingreso</h4>
-              <p className="text-sm text-muted-foreground">{data.ingreso.quien_solicita_ingreso} — {data.ingreso.tribunal || "Sin tribunal"} — {data.ingreso.causales.length} causales, {data.ingreso.derechos.length} derechos</p>
+              <p className="text-sm text-muted-foreground">{data.ingreso.id_solicitante_ingreso} — {data.ingreso.tribunal || "Sin tribunal"} — {data.ingreso.causales.length} causales, {data.ingreso.derechos.length} derechos</p>
             </section>
           )}
 
@@ -597,10 +597,10 @@ export default function NuevoCasoPage() {
 
       // 2. Create Ingreso (if any field filled)
       const ing = data.ingreso;
-      if (ing.quien_solicita_ingreso || ing.fecha_ingreso_residencia || ing.causales.length > 0 || ing.derechos.length > 0) {
+      if (ing.id_solicitante_ingreso || ing.fecha_ingreso_residencia || ing.causales.length > 0 || ing.derechos.length > 0) {
         const ingreso = await api.antecedenteIngreso.create(idNna, {
           fecha_ingreso_residencia: fmt(ing.fecha_ingreso_residencia),
-          quien_solicita_ingreso: ing.quien_solicita_ingreso || null,
+          id_solicitante_ingreso: ing.id_solicitante_ingreso || null,
           orden_tribunal: ing.orden_tribunal,
           fecha_causa: fmt(ing.fecha_causa),
           tribunal: ing.tribunal || null,

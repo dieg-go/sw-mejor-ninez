@@ -166,7 +166,7 @@ async def _calcular_puntajes(
     if not rows:
         e2p_empty = (
             await db.execute(
-                select(E2P).where(E2P.id_instrumento == id_instrumento)
+                select(E2P).where(E2P.id_e2p == id_instrumento)
             )
         ).scalar_one_or_none()
         if e2p_empty and e2p_empty.resultado is not None:
@@ -215,7 +215,7 @@ async def _calcular_puntajes(
     if resultado is not None:
         e2p = (
             await db.execute(
-                select(E2P).where(E2P.id_instrumento == id_instrumento)
+                select(E2P).where(E2P.id_e2p == id_instrumento)
             )
         ).scalar_one_or_none()
         if e2p:
@@ -236,7 +236,7 @@ async def list_e2p(id_nna: uuid.UUID, db: AsyncSession = Depends(get_db)):
     result = []
     for e in items:
         r = E2PRead.model_validate(e)
-        r.respuestas = await _build_respuestas_dict(db, e.id_instrumento)
+        r.respuestas = await _build_respuestas_dict(db, e.id_e2p)
         result.append(r)
     return result
 
@@ -249,10 +249,10 @@ async def create_e2p(
     payload = data.model_dump(exclude={"respuestas"})
     obj = await create_nna_child(db, E2P, id_nna, payload)
     if respuestas and data.version:
-        await _sync_respuestas(db, obj.id_instrumento, data.version, respuestas)
-        await _calcular_puntajes(db, obj.id_instrumento, data.version)
+        await _sync_respuestas(db, obj.id_e2p, data.version, respuestas)
+        await _calcular_puntajes(db, obj.id_e2p, data.version)
     result = E2PRead.model_validate(obj)
-    result.respuestas = await _build_respuestas_dict(db, obj.id_instrumento)
+    result.respuestas = await _build_respuestas_dict(db, obj.id_e2p)
     return result
 
 
@@ -263,7 +263,7 @@ e2p_item_router = APIRouter(prefix="/api/e2p", tags=["E2P"])
 
 @e2p_item_router.get("/{id_e2p}", response_model=E2PRead)
 async def get_e2p(id_e2p: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    obj = await get_nna_child(db, E2P, E2P.id_instrumento, id_e2p)
+    obj = await get_nna_child(db, E2P, E2P.id_e2p, id_e2p)
     if not obj:
         raise HTTPException(status_code=404, detail="E2P no encontrado")
     result = E2PRead.model_validate(obj)
@@ -275,7 +275,7 @@ async def get_e2p(id_e2p: uuid.UUID, db: AsyncSession = Depends(get_db)):
 async def update_e2p(
     id_e2p: uuid.UUID, data: E2PUpdate, db: AsyncSession = Depends(get_db)
 ):
-    obj = await get_nna_child(db, E2P, E2P.id_instrumento, id_e2p)
+    obj = await get_nna_child(db, E2P, E2P.id_e2p, id_e2p)
     if not obj:
         raise HTTPException(status_code=404, detail="E2P no encontrado")
 
@@ -299,7 +299,7 @@ async def update_e2p(
 
 @e2p_item_router.get("/{id_e2p}/puntaje")
 async def get_e2p_puntaje(id_e2p: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    obj = await get_nna_child(db, E2P, E2P.id_instrumento, id_e2p)
+    obj = await get_nna_child(db, E2P, E2P.id_e2p, id_e2p)
     if not obj:
         raise HTTPException(status_code=404, detail="E2P no encontrado")
 
@@ -355,7 +355,7 @@ async def list_e2p_familiar(
     result = []
     for e in items:
         r = E2PRead.model_validate(e)
-        r.respuestas = await _build_respuestas_dict(db, e.id_instrumento)
+        r.respuestas = await _build_respuestas_dict(db, e.id_e2p)
         result.append(r)
     return result
 
@@ -368,10 +368,10 @@ async def create_e2p_familiar(
     payload = data.model_dump(exclude={"respuestas"})
     obj = await create_familiar_child(db, E2P, id_familiar, payload)
     if respuestas and data.version:
-        await _sync_respuestas(db, obj.id_instrumento, data.version, respuestas)
-        await _calcular_puntajes(db, obj.id_instrumento, data.version)
+        await _sync_respuestas(db, obj.id_e2p, data.version, respuestas)
+        await _calcular_puntajes(db, obj.id_e2p, data.version)
     result = E2PRead.model_validate(obj)
-    result.respuestas = await _build_respuestas_dict(db, obj.id_instrumento)
+    result.respuestas = await _build_respuestas_dict(db, obj.id_e2p)
     return result
 
 

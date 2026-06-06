@@ -26,7 +26,7 @@ class E2PUpdate(BaseModel):
 class E2PRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id_instrumento: uuid.UUID
+    id_e2p: uuid.UUID
     id_nna: uuid.UUID
     id_familiar: Optional[uuid.UUID] = None
     fecha_evaluacion: Optional[date] = None

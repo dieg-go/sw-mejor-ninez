@@ -30,7 +30,7 @@ ncfas_item_router = APIRouter(prefix="/api/ncfas", tags=["NCFAS"])
 
 @ncfas_item_router.get("/{id_ncfas}", response_model=NCFASRead)
 async def get_ncfas(id_ncfas: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    obj = await get_nna_child(db, NCFAS, NCFAS.id_instrumento, id_ncfas)
+    obj = await get_nna_child(db, NCFAS, NCFAS.id_ncfas, id_ncfas)
     if not obj:
         raise HTTPException(status_code=404, detail="NCFAS no encontrado")
     return obj
@@ -38,7 +38,7 @@ async def get_ncfas(id_ncfas: uuid.UUID, db: AsyncSession = Depends(get_db)):
 
 @ncfas_item_router.put("/{id_ncfas}", response_model=NCFASRead)
 async def update_ncfas(id_ncfas: uuid.UUID, data: NCFASUpdate, db: AsyncSession = Depends(get_db)):
-    obj = await get_nna_child(db, NCFAS, NCFAS.id_instrumento, id_ncfas)
+    obj = await get_nna_child(db, NCFAS, NCFAS.id_ncfas, id_ncfas)
     if not obj:
         raise HTTPException(status_code=404, detail="NCFAS no encontrado")
     return await update_child(db, obj, data.model_dump(exclude_unset=True))

@@ -28,7 +28,7 @@ docker compose up -d --build    # http://localhost:3000
 - **Backend**: FastAPI 0.115 (async), SQLModel 0.0.22 (asyncpg + psycopg2), Pydantic v2, Alembic 1.14. Three-layer: Routes → Services → Models. Schemas separate from models.
 - **DB**: PostgreSQL 17 (Alpine). DB `sw_mejor_ninez`, user/pass `postgres/postgres`, port **5433** (host-mapped from 5432). Inside Docker Compose, containers use `db:5432`.
 - **Infra**: Docker Compose with three services (db/backend/frontend). Dockerfiles in both `backend/` and `frontend/`.
-- **Dev watch**: `docker compose -f docker-compose.yml -f docker-compose.watch.yml watch` syncs `backend/app/` code changes into the container and restarts uvicorn automatically. The override file (`docker-compose.watch.yml`) swaps the backend CMD from `entrypoint.sh` to `uvicorn --reload`, so new deps/migrations require manual steps: `docker compose exec backend pip install...` and `docker compose exec backend python -m alembic upgrade head`. Frontend is NOT synced — use `cd frontend && pnpm dev` locally for UI iteration.
+- **Development workflow**: `docker compose up -d --build` for the full stack. For faster iteration, use `dev.ps1` (DB in Docker, backend + frontend locally with hot-reload) or `docker compose up -d db backend` + `cd frontend && pnpm dev` for frontend-only work.
 
 ## Code Organization
 
@@ -83,6 +83,7 @@ frontend/
   → ae12f00b467b (normalize_e2p — PreguntaE2P, RespuestaE2P, BaremoE2P tables)
   → f4285c627ed7 (puntaje_e2p_table — PuntajeE2P table)
   → 6ee297be7960 (add_usuario_table)
+  → 1bf65e3da946 (schema_reference_alignment — PK renames, new tables, FK restructuring)
 ```
 The rename migration (`20260526_2116`) is idempotent — skips if old table names don't exist.
 

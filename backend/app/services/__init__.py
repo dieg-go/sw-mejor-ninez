@@ -26,6 +26,7 @@ from app.models import (
     RegistroCausalIngreso,
     RegistroDerechoVulnerado,
     VinculoFamiliar,
+    VinculoNNA,
 )
 
 
@@ -165,20 +166,43 @@ async def create_ingreso_child(
 # ── Familiar children (vinculo) ──────────────────────────────────────────────
 
 async def list_vinculo(
-    session: AsyncSession, id_antecedente_familiar: uuid.UUID
+    session: AsyncSession, id_nna: uuid.UUID
 ) -> list[VinculoFamiliar]:
     result = await session.execute(
         select(VinculoFamiliar).where(
-            VinculoFamiliar.id_antecedente_familiar == id_antecedente_familiar
+            VinculoFamiliar.id_nna == id_nna
         )
     )
     return list(result.scalars().all())
 
 
 async def create_vinculo(
-    session: AsyncSession, id_antecedente_familiar: uuid.UUID, data: dict[str, Any]
+    session: AsyncSession, id_nna: uuid.UUID, data: dict[str, Any]
 ) -> VinculoFamiliar:
-    obj = VinculoFamiliar(id_antecedente_familiar=id_antecedente_familiar, **data)
+    obj = VinculoFamiliar(id_nna=id_nna, **data)
+    session.add(obj)
+    await session.commit()
+    await session.refresh(obj)
+    return obj
+
+
+# ── VinculoNNA helpers ───────────────────────────────────────────────────────
+
+async def list_vinculo_nna(
+    session: AsyncSession, id_nna: uuid.UUID
+) -> list[VinculoNNA]:
+    result = await session.execute(
+        select(VinculoNNA).where(
+            VinculoNNA.id_nna_1 == id_nna
+        )
+    )
+    return list(result.scalars().all())
+
+
+async def create_vinculo_nna(
+    session: AsyncSession, id_nna: uuid.UUID, data: dict[str, Any]
+) -> VinculoNNA:
+    obj = VinculoNNA(id_nna_1=id_nna, **data)
     session.add(obj)
     await session.commit()
     await session.refresh(obj)

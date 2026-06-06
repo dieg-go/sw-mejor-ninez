@@ -48,12 +48,13 @@ class Familiar(SQLModel, table=True):
 class AntecedentesPenales(SQLModel, table=True):
     __tablename__ = "AntecedentesPenales"
 
-    id_antecedentes_penales: uuid.UUID = Field(
+    id_antecedente_penal: uuid.UUID = Field(
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
     )
     id_familiar: uuid.UUID = Field(
         foreign_key="Familiar.id_familiar", sa_type=UUID(as_uuid=True)
     )
     descripcion: Optional[str] = None
+    url_documento_adjunto: Optional[str] = None
 
     familiar: "Familiar" = Relationship(back_populates="antecedentes_penales")

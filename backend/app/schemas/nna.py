@@ -6,6 +6,7 @@ from pydantic import BaseModel, ConfigDict
 
 
 class NNABase(BaseModel):
+    id_sis: Optional[str] = None
     nombre: Optional[str] = None
     run: Optional[str] = None
     fecha_nacimiento: Optional[date] = None
@@ -23,6 +24,7 @@ class NNACreate(NNABase):
 
 
 class NNAUpdate(BaseModel):
+    id_sis: Optional[str] = None
     nombre: Optional[str] = None
     run: Optional[str] = None
     fecha_nacimiento: Optional[date] = None

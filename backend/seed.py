@@ -15,9 +15,11 @@ from app.models import (
     AntecedenteSalud,
     AntecedentesPenales,
     BaremoE2P,
+    CentroSalud,
     DiscapacidadNNA,
     DocumentacionIngreso,
     E2P,
+    EstablecimientoEducacional,
     PreguntaE2P,
     VinculoFamiliar,
     GestionBusquedaFamiliar,
@@ -30,6 +32,7 @@ from app.models import (
     PMF,
     RegistroCausalIngreso,
     RegistroDerechoVulnerado,
+    SolicitanteIngreso,
     Usuario,
 )
 from app.core.security import hash_password
@@ -123,15 +126,54 @@ async def seed_admin_user(session):
     print("Admin user created: admin@mejorninez.cl / admin123")
 
 
+async def seed_catalogs(session):
+    result = await session.execute(select(SolicitanteIngreso))
+    if result.scalars().first():
+        print("Catalogs already seeded — skipping.")
+        return
+
+    session.add_all([
+        SolicitanteIngreso(nombre="Tribunal de Familia de Santiago", categoria="Tribunal", ano_proyecto=None),
+        SolicitanteIngreso(nombre="Programa de Intervención Breve (PIB)", categoria="PIB", ano_proyecto=2025),
+        SolicitanteIngreso(nombre="OPD Temuco", categoria="OPD", ano_proyecto=2024),
+        SolicitanteIngreso(nombre="PRM Santiago Centro", categoria="PRM", ano_proyecto=2025),
+        SolicitanteIngreso(nombre="PRK Valparaíso", categoria="PRK", ano_proyecto=2024),
+    ])
+
+    session.add_all([
+        EstablecimientoEducacional(nombre="Liceo Comercial Manuel de Salas", rbd=8593),
+        EstablecimientoEducacional(nombre="Escuela Básica Las Palmas", rbd=10456),
+        EstablecimientoEducacional(nombre="Colegio San Ignacio", rbd=7234),
+    ])
+
+    session.add_all([
+        CentroSalud(nombre="CESFAM N°5 Santiago", tipo_recinto="CESFAM"),
+        CentroSalud(nombre="Hospital Regional de Temuco", tipo_recinto="Hospital"),
+        CentroSalud(nombre="Clínica Alemana de Santiago", tipo_recinto="Clínica Privada"),
+    ])
+
+    await session.commit()
+    print("Catalogs seeded: 5 solicitantes, 3 establecimientos, 3 centros de salud.")
+
+
 async def seed():
     async with async_session() as session:
         await seed_admin_user(session)
         await seed_e2p_static(session)
+        await seed_catalogs(session)
 
         count_nna = (await session.execute(select(NNA))).scalars().all()
         if len(count_nna) >= 2:
             print(f"Seed data already exists ({len(count_nna)} NNA) — skipping.")
             return
+
+        # Load catalog references
+        sols = (await session.execute(select(SolicitanteIngreso))).scalars().all()
+        sol_by_name = {s.nombre: s for s in sols}
+        ests = (await session.execute(select(EstablecimientoEducacional))).scalars().all()
+        est_by_name = {e.nombre: e for e in ests}
+        centros = (await session.execute(select(CentroSalud))).scalars().all()
+        centro_by_name = {c.nombre: c for c in centros}
 
         # ═══ NNA #1: Ana Muñoz ═══════════════════════════════════════════════
         ana = NNA(
@@ -174,30 +216,35 @@ async def seed():
             )
         )
 
-        # Familiares
-        af_ana = AntecedenteFamiliar(id_nna=ana.id_nna, fecha_antecedente_familiar=fecha_hace(90))
-        session.add(af_ana)
-        await session.flush()
+        # VinculoFamiliar direct (new structure: id_nna + id_familiar)
         session.add_all([
             VinculoFamiliar(
-                id_antecedente_familiar=af_ana.id_antecedente_familiar,
+                id_nna=ana.id_nna,
                 id_familiar=madre_ana.id_familiar,
                 parentesco="Madre",
-                es_adulto_responsable=True,
             ),
             VinculoFamiliar(
-                id_antecedente_familiar=af_ana.id_antecedente_familiar,
+                id_nna=ana.id_nna,
                 id_familiar=tio_ana.id_familiar,
                 parentesco="Tío",
-                es_adulto_responsable=False,
             ),
         ])
+
+        # AntecedenteFamiliar
+        af_ana = AntecedenteFamiliar(
+            id_nna=ana.id_nna,
+            id_adulto_responsable=madre_ana.id_familiar,
+            fecha_antecedente_familiar=fecha_hace(90),
+            con_quien_vive="Madre",
+            con_quien_vive_detalle=None,
+        )
+        session.add(af_ana)
 
         # Ingreso
         ing_ana = AntecedenteIngreso(
             id_nna=ana.id_nna,
+            id_solicitante_ingreso=sol_by_name["Tribunal de Familia de Santiago"].id_solicitante_ingreso,
             fecha_ingreso_residencia=fecha_hace(180),
-            quien_solicita_ingreso="Tribunal de Familia de Santiago",
             orden_tribunal=True,
             fecha_causa=fecha_hace(200),
             tribunal="1° Juzgado de Familia de Santiago",
@@ -273,17 +320,17 @@ async def seed():
         session.add_all([
             AntecedenteSalud(
                 id_nna=ana.id_nna,
+                id_centro_salud=centro_by_name["CESFAM N°5 Santiago"].id_centro_salud,
                 fecha_antecedente_salud=fecha_hace(90),
-                inscrito_en_consultorio=True,
-                establecimiento="CESFAM N°5 Santiago",
+                inscrito_en_centro_salud=True,
                 prevision="Fonasa",
             ),
             AntecedenteEscolar(
                 id_nna=ana.id_nna,
+                id_establecimiento_educacional=est_by_name["Liceo Comercial Manuel de Salas"].id_establecimiento_educacional,
                 fecha_antecedente_escolar=fecha_hace(90),
                 escolarizado=True,
-                establecimiento="Liceo Comercial Manuel de Salas",
-                ultimo_ano_curso=8,
+                ultimo_ano_cursado=8,
             ),
         ])
 
@@ -329,20 +376,25 @@ async def seed():
             en_tratamiento=False,
         ))
 
-        af_carlos = AntecedenteFamiliar(id_nna=carlos.id_nna, fecha_antecedente_familiar=fecha_hace(80))
-        session.add(af_carlos)
-        await session.flush()
         session.add(VinculoFamiliar(
-            id_antecedente_familiar=af_carlos.id_antecedente_familiar,
+            id_nna=carlos.id_nna,
             id_familiar=padre_carlos.id_familiar,
             parentesco="Padre",
-            es_adulto_responsable=True,
         ))
+
+        af_carlos = AntecedenteFamiliar(
+            id_nna=carlos.id_nna,
+            id_adulto_responsable=padre_carlos.id_familiar,
+            fecha_antecedente_familiar=fecha_hace(80),
+            con_quien_vive="Padre",
+            con_quien_vive_detalle=None,
+        )
+        session.add(af_carlos)
 
         ing_carlos = AntecedenteIngreso(
             id_nna=carlos.id_nna,
+            id_solicitante_ingreso=sol_by_name["Programa de Intervención Breve (PIB)"].id_solicitante_ingreso,
             fecha_ingreso_residencia=fecha_hace(90),
-            quien_solicita_ingreso="Programa de Intervención Breve (PIB)",
             orden_tribunal=False,
             codigo_rit="P-5678-2025",
         )
@@ -366,10 +418,10 @@ async def seed():
 
         session.add(AntecedenteEscolar(
             id_nna=carlos.id_nna,
+            id_establecimiento_educacional=est_by_name["Escuela Básica Las Palmas"].id_establecimiento_educacional,
             fecha_antecedente_escolar=fecha_hace(60),
             escolarizado=True,
-            establecimiento="Escuela Básica Las Palmas",
-            ultimo_ano_curso=3,
+            ultimo_ano_cursado=3,
         ))
 
         session.add(NCFAS(
@@ -423,28 +475,32 @@ async def seed():
             en_tratamiento=True,
         ))
 
-        af_maria = AntecedenteFamiliar(id_nna=maria.id_nna, fecha_antecedente_familiar=fecha_hace(100))
-        session.add(af_maria)
-        await session.flush()
         session.add_all([
             VinculoFamiliar(
-                id_antecedente_familiar=af_maria.id_antecedente_familiar,
+                id_nna=maria.id_nna,
                 id_familiar=abuela_maria.id_familiar,
                 parentesco="Abuela materna",
-                es_adulto_responsable=True,
             ),
             VinculoFamiliar(
-                id_antecedente_familiar=af_maria.id_antecedente_familiar,
+                id_nna=maria.id_nna,
                 id_familiar=madre_maria.id_familiar,
                 parentesco="Madre",
-                es_adulto_responsable=False,
             ),
         ])
 
+        af_maria = AntecedenteFamiliar(
+            id_nna=maria.id_nna,
+            id_adulto_responsable=abuela_maria.id_familiar,
+            fecha_antecedente_familiar=fecha_hace(100),
+            con_quien_vive="Abuela materna",
+            con_quien_vive_detalle="Madre con régimen de visitas supervisadas",
+        )
+        session.add(af_maria)
+
         ing_maria = AntecedenteIngreso(
             id_nna=maria.id_nna,
+            id_solicitante_ingreso=sol_by_name["OPD Temuco"].id_solicitante_ingreso,
             fecha_ingreso_residencia=fecha_hace(120),
-            quien_solicita_ingreso="OPD Temuco",
             orden_tribunal=False,
             codigo_rit="A-9012-2025",
         )
@@ -476,10 +532,10 @@ async def seed():
 
         session.add(AntecedenteEscolar(
             id_nna=maria.id_nna,
+            id_establecimiento_educacional=None,
             fecha_antecedente_escolar=fecha_hace(100),
             escolarizado=False,
-            establecimiento=None,
-            ultimo_ano_curso=None,
+            ultimo_ano_cursado=None,
         ))
 
         # ═══ Shared / cross-cutting ═══════════════════════════════════════════
@@ -513,14 +569,14 @@ async def seed():
 
         session.add(AntecedenteSalud(
             id_nna=maria.id_nna,
+            id_centro_salud=centro_by_name["Hospital Regional de Temuco"].id_centro_salud,
             fecha_antecedente_salud=fecha_hace(100),
-            inscrito_en_consultorio=True,
-            establecimiento="Hospital Regional de Temuco",
+            inscrito_en_centro_salud=True,
             prevision="Fonasa",
         ))
 
         await session.commit()
-        print("Seed data created: 3 NNA, 5 familiares, ~40 child records.")
+        print("Seed data created: 3 NNA, 5 familiares, ~40 child records, catalogs.")
 
 
 if __name__ == "__main__":

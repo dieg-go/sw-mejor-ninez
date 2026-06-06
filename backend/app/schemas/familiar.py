@@ -35,6 +35,7 @@ class FamiliarRead(FamiliarBase):
 
 class AntecedentePenalBase(BaseModel):
     descripcion: Optional[str] = None
+    url_documento_adjunto: Optional[str] = None
 
 
 class AntecedentePenalCreate(AntecedentePenalBase):
@@ -43,10 +44,11 @@ class AntecedentePenalCreate(AntecedentePenalBase):
 
 class AntecedentePenalUpdate(BaseModel):
     descripcion: Optional[str] = None
+    url_documento_adjunto: Optional[str] = None
 
 
 class AntecedentePenalRead(AntecedentePenalBase):
     model_config = ConfigDict(from_attributes=True)
 
-    id_antecedentes_penales: uuid.UUID
+    id_antecedente_penal: uuid.UUID
     id_familiar: uuid.UUID

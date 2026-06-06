@@ -77,6 +77,26 @@ from app.schemas.antecedentes import (
     VinculoFamiliarCreate,
     VinculoFamiliarUpdate,
 )
+from app.schemas.solicitante import (
+    SolicitanteIngresoRead,
+    SolicitanteIngresoCreate,
+    SolicitanteIngresoUpdate,
+)
+from app.schemas.establecimiento import (
+    EstablecimientoEducacionalRead,
+    EstablecimientoEducacionalCreate,
+    EstablecimientoEducacionalUpdate,
+)
+from app.schemas.centro_salud import (
+    CentroSaludRead,
+    CentroSaludCreate,
+    CentroSaludUpdate,
+)
+from app.schemas.vinculo_nna import (
+    VinculoNNARead,
+    VinculoNNACreate,
+    VinculoNNAUpdate,
+)
 
 __all__ = [
     "NNARead",
@@ -142,4 +162,16 @@ __all__ = [
     "VinculoFamiliarRead",
     "VinculoFamiliarCreate",
     "VinculoFamiliarUpdate",
+    "SolicitanteIngresoRead",
+    "SolicitanteIngresoCreate",
+    "SolicitanteIngresoUpdate",
+    "EstablecimientoEducacionalRead",
+    "EstablecimientoEducacionalCreate",
+    "EstablecimientoEducacionalUpdate",
+    "CentroSaludRead",
+    "CentroSaludCreate",
+    "CentroSaludUpdate",
+    "VinculoNNARead",
+    "VinculoNNACreate",
+    "VinculoNNAUpdate",
 ]

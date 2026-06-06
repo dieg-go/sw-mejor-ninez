@@ -33,14 +33,6 @@ services:
       db:
         condition: service_healthy
     restart: unless-stopped
-    develop:
-      watch:
-        - path: backend/app
-          target: /app/app
-          action: sync+restart
-        - path: backend/requirements.txt
-          target: /app/requirements.txt
-          action: rebuild
 
   frontend:
     build:
@@ -54,12 +46,6 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
-    develop:
-      watch:
-        - path: frontend/package.json
-          action: rebuild
-        - path: frontend/pnpm-lock.yaml
-          action: rebuild
 
 volumes:
   pgdata:

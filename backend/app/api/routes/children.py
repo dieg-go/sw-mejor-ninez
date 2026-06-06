@@ -53,7 +53,7 @@ consumo_nna_item_router = APIRouter(prefix="/api/historial-consumo-nna", tags=["
 
 @consumo_nna_item_router.get("/{id_consumo}", response_model=HistorialConsumoNNARead)
 async def get_consumo_nna(id_consumo: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    obj = await get_nna_child(db, HistorialConsumoNNA, HistorialConsumoNNA.id_historial_consumo, id_consumo)
+    obj = await get_nna_child(db, HistorialConsumoNNA, HistorialConsumoNNA.id_historial_consumo_nna, id_consumo)
     if not obj:
         raise HTTPException(status_code=404, detail="Historial de consumo no encontrado")
     return obj
@@ -63,7 +63,7 @@ async def get_consumo_nna(id_consumo: uuid.UUID, db: AsyncSession = Depends(get_
 async def update_consumo_nna(
     id_consumo: uuid.UUID, data: HistorialConsumoNNAUpdate, db: AsyncSession = Depends(get_db)
 ):
-    obj = await get_nna_child(db, HistorialConsumoNNA, HistorialConsumoNNA.id_historial_consumo, id_consumo)
+    obj = await get_nna_child(db, HistorialConsumoNNA, HistorialConsumoNNA.id_historial_consumo_nna, id_consumo)
     if not obj:
         raise HTTPException(status_code=404, detail="Historial de consumo no encontrado")
     return await update_child(db, obj, data.model_dump(exclude_unset=True))
@@ -91,7 +91,7 @@ consumo_adulto_item_router = APIRouter(prefix="/api/historial-consumo-adulto", t
 
 @consumo_adulto_item_router.get("/{id_consumo}", response_model=HistorialConsumoAdultoRead)
 async def get_consumo_adulto(id_consumo: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    obj = await get_nna_child(db, HistorialConsumoAdulto, HistorialConsumoAdulto.id_historial_consumo, id_consumo)
+    obj = await get_nna_child(db, HistorialConsumoAdulto, HistorialConsumoAdulto.id_historial_consumo_adulto, id_consumo)
     if not obj:
         raise HTTPException(status_code=404, detail="Historial de consumo no encontrado")
     return obj
@@ -101,7 +101,7 @@ async def get_consumo_adulto(id_consumo: uuid.UUID, db: AsyncSession = Depends(g
 async def update_consumo_adulto(
     id_consumo: uuid.UUID, data: HistorialConsumoAdultoUpdate, db: AsyncSession = Depends(get_db)
 ):
-    obj = await get_nna_child(db, HistorialConsumoAdulto, HistorialConsumoAdulto.id_historial_consumo, id_consumo)
+    obj = await get_nna_child(db, HistorialConsumoAdulto, HistorialConsumoAdulto.id_historial_consumo_adulto, id_consumo)
     if not obj:
         raise HTTPException(status_code=404, detail="Historial de consumo no encontrado")
     return await update_child(db, obj, data.model_dump(exclude_unset=True))
@@ -129,7 +129,7 @@ disc_nna_item_router = APIRouter(prefix="/api/discapacidad-nna", tags=["Discapac
 
 @disc_nna_item_router.get("/{id_disc}", response_model=DiscapacidadNNARead)
 async def get_disc_nna(id_disc: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    obj = await get_nna_child(db, DiscapacidadNNA, DiscapacidadNNA.id_discapacidad, id_disc)
+    obj = await get_nna_child(db, DiscapacidadNNA, DiscapacidadNNA.id_discapacidad_nna, id_disc)
     if not obj:
         raise HTTPException(status_code=404, detail="Discapacidad no encontrada")
     return obj
@@ -139,7 +139,7 @@ async def get_disc_nna(id_disc: uuid.UUID, db: AsyncSession = Depends(get_db)):
 async def update_disc_nna(
     id_disc: uuid.UUID, data: DiscapacidadNNAUpdate, db: AsyncSession = Depends(get_db)
 ):
-    obj = await get_nna_child(db, DiscapacidadNNA, DiscapacidadNNA.id_discapacidad, id_disc)
+    obj = await get_nna_child(db, DiscapacidadNNA, DiscapacidadNNA.id_discapacidad_nna, id_disc)
     if not obj:
         raise HTTPException(status_code=404, detail="Discapacidad no encontrada")
     return await update_child(db, obj, data.model_dump(exclude_unset=True))
@@ -167,7 +167,7 @@ disc_adulto_item_router = APIRouter(prefix="/api/discapacidad-adulto", tags=["Di
 
 @disc_adulto_item_router.get("/{id_disc}", response_model=DiscapacidadAdultoRead)
 async def get_disc_adulto(id_disc: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    obj = await get_nna_child(db, DiscapacidadAdulto, DiscapacidadAdulto.id_discapacidad, id_disc)
+    obj = await get_nna_child(db, DiscapacidadAdulto, DiscapacidadAdulto.id_discapacidad_adulto, id_disc)
     if not obj:
         raise HTTPException(status_code=404, detail="Discapacidad no encontrada")
     return obj
@@ -177,7 +177,7 @@ async def get_disc_adulto(id_disc: uuid.UUID, db: AsyncSession = Depends(get_db)
 async def update_disc_adulto(
     id_disc: uuid.UUID, data: DiscapacidadAdultoUpdate, db: AsyncSession = Depends(get_db)
 ):
-    obj = await get_nna_child(db, DiscapacidadAdulto, DiscapacidadAdulto.id_discapacidad, id_disc)
+    obj = await get_nna_child(db, DiscapacidadAdulto, DiscapacidadAdulto.id_discapacidad_adulto, id_disc)
     if not obj:
         raise HTTPException(status_code=404, detail="Discapacidad no encontrada")
     return await update_child(db, obj, data.model_dump(exclude_unset=True))
@@ -190,7 +190,7 @@ penal_item_router = APIRouter(prefix="/api/antecedente-penal", tags=["Antecedent
 
 @penal_item_router.get("/{id_penal}", response_model=AntecedentePenalRead)
 async def get_penal(id_penal: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    obj = await get_nna_child(db, AntecedentesPenales, AntecedentesPenales.id_antecedentes_penales, id_penal)
+    obj = await get_nna_child(db, AntecedentesPenales, AntecedentesPenales.id_antecedente_penal, id_penal)
     if not obj:
         raise HTTPException(status_code=404, detail="Antecedente penal no encontrado")
     return obj
@@ -200,7 +200,7 @@ async def get_penal(id_penal: uuid.UUID, db: AsyncSession = Depends(get_db)):
 async def update_penal(
     id_penal: uuid.UUID, data: AntecedentePenalUpdate, db: AsyncSession = Depends(get_db)
 ):
-    obj = await get_nna_child(db, AntecedentesPenales, AntecedentesPenales.id_antecedentes_penales, id_penal)
+    obj = await get_nna_child(db, AntecedentesPenales, AntecedentesPenales.id_antecedente_penal, id_penal)
     if not obj:
         raise HTTPException(status_code=404, detail="Antecedente penal no encontrado")
     return await update_child(db, obj, data.model_dump(exclude_unset=True))

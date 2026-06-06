@@ -7,6 +7,7 @@ from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from app.models.nna import NNA
+    from app.models.solicitante import SolicitanteIngreso
 
 
 class AntecedenteIngreso(SQLModel, table=True):
@@ -16,8 +17,10 @@ class AntecedenteIngreso(SQLModel, table=True):
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
     )
     id_nna: uuid.UUID = Field(foreign_key="NNA.id_nna", sa_type=UUID(as_uuid=True))
+    id_solicitante_ingreso: Optional[uuid.UUID] = Field(
+        default=None, foreign_key="SolicitanteIngreso.id_solicitante_ingreso", sa_type=UUID(as_uuid=True)
+    )
     fecha_ingreso_residencia: Optional[date] = None
-    quien_solicita_ingreso: Optional[str] = None
     orden_tribunal: bool = False
     fecha_causa: Optional[date] = None
     tribunal: Optional[str] = None
@@ -26,6 +29,7 @@ class AntecedenteIngreso(SQLModel, table=True):
     codigo_ruc: Optional[str] = None
 
     nna: "NNA" = Relationship(back_populates="antecedentes_ingreso")
+    solicitante: "SolicitanteIngreso" = Relationship()
     causales_ingreso: list["RegistroCausalIngreso"] = Relationship(back_populates="antecedente_ingreso")
     derechos_vulnerados: list["RegistroDerechoVulnerado"] = Relationship(back_populates="antecedente_ingreso")
 

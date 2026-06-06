@@ -56,6 +56,10 @@ from app.api.routes.antecedentes import (
     salud_router,
 )
 from app.api.routes.auth import auth_router
+from app.api.routes.solicitante import router as solicitante_router
+from app.api.routes.establecimiento import router as establecimiento_router
+from app.api.routes.centro_salud import router as centro_salud_router
+from app.api.routes.vinculo_nna import vinculo_nna_router, vinculo_nna_item_router
 
 routers = [
     nna_router,
@@ -102,4 +106,9 @@ routers = [
     familiar_item_router,
     vinculo_router,
     vinculo_item_router,
+    solicitante_router,
+    establecimiento_router,
+    centro_salud_router,
+    vinculo_nna_router,
+    vinculo_nna_item_router,
 ]

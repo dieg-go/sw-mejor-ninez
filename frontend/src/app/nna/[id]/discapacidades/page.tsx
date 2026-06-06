@@ -56,7 +56,7 @@ export default function DiscapacidadesPage({ params }: { params: Promise<{ id: s
   };
 
   const startEdit = (item: DiscapacidadNNA) => {
-    setEditingId(item.id_discapacidad);
+    setEditingId(item.id_discapacidad_nna);
     setEditForm({
       tipo: item.tipo || "",
       porcentaje_grado: item.porcentaje_grado ?? "",
@@ -76,7 +76,7 @@ export default function DiscapacidadesPage({ params }: { params: Promise<{ id: s
       if (editForm.porcentaje_grado !== "") payload.porcentaje_grado = Number(editForm.porcentaje_grado);
       else payload.porcentaje_grado = null;
       const updated = await api.discapacidadNNA.update(editingId, payload);
-      setItems((prev) => prev.map((i) => (i.id_discapacidad === editingId ? updated : i)));
+      setItems((prev) => prev.map((i) => (i.id_discapacidad_nna === editingId ? updated : i)));
       setEditingId(null);
     } catch (e: any) { setEditError(e.message); }
     finally { setEditSaving(false); }
@@ -129,9 +129,9 @@ export default function DiscapacidadesPage({ params }: { params: Promise<{ id: s
       ) : (
         <div className="space-y-3">
           {items.map((item) => (
-            <Card key={item.id_discapacidad}>
+            <Card key={item.id_discapacidad_nna}>
               <CardContent className="pt-4">
-                {editingId === item.id_discapacidad ? (
+                {editingId === item.id_discapacidad_nna ? (
                   <form onSubmit={handleUpdate} className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>

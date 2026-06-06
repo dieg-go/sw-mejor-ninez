@@ -38,6 +38,7 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
 
 export interface NNA {
   id_nna: string;
+  id_sis: string | null;
   nombre: string | null;
   run: string | null;
   fecha_nacimiento: string | null;
@@ -87,7 +88,7 @@ export interface FamiliarCreate {
 export type FamiliarUpdate = Partial<FamiliarCreate>;
 
 export interface HistorialConsumoNNA {
-  id_historial_consumo: string;
+  id_historial_consumo_nna: string;
   id_nna: string;
   nombre_sustancia: string | null;
   consumo_indirecto_gestacional: boolean;
@@ -97,10 +98,10 @@ export interface HistorialConsumoNNA {
   en_tratamiento: boolean;
 }
 
-export type HistorialConsumoNNAUpdate = Partial<Omit<HistorialConsumoNNA, "id_historial_consumo" | "id_nna">>;
+export type HistorialConsumoNNAUpdate = Partial<Omit<HistorialConsumoNNA, "id_historial_consumo_nna" | "id_nna">>;
 
 export interface HistorialConsumoAdulto {
-  id_historial_consumo: string;
+  id_historial_consumo_adulto: string;
   id_familiar: string;
   nombre_sustancia: string | null;
   estado_consumo: string | null;
@@ -109,41 +110,42 @@ export interface HistorialConsumoAdulto {
   en_tratamiento: boolean;
 }
 
-export type HistorialConsumoAdultoUpdate = Partial<Omit<HistorialConsumoAdulto, "id_historial_consumo" | "id_familiar">>;
+export type HistorialConsumoAdultoUpdate = Partial<Omit<HistorialConsumoAdulto, "id_historial_consumo_adulto" | "id_familiar">>;
 
 export interface DiscapacidadNNA {
-  id_discapacidad: string;
+  id_discapacidad_nna: string;
   id_nna: string;
   tipo: string | null;
   porcentaje_grado: number | null;
   observacion: string | null;
 }
 
-export type DiscapacidadNNAUpdate = Partial<Omit<DiscapacidadNNA, "id_discapacidad" | "id_nna">>;
+export type DiscapacidadNNAUpdate = Partial<Omit<DiscapacidadNNA, "id_discapacidad_nna" | "id_nna">>;
 
 export interface DiscapacidadAdulto {
-  id_discapacidad: string;
+  id_discapacidad_adulto: string;
   id_familiar: string;
   tipo: string | null;
   porcentaje_grado: number | null;
   observacion: string | null;
 }
 
-export type DiscapacidadAdultoUpdate = Partial<Omit<DiscapacidadAdulto, "id_discapacidad" | "id_familiar">>;
+export type DiscapacidadAdultoUpdate = Partial<Omit<DiscapacidadAdulto, "id_discapacidad_adulto" | "id_familiar">>;
 
 export interface AntecedentesPenales {
-  id_antecedentes_penales: string;
+  id_antecedente_penal: string;
   id_familiar: string;
   descripcion: string | null;
+  url_documento_adjunto: string | null;
 }
 
-export type AntecedentesPenalesUpdate = Partial<Omit<AntecedentesPenales, "id_antecedentes_penales" | "id_familiar">>;
+export type AntecedentesPenalesUpdate = Partial<Omit<AntecedentesPenales, "id_antecedente_penal" | "id_familiar">>;
 
 export interface AntecedenteIngreso {
   id_antecedente_ingreso: string;
   id_nna: string;
   fecha_ingreso_residencia: string | null;
-  quien_solicita_ingreso: string | null;
+  id_solicitante_ingreso: string | null;
   orden_tribunal: boolean;
   fecha_causa: string | null;
   tribunal: string | null;
@@ -219,7 +221,9 @@ export interface InformeTribunal {
 export type InformeTribunalUpdate = Partial<Omit<InformeTribunal, "id_informe" | "id_nna">>;
 
 export interface Instrumento {
-  id_instrumento: string;
+  id_e2p: string;
+  id_pmf?: string;
+  id_ncfas?: string;
   id_nna: string;
   id_familiar: string | null;
   fecha_evaluacion: string | null;
@@ -230,14 +234,14 @@ export interface Instrumento {
   observacion: string | null;
 }
 
-export type InstrumentoUpdate = Partial<Omit<Instrumento, "id_instrumento" | "id_nna">>;
+export type InstrumentoUpdate = Partial<Omit<Instrumento, "id_e2p" | "id_pmf" | "id_ncfas" | "id_nna">>;
 
 export interface AntecedenteSalud {
   id_antecedente_salud: string;
   id_nna: string;
   fecha_antecedente_salud: string | null;
-  inscrito_en_consultorio: boolean;
-  establecimiento: string | null;
+  inscrito_en_centro_salud: boolean;
+  id_centro_salud: string | null;
   prevision: string | null;
 }
 
@@ -248,8 +252,8 @@ export interface AntecedenteEscolar {
   id_nna: string;
   fecha_antecedente_escolar: string | null;
   escolarizado: boolean;
-  establecimiento: string | null;
-  ultimo_ano_curso: number | null;
+  id_establecimiento_educacional: string | null;
+  ultimo_ano_cursado: number | null;
 }
 
 export type AntecedenteEscolarUpdate = Partial<Omit<AntecedenteEscolar, "id_antecedente_escolar" | "id_nna">>;
@@ -258,19 +262,21 @@ export interface AntecedenteFamiliar {
   id_antecedente_familiar: string;
   id_nna: string;
   fecha_antecedente_familiar: string | null;
+  id_adulto_responsable: string | null;
+  con_quien_vive: string | null;
+  con_quien_vive_detalle: string | null;
 }
 
 export type AntecedenteFamiliarUpdate = Partial<Omit<AntecedenteFamiliar, "id_antecedente_familiar" | "id_nna">>;
 
 export interface VinculoFamiliar {
   id_vinculo_familiar: string;
-  id_antecedente_familiar: string;
-  id_familiar: string | null;
+  id_nna: string;
+  id_familiar: string;
   parentesco: string | null;
-  es_adulto_responsable: boolean;
 }
 
-export type VinculoFamiliarUpdate = Partial<Omit<VinculoFamiliar, "id_vinculo_familiar" | "id_antecedente_familiar">>;
+export type VinculoFamiliarUpdate = Partial<Omit<VinculoFamiliar, "id_vinculo_familiar" | "id_nna">>;
 
 // ── E2P Questions ────────────────────────────────────────────────────────────
 
@@ -293,6 +299,35 @@ export interface E2PPuntaje {
   }[];
   respuestas: Record<string, number>;
 }
+
+export interface SolicitanteIngreso {
+  id_solicitante_ingreso: string;
+  nombre: string | null;
+  categoria: string | null;
+  ano_proyecto: number | null;
+}
+export type SolicitanteIngresoUpdate = Partial<Omit<SolicitanteIngreso, "id_solicitante_ingreso">>;
+
+export interface EstablecimientoEducacional {
+  id_establecimiento_educacional: string;
+  nombre: string | null;
+  rbd: number | null;
+}
+export type EstablecimientoEducacionalUpdate = Partial<Omit<EstablecimientoEducacional, "id_establecimiento_educacional">>;
+
+export interface CentroSalud {
+  id_centro_salud: string;
+  nombre: string | null;
+  tipo_recinto: string | null;
+}
+export type CentroSaludUpdate = Partial<Omit<CentroSalud, "id_centro_salud">>;
+
+export interface VinculoNNA {
+  id_nna_1: string;
+  id_nna_2: string;
+  parentesco: string | null;
+}
+export type VinculoNNAUpdate = Partial<Omit<VinculoNNA, "id_nna_1" | "id_nna_2">>;
 
 // ── NNA ──────────────────────────────────────────────────────────────────────
 
@@ -323,7 +358,7 @@ export const api = {
 
   historialConsumoNNA: {
     list: (idNna: string) => request<HistorialConsumoNNA[]>(`/nna/${idNna}/historial-consumo`),
-    create: (idNna: string, data: Omit<HistorialConsumoNNA, "id_historial_consumo" | "id_nna">) =>
+    create: (idNna: string, data: Omit<HistorialConsumoNNA, "id_historial_consumo_nna" | "id_nna">) =>
       request<HistorialConsumoNNA>(`/nna/${idNna}/historial-consumo`, { method: "POST", body: JSON.stringify(data) }),
     get: (id: string) => request<HistorialConsumoNNA>(`/historial-consumo-nna/${id}`),
     update: (id: string, data: HistorialConsumoNNAUpdate) =>
@@ -332,7 +367,7 @@ export const api = {
 
   historialConsumoAdulto: {
     list: (idFamiliar: string) => request<HistorialConsumoAdulto[]>(`/familiares/${idFamiliar}/historial-consumo`),
-    create: (idFamiliar: string, data: Omit<HistorialConsumoAdulto, "id_historial_consumo" | "id_familiar">) =>
+    create: (idFamiliar: string, data: Omit<HistorialConsumoAdulto, "id_historial_consumo_adulto" | "id_familiar">) =>
       request<HistorialConsumoAdulto>(`/familiares/${idFamiliar}/historial-consumo`, { method: "POST", body: JSON.stringify(data) }),
     get: (id: string) => request<HistorialConsumoAdulto>(`/historial-consumo-adulto/${id}`),
     update: (id: string, data: HistorialConsumoAdultoUpdate) =>
@@ -341,7 +376,7 @@ export const api = {
 
   discapacidadNNA: {
     list: (idNna: string) => request<DiscapacidadNNA[]>(`/nna/${idNna}/discapacidades`),
-    create: (idNna: string, data: Omit<DiscapacidadNNA, "id_discapacidad" | "id_nna">) =>
+    create: (idNna: string, data: Omit<DiscapacidadNNA, "id_discapacidad_nna" | "id_nna">) =>
       request<DiscapacidadNNA>(`/nna/${idNna}/discapacidades`, { method: "POST", body: JSON.stringify(data) }),
     get: (id: string) => request<DiscapacidadNNA>(`/discapacidad-nna/${id}`),
     update: (id: string, data: DiscapacidadNNAUpdate) =>
@@ -350,7 +385,7 @@ export const api = {
 
   discapacidadAdulto: {
     list: (idFamiliar: string) => request<DiscapacidadAdulto[]>(`/familiares/${idFamiliar}/discapacidades`),
-    create: (idFamiliar: string, data: Omit<DiscapacidadAdulto, "id_discapacidad" | "id_familiar">) =>
+    create: (idFamiliar: string, data: Omit<DiscapacidadAdulto, "id_discapacidad_adulto" | "id_familiar">) =>
       request<DiscapacidadAdulto>(`/familiares/${idFamiliar}/discapacidades`, { method: "POST", body: JSON.stringify(data) }),
     get: (id: string) => request<DiscapacidadAdulto>(`/discapacidad-adulto/${id}`),
     update: (id: string, data: DiscapacidadAdultoUpdate) =>
@@ -359,7 +394,7 @@ export const api = {
 
   antecedentesPenales: {
     list: (idFamiliar: string) => request<AntecedentesPenales[]>(`/familiares/${idFamiliar}/antecedentes-penales`),
-    create: (idFamiliar: string, data: Omit<AntecedentesPenales, "id_antecedentes_penales" | "id_familiar">) =>
+    create: (idFamiliar: string, data: Omit<AntecedentesPenales, "id_antecedente_penal" | "id_familiar">) =>
       request<AntecedentesPenales>(`/familiares/${idFamiliar}/antecedentes-penales`, { method: "POST", body: JSON.stringify(data) }),
     get: (id: string) => request<AntecedentesPenales>(`/antecedente-penal/${id}`),
     update: (id: string, data: AntecedentesPenalesUpdate) =>
@@ -439,9 +474,9 @@ export const api = {
     getQuestions: (version: number) => request<E2PQuestions>(`/e2p/versions/${version}`),
     listByNna: (idNna: string) => request<Instrumento[]>(`/nna/${idNna}/e2p`),
     listByFamiliar: (idFamiliar: string) => request<Instrumento[]>(`/familiares/${idFamiliar}/e2p`),
-    createByNna: (idNna: string, data: Omit<Instrumento, "id_instrumento" | "id_nna">) =>
+    createByNna: (idNna: string, data: Omit<Instrumento, "id_e2p" | "id_nna">) =>
       request<Instrumento>(`/nna/${idNna}/e2p`, { method: "POST", body: JSON.stringify(data) }),
-    createByFamiliar: (idFamiliar: string, data: Omit<Instrumento, "id_instrumento" | "id_nna">) =>
+    createByFamiliar: (idFamiliar: string, data: Omit<Instrumento, "id_e2p" | "id_nna">) =>
       request<Instrumento>(`/familiares/${idFamiliar}/e2p`, { method: "POST", body: JSON.stringify(data) }),
     get: (id: string) => request<Instrumento>(`/e2p/${id}`),
     getPuntaje: (id: string) => request<E2PPuntaje>(`/e2p/${id}/puntaje`),
@@ -452,9 +487,9 @@ export const api = {
   pmf: {
     listByNna: (idNna: string) => request<Instrumento[]>(`/nna/${idNna}/pmf`),
     listByFamiliar: (idFamiliar: string) => request<Instrumento[]>(`/familiares/${idFamiliar}/pmf`),
-    createByNna: (idNna: string, data: Omit<Instrumento, "id_instrumento" | "id_nna">) =>
+    createByNna: (idNna: string, data: Omit<Instrumento, "id_e2p" | "id_nna">) =>
       request<Instrumento>(`/nna/${idNna}/pmf`, { method: "POST", body: JSON.stringify(data) }),
-    createByFamiliar: (idFamiliar: string, data: Omit<Instrumento, "id_instrumento" | "id_nna">) =>
+    createByFamiliar: (idFamiliar: string, data: Omit<Instrumento, "id_e2p" | "id_nna">) =>
       request<Instrumento>(`/familiares/${idFamiliar}/pmf`, { method: "POST", body: JSON.stringify(data) }),
     get: (id: string) => request<Instrumento>(`/pmf/${id}`),
     update: (id: string, data: InstrumentoUpdate) =>
@@ -464,9 +499,9 @@ export const api = {
   ncfas: {
     listByNna: (idNna: string) => request<Instrumento[]>(`/nna/${idNna}/ncfas`),
     listByFamiliar: (idFamiliar: string) => request<Instrumento[]>(`/familiares/${idFamiliar}/ncfas`),
-    createByNna: (idNna: string, data: Omit<Instrumento, "id_instrumento" | "id_nna">) =>
+    createByNna: (idNna: string, data: Omit<Instrumento, "id_e2p" | "id_nna">) =>
       request<Instrumento>(`/nna/${idNna}/ncfas`, { method: "POST", body: JSON.stringify(data) }),
-    createByFamiliar: (idFamiliar: string, data: Omit<Instrumento, "id_instrumento" | "id_nna">) =>
+    createByFamiliar: (idFamiliar: string, data: Omit<Instrumento, "id_e2p" | "id_nna">) =>
       request<Instrumento>(`/familiares/${idFamiliar}/ncfas`, { method: "POST", body: JSON.stringify(data) }),
     get: (id: string) => request<Instrumento>(`/ncfas/${id}`),
     update: (id: string, data: InstrumentoUpdate) =>
@@ -503,11 +538,50 @@ export const api = {
   },
 
   vinculoFamiliar: {
-    list: (idFamiliar: string) => request<VinculoFamiliar[]>(`/antecedente-familiar/${idFamiliar}/vinculo`),
-    create: (idFamiliar: string, data: Omit<VinculoFamiliar, "id_vinculo_familiar" | "id_antecedente_familiar">) =>
-      request<VinculoFamiliar>(`/antecedente-familiar/${idFamiliar}/vinculo`, { method: "POST", body: JSON.stringify(data) }),
+    list: (idNna: string) => request<VinculoFamiliar[]>(`/nna/${idNna}/vinculos`),
+    create: (idNna: string, data: Omit<VinculoFamiliar, "id_vinculo_familiar" | "id_nna">) =>
+      request<VinculoFamiliar>(`/nna/${idNna}/vinculos`, { method: "POST", body: JSON.stringify(data) }),
     get: (id: string) => request<VinculoFamiliar>(`/vinculo-familiar/${id}`),
     update: (id: string, data: VinculoFamiliarUpdate) =>
       request<VinculoFamiliar>(`/vinculo-familiar/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  },
+
+  solicitanteIngreso: {
+    list: (skip = 0, limit = 100) =>
+      request<SolicitanteIngreso[]>(`/solicitantes?skip=${skip}&limit=${limit}`),
+    create: (data: Omit<SolicitanteIngreso, "id_solicitante_ingreso">) =>
+      request<SolicitanteIngreso>("/solicitantes", { method: "POST", body: JSON.stringify(data) }),
+    get: (id: string) => request<SolicitanteIngreso>(`/solicitantes/${id}`),
+    update: (id: string, data: SolicitanteIngresoUpdate) =>
+      request<SolicitanteIngreso>(`/solicitantes/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  },
+
+  establecimientoEducacional: {
+    list: (skip = 0, limit = 100) =>
+      request<EstablecimientoEducacional[]>(`/establecimientos?skip=${skip}&limit=${limit}`),
+    create: (data: Omit<EstablecimientoEducacional, "id_establecimiento_educacional">) =>
+      request<EstablecimientoEducacional>("/establecimientos", { method: "POST", body: JSON.stringify(data) }),
+    get: (id: string) => request<EstablecimientoEducacional>(`/establecimientos/${id}`),
+    update: (id: string, data: EstablecimientoEducacionalUpdate) =>
+      request<EstablecimientoEducacional>(`/establecimientos/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  },
+
+  centroSalud: {
+    list: (skip = 0, limit = 100) =>
+      request<CentroSalud[]>(`/centros-salud?skip=${skip}&limit=${limit}`),
+    create: (data: Omit<CentroSalud, "id_centro_salud">) =>
+      request<CentroSalud>("/centros-salud", { method: "POST", body: JSON.stringify(data) }),
+    get: (id: string) => request<CentroSalud>(`/centros-salud/${id}`),
+    update: (id: string, data: CentroSaludUpdate) =>
+      request<CentroSalud>(`/centros-salud/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  },
+
+  vinculoNNA: {
+    list: (idNna: string) => request<VinculoNNA[]>(`/nna/${idNna}/vinculos-nna`),
+    create: (idNna: string, data: Omit<VinculoNNA, "id_nna_1">) =>
+      request<VinculoNNA>(`/nna/${idNna}/vinculos-nna`, { method: "POST", body: JSON.stringify(data) }),
+    get: (id: string) => request<VinculoNNA>(`/vinculo-nna/${id}`),
+    update: (id: string, data: VinculoNNAUpdate) =>
+      request<VinculoNNA>(`/vinculo-nna/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   },
 };

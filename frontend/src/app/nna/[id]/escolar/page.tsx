@@ -21,7 +21,7 @@ function formatDate(iso: string | null) {
   return new Date(iso + "T00:00:00").toLocaleDateString("es-CL");
 }
 
-const DEFAULT = { fecha_antecedente_escolar: "", escolarizado: false, establecimiento: "", ultimo_ano_curso: "" as string | number };
+const DEFAULT = { fecha_antecedente_escolar: "", escolarizado: false, id_establecimiento_educacional: "", ultimo_ano_cursado: "" as string | number };
 
 export default function EscolarPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -58,8 +58,8 @@ export default function EscolarPage({ params }: { params: Promise<{ id: string }
     try {
       const payload: any = {};
       payload.escolarizado = form.escolarizado;
-      if (form.establecimiento) payload.establecimiento = form.establecimiento;
-      if (form.ultimo_ano_curso !== "") payload.ultimo_ano_curso = Number(form.ultimo_ano_curso);
+      if (form.id_establecimiento_educacional) payload.id_establecimiento_educacional = form.id_establecimiento_educacional;
+      if (form.ultimo_ano_cursado !== "") payload.ultimo_ano_cursado = Number(form.ultimo_ano_cursado);
       if (fecha) payload.fecha_antecedente_escolar = fecha.toISOString().split("T")[0];
       const created = await api.antecedenteEscolar.create(id, payload);
       setItems((prev) => [...prev, created]);
@@ -73,8 +73,8 @@ export default function EscolarPage({ params }: { params: Promise<{ id: string }
     setEditForm({
       fecha_antecedente_escolar: item.fecha_antecedente_escolar || "",
       escolarizado: item.escolarizado,
-      establecimiento: item.establecimiento || "",
-      ultimo_ano_curso: item.ultimo_ano_curso ?? "",
+      id_establecimiento_educacional: item.id_establecimiento_educacional || "",
+      ultimo_ano_cursado: item.ultimo_ano_cursado ?? "",
     });
     setEditFecha(item.fecha_antecedente_escolar ? new Date(item.fecha_antecedente_escolar + "T00:00:00") : undefined);
     setEditError(null);
@@ -87,9 +87,9 @@ export default function EscolarPage({ params }: { params: Promise<{ id: string }
     try {
       const payload: any = {};
       payload.escolarizado = editForm.escolarizado;
-      if (editForm.establecimiento) payload.establecimiento = editForm.establecimiento;
-      if (editForm.ultimo_ano_curso !== "") payload.ultimo_ano_curso = Number(editForm.ultimo_ano_curso);
-      else payload.ultimo_ano_curso = null;
+      if (editForm.id_establecimiento_educacional) payload.id_establecimiento_educacional = editForm.id_establecimiento_educacional;
+      if (editForm.ultimo_ano_cursado !== "") payload.ultimo_ano_cursado = Number(editForm.ultimo_ano_cursado);
+      else payload.ultimo_ano_cursado = null;
       if (editFecha) payload.fecha_antecedente_escolar = editFecha.toISOString().split("T")[0];
       else payload.fecha_antecedente_escolar = null;
       const updated = await api.antecedenteEscolar.update(editingId, payload);
@@ -132,12 +132,12 @@ export default function EscolarPage({ params }: { params: Promise<{ id: string }
                   <Label htmlFor="escolarizado" className="text-xs cursor-pointer">Escolarizado</Label>
                 </div>
                 <div>
-                  <Label className="text-xs">Establecimiento</Label>
-                  <Input className="mt-1" value={form.establecimiento} onChange={(e) => setForm((p) => ({ ...p, establecimiento: e.target.value }))} placeholder="Establecimiento" />
+                  <Label className="text-xs">Establecimiento educacional</Label>
+                  <Input className="mt-1" value={form.id_establecimiento_educacional} onChange={(e) => setForm((p) => ({ ...p, id_establecimiento_educacional: e.target.value }))} placeholder="ID establecimiento" />
                 </div>
                 <div>
                   <Label className="text-xs">Último año cursado</Label>
-                  <Input className="mt-1" type="number" value={form.ultimo_ano_curso} onChange={(e) => setForm((p) => ({ ...p, ultimo_ano_curso: e.target.value }))} placeholder="Ej: 5" />
+                  <Input className="mt-1" type="number" value={form.ultimo_ano_cursado} onChange={(e) => setForm((p) => ({ ...p, ultimo_ano_cursado: e.target.value }))} placeholder="Ej: 5" />
                 </div>
               </div>
               {formError && <p className="text-destructive text-sm">{formError}</p>}
@@ -174,12 +174,12 @@ export default function EscolarPage({ params }: { params: Promise<{ id: string }
                         <Label htmlFor={`edit-esc-${item.id_antecedente_escolar}`} className="text-xs cursor-pointer">Escolarizado</Label>
                       </div>
                       <div>
-                        <Label className="text-xs">Establecimiento</Label>
-                        <Input className="mt-1" value={editForm.establecimiento} onChange={(e) => setEditForm((p) => ({ ...p, establecimiento: e.target.value }))} />
+                        <Label className="text-xs">Establecimiento educacional</Label>
+                        <Input className="mt-1" value={editForm.id_establecimiento_educacional} onChange={(e) => setEditForm((p) => ({ ...p, id_establecimiento_educacional: e.target.value }))} />
                       </div>
                       <div>
-                        <Label className="text-xs">Último año</Label>
-                        <Input className="mt-1" type="number" value={editForm.ultimo_ano_curso} onChange={(e) => setEditForm((p) => ({ ...p, ultimo_ano_curso: e.target.value }))} />
+                        <Label className="text-xs">Último año cursado</Label>
+                        <Input className="mt-1" type="number" value={editForm.ultimo_ano_cursado} onChange={(e) => setEditForm((p) => ({ ...p, ultimo_ano_cursado: e.target.value }))} />
                       </div>
                     </div>
                     {editError && <p className="text-destructive text-sm">{editError}</p>}
@@ -193,8 +193,7 @@ export default function EscolarPage({ params }: { params: Promise<{ id: string }
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-1 text-sm">
                       <div><span className="text-xs text-muted-foreground">Fecha: </span>{formatDate(item.fecha_antecedente_escolar)}</div>
                       <div><span className="text-xs text-muted-foreground">Estado: </span>{item.escolarizado ? <Badge variant="secondary">Escolarizado</Badge> : "No escolarizado"}</div>
-                      <div><span className="text-xs text-muted-foreground">Establecimiento: </span>{item.establecimiento || "—"}</div>
-                      <div><span className="text-xs text-muted-foreground">Último año: </span>{item.ultimo_ano_curso ?? "—"}</div>
+                      <div><span className="text-xs text-muted-foreground">Último año: </span>{item.ultimo_ano_cursado ?? "—"}</div>
                     </div>
                     <Button variant="ghost" size="icon" onClick={() => startEdit(item)}><PencilIcon className="size-4" /></Button>
                   </div>

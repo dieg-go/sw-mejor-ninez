@@ -165,8 +165,8 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
       const newPuntajes: Record<string, E2PPuntaje | null> = {};
       for (const item of items) {
         if (item.respuestas && Object.keys(item.respuestas).length > 0) {
-          try { newPuntajes[item.id_instrumento] = await api.e2p.getPuntaje(item.id_instrumento); }
-          catch { newPuntajes[item.id_instrumento] = null; }
+          try { newPuntajes[item.id_e2p] = await api.e2p.getPuntaje(item.id_e2p); }
+          catch { newPuntajes[item.id_e2p] = null; }
         }
       }
       setPuntajes(newPuntajes);
@@ -217,7 +217,7 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
   };
 
   const startEdit = async (item: Instrumento) => {
-    setEditingId(item.id_instrumento);
+    setEditingId(item.id_e2p);
     setEditIdFamiliar(item.id_familiar || "");
     setEditObservacion(item.observacion || "");
     setEditFechaEval(item.fecha_evaluacion ? new Date(item.fecha_evaluacion + "T00:00:00") : undefined);
@@ -254,7 +254,7 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
     setEditError(null); setEditSaving(true);
     try {
       const updated = await api.e2p.update(editingId, buildEditPayload());
-      setItems((prev) => prev.map((i) => (i.id_instrumento === editingId ? updated : i)));
+      setItems((prev) => prev.map((i) => (i.id_e2p === editingId ? updated : i)));
       setEditingId(null);
     } catch (e: any) { setEditError(e.message); }
     finally { setEditSaving(false); }
@@ -384,9 +384,9 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
       ) : (
         <div className="space-y-3">
           {items.map((item) => (
-            <Card key={item.id_instrumento}>
+            <Card key={item.id_e2p}>
               <CardContent className="pt-4">
-                {editingId === item.id_instrumento ? (
+                {editingId === item.id_e2p ? (
                   <form onSubmit={handleUpdate} className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
@@ -482,9 +482,9 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
                         <div><span className="text-xs text-muted-foreground">Respuestas: </span>{Object.keys(item.respuestas).length} preguntas</div>
                       )}
                       {item.observacion && <div className="col-span-2"><span className="text-xs text-muted-foreground">Obs: </span>{item.observacion}</div>}
-                      {item.respuestas && puntajes[item.id_instrumento] && (
+                      {item.respuestas && puntajes[item.id_e2p] && (
                         <div className="col-span-2 mt-2 flex flex-wrap gap-1.5">
-                          {puntajes[item.id_instrumento]!.categorias.map((c) => (
+                          {puntajes[item.id_e2p]!.categorias.map((c) => (
                             <span key={c.categoria} className={cn("inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium", ZONE_COLORS[c.zona] || "bg-muted")}>
                               {c.categoria} <span className="opacity-70">{c.puntaje_bruto}/{c.puntaje_max}</span>
                             </span>

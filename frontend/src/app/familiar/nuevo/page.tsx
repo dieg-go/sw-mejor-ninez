@@ -228,7 +228,6 @@ export default function NuevoFamiliarPage() {
   const [linkNna, setLinkNna] = useState(false);
   const [nnaId, setNnaId] = useState<string>("");
   const [parentesco, setParentesco] = useState("");
-  const [esResponsable, setEsResponsable] = useState(false);
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -257,7 +256,7 @@ export default function NuevoFamiliarPage() {
       // 2. Antecedentes penales
       for (const desc of penales) {
         if (desc.trim()) {
-          await api.antecedentesPenales.create(idFamiliar, { descripcion: desc });
+          await api.antecedentesPenales.create(idFamiliar, { descripcion: desc, url_documento_adjunto: null });
         }
       }
 
@@ -289,11 +288,13 @@ export default function NuevoFamiliarPage() {
       if (linkNna && nnaId) {
         const fam = await api.antecedenteFamiliar.create(nnaId, {
           fecha_antecedente_familiar: new Date().toISOString().split("T")[0],
+          id_adulto_responsable: null,
+          con_quien_vive: null,
+          con_quien_vive_detalle: null,
         });
-        await api.vinculoFamiliar.create(fam.id_antecedente_familiar, {
+        await api.vinculoFamiliar.create(nnaId, {
           id_familiar: idFamiliar,
           parentesco: parentesco || null,
-          es_adulto_responsable: esResponsable,
         });
       }
 
@@ -377,10 +378,6 @@ export default function NuevoFamiliarPage() {
                     <FieldLabel>Parentesco</FieldLabel>
                     <Input value={parentesco} onChange={(e) => setParentesco(e.target.value)} placeholder="Madre / Padre / Tío..." />
                   </Field>
-                  <label className="flex items-center gap-2 text-sm">
-                    <Checkbox checked={esResponsable} onCheckedChange={(v) => setEsResponsable(!!v)} />
-                    Es adulto responsable
-                  </label>
                 </div>
               )}
             </CardContent>

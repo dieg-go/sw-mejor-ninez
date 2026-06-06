@@ -58,8 +58,7 @@ export default function FamiliarPage({ params }: { params: Promise<{ id: string 
   const [vinculos, setVinculos] = useState<VinculoFamiliar[]>([]);
   const [subLoading, setSubLoading] = useState(false);
 
-  const [vinculoForm, setVinculoForm] = useState({ id_familiar: "", parentesco: "", es_adulto_responsable: false });
-  const [vinculoSaving, setVinculoSaving] = useState(false);
+  const [vinculoForm, setVinculoForm] = useState({ id_familiar: "", parentesco: "" });  const [vinculoSaving, setVinculoSaving] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -126,10 +125,9 @@ export default function FamiliarPage({ params }: { params: Promise<{ id: string 
       const payload: any = {};
       if (vinculoForm.id_familiar) payload.id_familiar = vinculoForm.id_familiar;
       if (vinculoForm.parentesco) payload.parentesco = vinculoForm.parentesco;
-      payload.es_adulto_responsable = vinculoForm.es_adulto_responsable;
       const created = await api.vinculoFamiliar.create(expandedId, payload);
       setVinculos((prev) => [...prev, created]);
-      setVinculoForm({ id_familiar: "", parentesco: "", es_adulto_responsable: false });
+      setVinculoForm({ id_familiar: "", parentesco: "" });
     } catch {}
     finally { setVinculoSaving(false); }
   };
@@ -226,7 +224,6 @@ export default function FamiliarPage({ params }: { params: Promise<{ id: string 
                               <li key={e.id_vinculo_familiar} className="text-sm flex items-center gap-2 flex-wrap">
                                 <span>{getFamiliarName(e.id_familiar)}</span>
                                 <span className="text-muted-foreground">· {e.parentesco || "—"}</span>
-                                {e.es_adulto_responsable && <Badge variant="secondary" className="text-xs">Responsable</Badge>}
                               </li>
                             ))}
                           </ul>
@@ -248,10 +245,6 @@ export default function FamiliarPage({ params }: { params: Promise<{ id: string 
                             onChange={(e) => setVinculoForm((p) => ({ ...p, parentesco: e.target.value }))}
                             placeholder="Parentesco"
                           />
-                          <div className="flex items-center gap-1">
-                            <Checkbox id={`resp-${item.id_antecedente_familiar}`} checked={vinculoForm.es_adulto_responsable} onCheckedChange={(v) => setVinculoForm((p) => ({ ...p, es_adulto_responsable: !!v }))} />
-                            <Label htmlFor={`resp-${item.id_antecedente_familiar}`} className="text-xs">Resp.</Label>
-                          </div>
                           <Button size="sm" className="h-7 text-xs" onClick={createVinculo} disabled={vinculoSaving}>+</Button>
                         </div>
                         <Button variant="ghost" size="sm" onClick={() => setExpandedId(null)}>Ocultar</Button>

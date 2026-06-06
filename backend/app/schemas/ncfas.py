@@ -24,5 +24,5 @@ class NCFASUpdate(BaseModel):
 class NCFASRead(NCFASCreate):
     model_config = ConfigDict(from_attributes=True)
 
-    id_instrumento: uuid.UUID
+    id_ncfas: uuid.UUID
     id_nna: uuid.UUID

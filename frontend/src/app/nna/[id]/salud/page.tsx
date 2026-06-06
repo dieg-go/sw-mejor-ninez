@@ -21,7 +21,7 @@ function formatDate(iso: string | null) {
   return new Date(iso + "T00:00:00").toLocaleDateString("es-CL");
 }
 
-const DEFAULT = { fecha_antecedente_salud: "", inscrito_en_consultorio: false, establecimiento: "", prevision: "" };
+const DEFAULT = { fecha_antecedente_salud: "", inscrito_en_centro_salud: false, id_centro_salud: "", prevision: "" };
 
 export default function SaludPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -57,8 +57,8 @@ export default function SaludPage({ params }: { params: Promise<{ id: string }> 
     setFormError(null); setSaving(true);
     try {
       const payload: any = {};
-      payload.inscrito_en_consultorio = form.inscrito_en_consultorio;
-      if (form.establecimiento) payload.establecimiento = form.establecimiento;
+      payload.inscrito_en_centro_salud = form.inscrito_en_centro_salud;
+      if (form.id_centro_salud) payload.id_centro_salud = form.id_centro_salud;
       if (form.prevision) payload.prevision = form.prevision;
       if (fecha) payload.fecha_antecedente_salud = fecha.toISOString().split("T")[0];
       const created = await api.antecedenteSalud.create(id, payload);
@@ -72,8 +72,8 @@ export default function SaludPage({ params }: { params: Promise<{ id: string }> 
     setEditingId(item.id_antecedente_salud);
     setEditForm({
       fecha_antecedente_salud: item.fecha_antecedente_salud || "",
-      inscrito_en_consultorio: item.inscrito_en_consultorio,
-      establecimiento: item.establecimiento || "",
+      inscrito_en_centro_salud: item.inscrito_en_centro_salud,
+      id_centro_salud: item.id_centro_salud || "",
       prevision: item.prevision || "",
     });
     setEditFecha(item.fecha_antecedente_salud ? new Date(item.fecha_antecedente_salud + "T00:00:00") : undefined);
@@ -86,8 +86,8 @@ export default function SaludPage({ params }: { params: Promise<{ id: string }> 
     setEditError(null); setEditSaving(true);
     try {
       const payload: any = {};
-      payload.inscrito_en_consultorio = editForm.inscrito_en_consultorio;
-      if (editForm.establecimiento) payload.establecimiento = editForm.establecimiento;
+      payload.inscrito_en_centro_salud = editForm.inscrito_en_centro_salud;
+      if (editForm.id_centro_salud) payload.id_centro_salud = editForm.id_centro_salud;
       if (editForm.prevision) payload.prevision = editForm.prevision;
       if (editFecha) payload.fecha_antecedente_salud = editFecha.toISOString().split("T")[0];
       else payload.fecha_antecedente_salud = null;
@@ -127,12 +127,12 @@ export default function SaludPage({ params }: { params: Promise<{ id: string }> 
                   </Popover>
                 </div>
                 <div className="flex items-center gap-2 pt-2">
-                  <Checkbox id="inscrito" checked={form.inscrito_en_consultorio} onCheckedChange={(v) => setForm((p) => ({ ...p, inscrito_en_consultorio: !!v }))} />
-                  <Label htmlFor="inscrito" className="text-xs cursor-pointer">Inscrito en consultorio</Label>
+                  <Checkbox id="inscrito" checked={form.inscrito_en_centro_salud} onCheckedChange={(v) => setForm((p) => ({ ...p, inscrito_en_centro_salud: !!v }))} />
+                  <Label htmlFor="inscrito" className="text-xs cursor-pointer">Inscrito en centro de salud</Label>
                 </div>
                 <div>
-                  <Label className="text-xs">Establecimiento</Label>
-                  <Input className="mt-1" value={form.establecimiento} onChange={(e) => setForm((p) => ({ ...p, establecimiento: e.target.value }))} placeholder="Establecimiento" />
+                  <Label className="text-xs">Centro de salud</Label>
+                  <Input className="mt-1" value={form.id_centro_salud} onChange={(e) => setForm((p) => ({ ...p, id_centro_salud: e.target.value }))} placeholder="ID centro de salud" />
                 </div>
                 <div>
                   <Label className="text-xs">Previsión</Label>
@@ -169,12 +169,12 @@ export default function SaludPage({ params }: { params: Promise<{ id: string }> 
                         </Popover>
                       </div>
                       <div className="flex items-center gap-2 pt-2">
-                        <Checkbox id={`edit-ins-${item.id_antecedente_salud}`} checked={editForm.inscrito_en_consultorio} onCheckedChange={(v) => setEditForm((p) => ({ ...p, inscrito_en_consultorio: !!v }))} />
+                        <Checkbox id={`edit-ins-${item.id_antecedente_salud}`} checked={editForm.inscrito_en_centro_salud} onCheckedChange={(v) => setEditForm((p) => ({ ...p, inscrito_en_centro_salud: !!v }))} />
                         <Label htmlFor={`edit-ins-${item.id_antecedente_salud}`} className="text-xs cursor-pointer">Inscrito</Label>
                       </div>
                       <div>
-                        <Label className="text-xs">Establecimiento</Label>
-                        <Input className="mt-1" value={editForm.establecimiento} onChange={(e) => setEditForm((p) => ({ ...p, establecimiento: e.target.value }))} />
+                        <Label className="text-xs">Centro de salud</Label>
+                        <Input className="mt-1" value={editForm.id_centro_salud} onChange={(e) => setEditForm((p) => ({ ...p, id_centro_salud: e.target.value }))} />
                       </div>
                       <div>
                         <Label className="text-xs">Previsión</Label>
@@ -191,8 +191,7 @@ export default function SaludPage({ params }: { params: Promise<{ id: string }> 
                   <div className="flex items-start justify-between">
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-1 text-sm">
                       <div><span className="text-xs text-muted-foreground">Fecha: </span>{formatDate(item.fecha_antecedente_salud)}</div>
-                      <div><span className="text-xs text-muted-foreground">Consultorio: </span>{item.inscrito_en_consultorio ? <Badge variant="secondary">Sí</Badge> : "No"}</div>
-                      <div><span className="text-xs text-muted-foreground">Establecimiento: </span>{item.establecimiento || "—"}</div>
+                      <div><span className="text-xs text-muted-foreground">Centro de salud: </span>{item.inscrito_en_centro_salud ? <Badge variant="secondary">Sí</Badge> : "No"}</div>
                       <div><span className="text-xs text-muted-foreground">Previsión: </span>{item.prevision || "—"}</div>
                     </div>
                     <Button variant="ghost" size="icon" onClick={() => startEdit(item)}><PencilIcon className="size-4" /></Button>

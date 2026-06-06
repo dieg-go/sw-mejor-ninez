@@ -19,6 +19,11 @@ from app.models.antecedentes import (
     VinculoFamiliar,
 )
 from app.models.usuario import Usuario
+from app.models.solicitante import SolicitanteIngreso
+from app.models.establecimiento import EstablecimientoEducacional
+from app.models.centro_salud import CentroSalud
+from app.models.registro_grupo_familiar import RegistroGrupoFamiliar
+from app.models.vinculo_nna import VinculoNNA
 
 __all__ = [
     "NNA",
@@ -47,4 +52,9 @@ __all__ = [
     "AntecedenteFamiliar",
     "VinculoFamiliar",
     "Usuario",
+    "SolicitanteIngreso",
+    "EstablecimientoEducacional",
+    "CentroSalud",
+    "RegistroGrupoFamiliar",
+    "VinculoNNA",
 ]

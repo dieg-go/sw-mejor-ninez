@@ -112,7 +112,7 @@ export default function NNADetailPage({ params }: { params: Promise<{ id: string
         setSummaries({
           ingreso: ing ? (() => {
             const parts = [
-              ing.quien_solicita_ingreso || "—",
+              ing.id_solicitante_ingreso || "—",
               ing.tribunal || "—",
               ing.fecha_ingreso_residencia || "—",
             ];
@@ -129,8 +129,8 @@ export default function NNADetailPage({ params }: { params: Promise<{ id: string
           historial: his ? { count: historial.length, snippet: `${his.nombre_programa || "—"} · Ingreso: ${his.fecha_ingreso || "—"}` } : null,
           gestion: ges ? { count: gestiones.length, snippet: `${ges.tipo_gestion || "—"} · ${ges.resultado || "—"}` } : null,
           informes: inf ? { count: informes.length, snippet: `${inf.tipo_informe || "—"} · ${inf.estado || "—"} · Vence: ${inf.fecha_vencimiento || "—"}` } : null,
-          salud: sal ? { count: salud.length, snippet: `${sal.establecimiento || "—"} · ${sal.prevision || "—"}` } : null,
-          escolar: esc ? { count: escolar.length, snippet: `${esc.establecimiento || "—"} · ${esc.escolarizado ? "Escolarizado" : "No escolarizado"}` } : null,
+          salud: sal ? { count: salud.length, snippet: `${sal.prevision || "—"}` } : null,
+          escolar: esc ? { count: escolar.length, snippet: `${esc.escolarizado ? "Escolarizado" : "No escolarizado"}` } : null,
           familiar: fam ? { count: familiar.length, snippet: `Registrado: ${fam.fecha_antecedente_familiar || "—"}` } : null,
         });
       } catch (e: any) {

@@ -23,7 +23,7 @@ class DiscapacidadNNAUpdate(BaseModel):
 class DiscapacidadNNARead(DiscapacidadNNABase):
     model_config = ConfigDict(from_attributes=True)
 
-    id_discapacidad: uuid.UUID
+    id_discapacidad_nna: uuid.UUID
     id_nna: uuid.UUID
 
 
@@ -46,5 +46,5 @@ class DiscapacidadAdultoUpdate(BaseModel):
 class DiscapacidadAdultoRead(DiscapacidadAdultoBase):
     model_config = ConfigDict(from_attributes=True)
 
-    id_discapacidad: uuid.UUID
+    id_discapacidad_adulto: uuid.UUID
     id_familiar: uuid.UUID

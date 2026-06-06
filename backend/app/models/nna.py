@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from app.models.e2p import E2P
     from app.models.pmf import PMF
     from app.models.ncfas import NCFAS
-    from app.models.antecedentes import AntecedenteSalud, AntecedenteEscolar, AntecedenteFamiliar
+    from app.models.antecedentes import AntecedenteSalud, AntecedenteEscolar, AntecedenteFamiliar, VinculoFamiliar
 
 
 class NNA(SQLModel, table=True):
@@ -22,6 +22,7 @@ class NNA(SQLModel, table=True):
     id_nna: uuid.UUID = Field(
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
     )
+    id_sis: Optional[str] = Field(default=None, unique=True)
     nombre: Optional[str] = None
     run: Optional[str] = None
     fecha_nacimiento: Optional[date] = None
@@ -55,3 +56,4 @@ class NNA(SQLModel, table=True):
     antecedentes_salud: list["AntecedenteSalud"] = Relationship(back_populates="nna")
     antecedentes_escolares: list["AntecedenteEscolar"] = Relationship(back_populates="nna")
     antecedentes_familiares: list["AntecedenteFamiliar"] = Relationship(back_populates="nna")
+    vinculos_familiares: list["VinculoFamiliar"] = Relationship(back_populates="nna")

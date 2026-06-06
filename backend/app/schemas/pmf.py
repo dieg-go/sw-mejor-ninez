@@ -24,5 +24,5 @@ class PMFUpdate(BaseModel):
 class PMFRead(PMFCreate):
     model_config = ConfigDict(from_attributes=True)
 
-    id_instrumento: uuid.UUID
+    id_pmf: uuid.UUID
     id_nna: uuid.UUID

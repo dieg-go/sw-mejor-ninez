@@ -30,7 +30,7 @@ pmf_item_router = APIRouter(prefix="/api/pmf", tags=["PMF"])
 
 @pmf_item_router.get("/{id_pmf}", response_model=PMFRead)
 async def get_pmf(id_pmf: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    obj = await get_nna_child(db, PMF, PMF.id_instrumento, id_pmf)
+    obj = await get_nna_child(db, PMF, PMF.id_pmf, id_pmf)
     if not obj:
         raise HTTPException(status_code=404, detail="PMF no encontrado")
     return obj
@@ -38,7 +38,7 @@ async def get_pmf(id_pmf: uuid.UUID, db: AsyncSession = Depends(get_db)):
 
 @pmf_item_router.put("/{id_pmf}", response_model=PMFRead)
 async def update_pmf(id_pmf: uuid.UUID, data: PMFUpdate, db: AsyncSession = Depends(get_db)):
-    obj = await get_nna_child(db, PMF, PMF.id_instrumento, id_pmf)
+    obj = await get_nna_child(db, PMF, PMF.id_pmf, id_pmf)
     if not obj:
         raise HTTPException(status_code=404, detail="PMF no encontrado")
     return await update_child(db, obj, data.model_dump(exclude_unset=True))

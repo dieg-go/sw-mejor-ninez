@@ -55,7 +55,7 @@ function InstrumentoSection({
       <h4 className="text-sm font-medium mb-2">{label}</h4>
       <div className="flex flex-col gap-2">
         {items.map((i: any) => (
-          <Card key={i.id_instrumento}>
+          <Card key={i.id_e2p}>
             <CardContent className="pt-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -204,7 +204,7 @@ function ConsumoTab({ idFamiliar }: { idFamiliar: string }) {
       </TableHeader>
       <TableBody>
         {data.map((c: any) => (
-          <TableRow key={c.id_historial_consumo}>
+          <TableRow key={c.id_historial_consumo_adulto}>
             <TableCell className="font-medium">{c.nombre_sustancia}</TableCell>
             <TableCell>
               <Badge variant="outline">{c.estado_consumo || "—"}</Badge>
@@ -243,7 +243,7 @@ function DiscapacidadTab({ idFamiliar }: { idFamiliar: string }) {
   return (
     <div className="flex flex-col gap-3">
       {data.map((d: any) => (
-        <Card key={d.id_discapacidad}>
+        <Card key={d.id_discapacidad_adulto}>
           <CardContent className="pt-4">
             <div className="flex items-start justify-between">
               <div>
@@ -284,7 +284,7 @@ function PenalesTab({ idFamiliar }: { idFamiliar: string }) {
   return (
     <div className="flex flex-col gap-3">
       {data.map((a: any) => (
-        <Card key={a.id_antecedentes_penales}>
+        <Card key={a.id_antecedente_penal}>
           <CardContent className="pt-4">
             <Badge variant="destructive" className="mb-2">
               Antecedente penal

@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 class DiscapacidadNNA(SQLModel, table=True):
     __tablename__ = "DiscapacidadNNA"
 
-    id_discapacidad: uuid.UUID = Field(
+    id_discapacidad_nna: uuid.UUID = Field(
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
     )
     id_nna: uuid.UUID = Field(foreign_key="NNA.id_nna", sa_type=UUID(as_uuid=True))
@@ -26,7 +26,7 @@ class DiscapacidadNNA(SQLModel, table=True):
 class DiscapacidadAdulto(SQLModel, table=True):
     __tablename__ = "DiscapacidadAdulto"
 
-    id_discapacidad: uuid.UUID = Field(
+    id_discapacidad_adulto: uuid.UUID = Field(
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
     )
     id_familiar: uuid.UUID = Field(

@@ -30,7 +30,7 @@ class HistorialConsumoNNAUpdate(BaseModel):
 class HistorialConsumoNNARead(HistorialConsumoNNABase):
     model_config = ConfigDict(from_attributes=True)
 
-    id_historial_consumo: uuid.UUID
+    id_historial_consumo_nna: uuid.UUID
     id_nna: uuid.UUID
 
 
@@ -57,5 +57,5 @@ class HistorialConsumoAdultoUpdate(BaseModel):
 class HistorialConsumoAdultoRead(HistorialConsumoAdultoBase):
     model_config = ConfigDict(from_attributes=True)
 
-    id_historial_consumo: uuid.UUID
+    id_historial_consumo_adulto: uuid.UUID
     id_familiar: uuid.UUID

@@ -88,7 +88,7 @@ export default function ConsumoPage({ params }: { params: Promise<{ id: string }
   };
 
   const startEdit = (item: HistorialConsumoNNA) => {
-    setEditingId(item.id_historial_consumo);
+    setEditingId(item.id_historial_consumo_nna);
     setEditForm({
       nombre_sustancia: item.nombre_sustancia || "",
       consumo_indirecto_gestacional: item.consumo_indirecto_gestacional,
@@ -117,7 +117,7 @@ export default function ConsumoPage({ params }: { params: Promise<{ id: string }
       if (editFechaTermino) payload.fecha_termino = editFechaTermino.toISOString().split("T")[0];
       else payload.fecha_termino = null;
       const updated = await api.historialConsumoNNA.update(editingId, payload);
-      setItems((prev) => prev.map((i) => (i.id_historial_consumo === editingId ? updated : i)));
+      setItems((prev) => prev.map((i) => (i.id_historial_consumo_nna === editingId ? updated : i)));
       setEditingId(null);
     } catch (e: any) { setEditError(e.message); }
     finally { setEditSaving(false); }
@@ -202,9 +202,9 @@ export default function ConsumoPage({ params }: { params: Promise<{ id: string }
       ) : (
         <div className="space-y-3">
           {items.map((item) => (
-            <Card key={item.id_historial_consumo}>
+            <Card key={item.id_historial_consumo_nna}>
               <CardContent className="pt-4">
-                {editingId === item.id_historial_consumo ? (
+                {editingId === item.id_historial_consumo_nna ? (
                   <form onSubmit={handleUpdate} className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
@@ -242,12 +242,12 @@ export default function ConsumoPage({ params }: { params: Promise<{ id: string }
                         </Popover>
                       </div>
                       <div className="flex items-center gap-2 pt-2">
-                        <Checkbox id={`edit-ges-${item.id_historial_consumo}`} checked={editForm.consumo_indirecto_gestacional} onCheckedChange={(v) => setEditForm((p) => ({ ...p, consumo_indirecto_gestacional: !!v }))} />
-                        <Label htmlFor={`edit-ges-${item.id_historial_consumo}`} className="text-xs cursor-pointer">Consumo gestacional</Label>
+                        <Checkbox id={`edit-ges-${item.id_historial_consumo_nna}`} checked={editForm.consumo_indirecto_gestacional} onCheckedChange={(v) => setEditForm((p) => ({ ...p, consumo_indirecto_gestacional: !!v }))} />
+                        <Label htmlFor={`edit-ges-${item.id_historial_consumo_nna}`} className="text-xs cursor-pointer">Consumo gestacional</Label>
                       </div>
                       <div className="flex items-center gap-2 pt-2">
-                        <Checkbox id={`edit-trat-${item.id_historial_consumo}`} checked={editForm.en_tratamiento} onCheckedChange={(v) => setEditForm((p) => ({ ...p, en_tratamiento: !!v }))} />
-                        <Label htmlFor={`edit-trat-${item.id_historial_consumo}`} className="text-xs cursor-pointer">En tratamiento</Label>
+                        <Checkbox id={`edit-trat-${item.id_historial_consumo_nna}`} checked={editForm.en_tratamiento} onCheckedChange={(v) => setEditForm((p) => ({ ...p, en_tratamiento: !!v }))} />
+                        <Label htmlFor={`edit-trat-${item.id_historial_consumo_nna}`} className="text-xs cursor-pointer">En tratamiento</Label>
                       </div>
                     </div>
                     {editError && <p className="text-destructive text-sm">{editError}</p>}

@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 class NCFAS(SQLModel, table=True):
     __tablename__ = "NCFAS"
 
-    id_instrumento: uuid.UUID = Field(
+    id_ncfas: uuid.UUID = Field(
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
     )
     id_nna: uuid.UUID = Field(foreign_key="NNA.id_nna", sa_type=UUID(as_uuid=True))

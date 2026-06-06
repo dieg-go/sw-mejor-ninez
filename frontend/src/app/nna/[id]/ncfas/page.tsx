@@ -87,7 +87,7 @@ export default function NCFASPage({ params }: { params: Promise<{ id: string }> 
   };
 
   const startEdit = (item: Instrumento) => {
-    setEditingId(item.id_instrumento);
+    setEditingId(item.id_ncfas ?? null);
     setEditIdFamiliar(item.id_familiar || "");
     setEditResultado(item.resultado || "");
     setEditObservacion(item.observacion || "");
@@ -110,7 +110,7 @@ export default function NCFASPage({ params }: { params: Promise<{ id: string }> 
       if (editFechaProx) p.fecha_proxima_evaluacion = editFechaProx.toISOString().split("T")[0];
       else p.fecha_proxima_evaluacion = null;
       const updated = await api.ncfas.update(editingId, p);
-      setItems((prev) => prev.map((i) => (i.id_instrumento === editingId ? updated : i)));
+      setItems((prev) => prev.map((i) => (i.id_ncfas === editingId ? updated : i)));
       setEditingId(null);
     } catch (e: any) { setEditError(e.message); }
     finally { setEditSaving(false); }
@@ -200,9 +200,9 @@ export default function NCFASPage({ params }: { params: Promise<{ id: string }> 
       ) : (
         <div className="space-y-3">
           {items.map((item) => (
-            <Card key={item.id_instrumento}>
+            <Card key={item.id_ncfas}>
               <CardContent className="pt-4">
-                {editingId === item.id_instrumento ? (
+                {editingId === item.id_ncfas ? (
                   <form onSubmit={handleUpdate} className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
