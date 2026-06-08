@@ -193,7 +193,7 @@ async def list_vinculo_nna(
 ) -> list[VinculoNNA]:
     result = await session.execute(
         select(VinculoNNA).where(
-            VinculoNNA.id_nna_1 == id_nna
+            (VinculoNNA.id_nna_1 == id_nna) | (VinculoNNA.id_nna_2 == id_nna)
         )
     )
     return list(result.scalars().all())
@@ -202,7 +202,11 @@ async def list_vinculo_nna(
 async def create_vinculo_nna(
     session: AsyncSession, id_nna: uuid.UUID, data: dict[str, Any]
 ) -> VinculoNNA:
-    obj = VinculoNNA(id_nna_1=id_nna, **data)
+    target_id = data.pop("id_nna_2")
+    if id_nna < target_id:
+        obj = VinculoNNA(id_nna_1=id_nna, id_nna_2=target_id, **data)
+    else:
+        obj = VinculoNNA(id_nna_1=target_id, id_nna_2=id_nna, **data)
     session.add(obj)
     await session.commit()
     await session.refresh(obj)

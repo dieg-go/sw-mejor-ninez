@@ -33,7 +33,7 @@ vinculo_nna_item_router = APIRouter(prefix="/api/vinculo-nna", tags=["VinculoNNA
 
 @vinculo_nna_item_router.get("/{id_vinculo}", response_model=VinculoNNARead)
 async def get_vinculo_nna(id_vinculo: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    obj = await get_nna_child(db, VinculoNNA, VinculoNNA.id_nna_2, id_vinculo)
+    obj = await get_nna_child(db, VinculoNNA, VinculoNNA.id_vinculo_nna, id_vinculo)
     if not obj:
         raise HTTPException(status_code=404, detail="Vínculo NNA no encontrado")
     return obj
@@ -43,7 +43,7 @@ async def get_vinculo_nna(id_vinculo: uuid.UUID, db: AsyncSession = Depends(get_
 async def update_vinculo_nna(
     id_vinculo: uuid.UUID, data: VinculoNNAUpdate, db: AsyncSession = Depends(get_db)
 ):
-    obj = await get_nna_child(db, VinculoNNA, VinculoNNA.id_nna_2, id_vinculo)
+    obj = await get_nna_child(db, VinculoNNA, VinculoNNA.id_vinculo_nna, id_vinculo)
     if not obj:
         raise HTTPException(status_code=404, detail="Vínculo NNA no encontrado")
     return await update_child(db, obj, data.model_dump(exclude_unset=True))

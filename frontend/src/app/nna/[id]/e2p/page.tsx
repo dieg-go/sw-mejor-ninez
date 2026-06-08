@@ -1,7 +1,7 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
-import { api, type NNA, type Familiar, type Instrumento, type E2PPuntaje } from "@/lib/api";
+import { use, useEffect, useMemo, useState } from "react";
+import { api, type AntecedenteFamiliar, type VinculoFamiliar, type NNA, type Familiar, type Instrumento, type E2PPuntaje } from "@/lib/api";
 import { Spinner } from "@/components/ui/spinner";
 import { Empty } from "@/components/ui/empty";
 import { E2PHeader } from "./_components/e2p-header";
@@ -21,6 +21,8 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
   const [dialogMode, setDialogMode] = useState<"create" | "edit">("create");
   const [editingItem, setEditingItem] = useState<Instrumento | undefined>(undefined);
   const [dialogKey, setDialogKey] = useState(0);
+  const [vinculos, setVinculos] = useState<VinculoFamiliar[]>([]);
+  const [antecedentes, setAntecedentes] = useState<AntecedenteFamiliar[]>([]);
 
   const fetchPuntaje = async (item: Instrumento) => {
     if (item.respuestas && Object.keys(item.respuestas).length > 0) {
@@ -43,10 +45,17 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
     let cancelled = false;
     (async () => {
       try {
-        const [nnaData, famList] = await Promise.all([api.nna.get(id), api.familiares.list()]);
+        const [nnaData, famList, vincList, antList] = await Promise.all([
+          api.nna.get(id),
+          api.familiares.list(),
+          api.vinculoFamiliar.list(id).catch(() => [] as VinculoFamiliar[]),
+          api.antecedenteFamiliar.list(id).catch(() => [] as AntecedenteFamiliar[]),
+        ]);
         if (cancelled) return;
         setNna(nnaData);
         setFamiliares(famList);
+        setVinculos(vincList);
+        setAntecedentes(antList);
         setItems(await api.e2p.listByNna(id));
       } catch (e: unknown) {
         if (!cancelled) setError(e instanceof Error ? e.message : "Error inesperado");
@@ -100,6 +109,18 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
     setDialogOpen(true);
   };
 
+  const vinculados = useMemo(() => {
+    const ids = new Set(vinculos.map((v) => v.id_familiar));
+    return familiares.filter((f) => ids.has(f.id_familiar));
+  }, [vinculos, familiares]);
+
+  const adultoResponsableId = useMemo(() => {
+    const sorted = [...antecedentes]
+      .filter((a) => a.id_adulto_responsable && a.fecha_antecedente_familiar)
+      .sort((a, b) => b.fecha_antecedente_familiar!.localeCompare(a.fecha_antecedente_familiar!));
+    return sorted[0]?.id_adulto_responsable ?? null;
+  }, [antecedentes]);
+
   if (error) {
     return (
       <div className="max-w-5xl mx-auto px-4 py-8">
@@ -118,7 +139,7 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <E2PHeader nnaId={id} nnaName={nna.nombre} itemCount={items.length} onNew={openCreate} />
+      <E2PHeader nnaId={id} nnaName={nna.nombre} itemCount={items.length} canCreate={vinculados.length > 0} onNew={openCreate} />
 
       <E2PFormDialog
         key={dialogKey}
@@ -128,6 +149,8 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
         nnaId={id}
         nna={nna}
         familiares={familiares}
+        vinculados={vinculados}
+        idAdultoResponsable={adultoResponsableId}
         initialData={editingItem}
         existingPuntaje={editingItem ? puntajes[editingItem.id_e2p] ?? null : undefined}
         onCreated={handleCreated}

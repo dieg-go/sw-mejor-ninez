@@ -19,5 +19,6 @@ class VinculoNNAUpdate(BaseModel):
 class VinculoNNARead(VinculoNNABase):
     model_config = ConfigDict(from_attributes=True)
 
+    id_vinculo_nna: uuid.UUID
     id_nna_1: uuid.UUID
     id_nna_2: uuid.UUID

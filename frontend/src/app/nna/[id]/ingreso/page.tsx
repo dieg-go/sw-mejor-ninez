@@ -9,8 +9,10 @@ import {
   type AntecedenteIngreso,
   type CausalIngreso,
   type DerechoVulnerado,
+  type SolicitanteIngreso,
 } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { CATALOGO_CAUSALES, CATALOGO_DERECHOS, detectTipoCausa } from "@/lib/catalogos";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,10 +49,17 @@ function formatDate(iso: string | null) {
   return d.toLocaleDateString("es-CL");
 }
 
+function getSolicitanteNombre(solicitantes: SolicitanteIngreso[], id: string | null): string {
+  if (!id) return "—";
+  const s = solicitantes.find((sol) => sol.id_solicitante_ingreso === id);
+  return s?.nombre || id;
+}
+
 export default function IngresoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const [nna, setNna] = useState<NNA | null>(null);
   const [ingresos, setIngresos] = useState<AntecedenteIngreso[]>([]);
+  const [solicitantes, setSolicitantes] = useState<SolicitanteIngreso[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -87,9 +96,14 @@ export default function IngresoPage({ params }: { params: Promise<{ id: string }
   useEffect(() => {
     (async () => {
       try {
-        const [nnaData, list] = await Promise.all([api.nna.get(id), api.antecedenteIngreso.list(id)]);
+        const [nnaData, list, sols] = await Promise.all([
+          api.nna.get(id),
+          api.antecedenteIngreso.list(id),
+          api.solicitanteIngreso.list().catch(() => [] as SolicitanteIngreso[]),
+        ]);
         setNna(nnaData);
         setIngresos(list);
+        setSolicitantes(sols);
       } catch (e: any) {
         setError(e.message);
       } finally {
@@ -277,12 +291,22 @@ export default function IngresoPage({ params }: { params: Promise<{ id: string }
                 </div>
                 <div>
                   <Label className="text-xs">Quién solicita ingreso</Label>
-                  <Input
-                    className="mt-1"
-                    value={form.id_solicitante_ingreso}
-                    onChange={(e) => setForm((prev) => ({ ...prev, id_solicitante_ingreso: e.target.value }))}
-                    placeholder="Nombre / institución"
-                  />
+                  <Select
+                    value={form.id_solicitante_ingreso || "none"}
+                    onValueChange={(v) => setForm((prev) => ({ ...prev, id_solicitante_ingreso: v === "none" ? "" : v }))}
+                  >
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Seleccionar" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Ninguno</SelectItem>
+                      {solicitantes.map((s) => (
+                        <SelectItem key={s.id_solicitante_ingreso} value={s.id_solicitante_ingreso}>
+                          {s.nombre}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="flex items-center gap-2 pt-2">
                   <Checkbox
@@ -383,7 +407,22 @@ export default function IngresoPage({ params }: { params: Promise<{ id: string }
                       </div>
                       <div>
                         <Label className="text-xs">Quién solicita</Label>
-                        <Input className="mt-1" value={editForm.id_solicitante_ingreso} onChange={(e) => setEditForm((prev) => ({ ...prev, id_solicitante_ingreso: e.target.value }))} />
+                        <Select
+                          value={editForm.id_solicitante_ingreso || "none"}
+                          onValueChange={(v) => setEditForm((prev) => ({ ...prev, id_solicitante_ingreso: v === "none" ? "" : v }))}
+                        >
+                          <SelectTrigger className="mt-1">
+                            <SelectValue placeholder="Seleccionar" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">Ninguno</SelectItem>
+                            {solicitantes.map((s) => (
+                              <SelectItem key={s.id_solicitante_ingreso} value={s.id_solicitante_ingreso}>
+                                {s.nombre}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                       <div className="flex items-center gap-2 pt-2">
                         <Checkbox id={`edit-orden-${ingreso.id_antecedente_ingreso}`} checked={editForm.orden_tribunal} onCheckedChange={(v) => setEditForm((prev) => ({ ...prev, orden_tribunal: !!v }))} />
@@ -431,12 +470,12 @@ export default function IngresoPage({ params }: { params: Promise<{ id: string }
                     <div className="flex items-start justify-between">
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-1 text-sm">
                         <div><span className="text-xs text-muted-foreground">Fecha ingreso: </span>{formatDate(ingreso.fecha_ingreso_residencia)}</div>
-                        <div><span className="text-xs text-muted-foreground">Solicitante: </span>{ingreso.id_solicitante_ingreso || "—"}</div>
+                        <div><span className="text-xs text-muted-foreground">Solicitante: </span>{getSolicitanteNombre(solicitantes, ingreso.id_solicitante_ingreso)}</div>
                         <div><span className="text-xs text-muted-foreground">Orden tribunal: </span>{ingreso.orden_tribunal ? <Badge variant="secondary">Sí</Badge> : "No"}</div>
                         <div><span className="text-xs text-muted-foreground">Tribunal: </span>{ingreso.tribunal || "—"}</div>
                         <div><span className="text-xs text-muted-foreground">Materia: </span>{ingreso.materia || "—"}</div>
                         <div><span className="text-xs text-muted-foreground">Fecha causa: </span>{formatDate(ingreso.fecha_causa)}</div>
-                        <div><span className="text-xs text-muted-foreground">RIT: </span>{ingreso.codigo_rit || "—"}</div>
+                        <div><span className="text-xs text-muted-foreground">RIT: </span>{ingreso.codigo_rit || "—"}{ingreso.codigo_rit && detectTipoCausa(ingreso.codigo_rit) && <Badge variant="secondary" className="ml-1 text-xs">{detectTipoCausa(ingreso.codigo_rit)}</Badge>}</div>
                         <div><span className="text-xs text-muted-foreground">RUC: </span>{ingreso.codigo_ruc || "—"}</div>
                       </div>
                       <Button variant="ghost" size="icon" onClick={() => startEdit(ingreso)}>
@@ -466,12 +505,17 @@ export default function IngresoPage({ params }: { params: Promise<{ id: string }
                                 </ul>
                               )}
                               <div className="flex items-center gap-2 mt-2">
-                                <Input
-                                  className="h-7 text-xs"
-                                  value={causalForm.nombre_causal}
-                                  onChange={(e) => setCausalForm((prev) => ({ ...prev, nombre_causal: e.target.value }))}
-                                  placeholder="Nombre causal"
-                                />
+                                <Select value={causalForm.nombre_causal || "none"} onValueChange={(v) => setCausalForm((prev) => ({ ...prev, nombre_causal: v === "none" ? "" : v }))}>
+                                  <SelectTrigger className="h-7 text-xs w-44">
+                                    <SelectValue placeholder="Nombre causal" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="none">Ninguna</SelectItem>
+                                    {CATALOGO_CAUSALES.map((causal) => (
+                                      <SelectItem key={causal} value={causal}>{causal}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
                                 <Select value={causalForm.estado} onValueChange={(v) => setCausalForm((prev) => ({ ...prev, estado: v }))}>
                                   <SelectTrigger className="h-7 text-xs w-28">
                                     <SelectValue />
@@ -500,12 +544,17 @@ export default function IngresoPage({ params }: { params: Promise<{ id: string }
                                 </ul>
                               )}
                               <div className="flex items-center gap-2 mt-2">
-                                <Input
-                                  className="h-7 text-xs"
-                                  value={derechoForm.nombre_derecho}
-                                  onChange={(e) => setDerechoForm((prev) => ({ ...prev, nombre_derecho: e.target.value }))}
-                                  placeholder="Nombre derecho"
-                                />
+                                <Select value={derechoForm.nombre_derecho || "none"} onValueChange={(v) => setDerechoForm((prev) => ({ ...prev, nombre_derecho: v === "none" ? "" : v }))}>
+                                  <SelectTrigger className="h-7 text-xs w-44">
+                                    <SelectValue placeholder="Nombre derecho" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="none">Ninguno</SelectItem>
+                                    {CATALOGO_DERECHOS.map((derecho) => (
+                                      <SelectItem key={derecho} value={derecho}>{derecho}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
                                 <Select value={derechoForm.estado} onValueChange={(v) => setDerechoForm((prev) => ({ ...prev, estado: v }))}>
                                   <SelectTrigger className="h-7 text-xs w-28">
                                     <SelectValue />

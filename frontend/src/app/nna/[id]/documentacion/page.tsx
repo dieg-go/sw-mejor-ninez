@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { CATALOGO_DOCUMENTACION_INGRESO } from "@/lib/catalogos";
 import { Spinner } from "@/components/ui/spinner";
 import { Empty } from "@/components/ui/empty";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -34,6 +35,7 @@ const DEFAULT = {
   estado_recepcion: false,
   fecha_recepcion: "",
   observacion: "",
+  url_documentacion_ingreso: "",
 };
 
 export default function DocumentacionPage({ params }: { params: Promise<{ id: string }> }) {
@@ -74,6 +76,7 @@ export default function DocumentacionPage({ params }: { params: Promise<{ id: st
       if (form.tipo_documento) payload.tipo_documento = form.tipo_documento;
       payload.estado_recepcion = form.estado_recepcion;
       if (form.observacion) payload.observacion = form.observacion;
+      if (form.url_documentacion_ingreso) payload.url_documentacion_ingreso = form.url_documentacion_ingreso;
       if (fecha) payload.fecha_recepcion = fecha.toISOString().split("T")[0];
       const created = await api.documentacionIngreso.create(id, payload);
       setItems((prev) => [...prev, created]);
@@ -89,6 +92,7 @@ export default function DocumentacionPage({ params }: { params: Promise<{ id: st
       estado_recepcion: item.estado_recepcion,
       fecha_recepcion: item.fecha_recepcion || "",
       observacion: item.observacion || "",
+      url_documentacion_ingreso: item.url_documentacion_ingreso || "",
     });
     setEditFecha(item.fecha_recepcion ? new Date(item.fecha_recepcion + "T00:00:00") : undefined);
     setEditError(null);
@@ -103,6 +107,7 @@ export default function DocumentacionPage({ params }: { params: Promise<{ id: st
       if (editForm.tipo_documento) payload.tipo_documento = editForm.tipo_documento;
       payload.estado_recepcion = editForm.estado_recepcion;
       if (editForm.observacion) payload.observacion = editForm.observacion;
+      if (editForm.url_documentacion_ingreso) payload.url_documentacion_ingreso = editForm.url_documentacion_ingreso;
       if (editFecha) payload.fecha_recepcion = editFecha.toISOString().split("T")[0];
       else payload.fecha_recepcion = null;
       const updated = await api.documentacionIngreso.update(editingId, payload);
@@ -133,7 +138,17 @@ export default function DocumentacionPage({ params }: { params: Promise<{ id: st
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label className="text-xs">Tipo documento</Label>
-                  <Input className="mt-1" value={form.tipo_documento} onChange={(e) => setForm((p) => ({ ...p, tipo_documento: e.target.value }))} placeholder="Ej: Certificado de nacimiento" />
+                  <Select value={form.tipo_documento || "none"} onValueChange={(v) => setForm((p) => ({ ...p, tipo_documento: v === "none" ? "" : v }))}>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Seleccionar" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Ninguno</SelectItem>
+                      {CATALOGO_DOCUMENTACION_INGRESO.map((tipo) => (
+                        <SelectItem key={tipo} value={tipo}>{tipo}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label className="text-xs">Fecha recepción</Label>
@@ -151,6 +166,10 @@ export default function DocumentacionPage({ params }: { params: Promise<{ id: st
                 <div>
                   <Label className="text-xs">Observación</Label>
                   <Input className="mt-1" value={form.observacion} onChange={(e) => setForm((p) => ({ ...p, observacion: e.target.value }))} placeholder="Observaciones" />
+                </div>
+                <div className="sm:col-span-2">
+                  <Label className="text-xs">URL del documento</Label>
+                  <Input className="mt-1" value={form.url_documentacion_ingreso} onChange={(e) => setForm((p) => ({ ...p, url_documentacion_ingreso: e.target.value }))} placeholder="https://..." />
                 </div>
               </div>
               {formError && <p className="text-destructive text-sm">{formError}</p>}
@@ -175,7 +194,17 @@ export default function DocumentacionPage({ params }: { params: Promise<{ id: st
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <Label className="text-xs">Tipo documento</Label>
-                        <Input className="mt-1" value={editForm.tipo_documento} onChange={(e) => setEditForm((p) => ({ ...p, tipo_documento: e.target.value }))} />
+                        <Select value={editForm.tipo_documento || "none"} onValueChange={(v) => setEditForm((p) => ({ ...p, tipo_documento: v === "none" ? "" : v }))}>
+                          <SelectTrigger className="mt-1">
+                            <SelectValue placeholder="Seleccionar" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">Ninguno</SelectItem>
+                            {CATALOGO_DOCUMENTACION_INGRESO.map((tipo) => (
+                              <SelectItem key={tipo} value={tipo}>{tipo}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                       <div>
                         <Label className="text-xs">Fecha recepción</Label>
@@ -194,6 +223,10 @@ export default function DocumentacionPage({ params }: { params: Promise<{ id: st
                         <Label className="text-xs">Observación</Label>
                         <Input className="mt-1" value={editForm.observacion} onChange={(e) => setEditForm((p) => ({ ...p, observacion: e.target.value }))} />
                       </div>
+                      <div className="sm:col-span-2">
+                        <Label className="text-xs">URL del documento</Label>
+                        <Input className="mt-1" value={editForm.url_documentacion_ingreso} onChange={(e) => setEditForm((p) => ({ ...p, url_documentacion_ingreso: e.target.value }))} placeholder="https://..." />
+                      </div>
                     </div>
                     {editError && <p className="text-destructive text-sm">{editError}</p>}
                     <div className="flex gap-2">
@@ -208,6 +241,7 @@ export default function DocumentacionPage({ params }: { params: Promise<{ id: st
                       <div><span className="text-xs text-muted-foreground">Fecha: </span>{formatDate(item.fecha_recepcion)}</div>
                       <div><span className="text-xs text-muted-foreground">Estado: </span>{item.estado_recepcion ? <Badge variant="secondary">Recibido</Badge> : <Badge variant="outline">Pendiente</Badge>}</div>
                       {item.observacion && <div className="col-span-2"><span className="text-xs text-muted-foreground">Obs: </span>{item.observacion}</div>}
+                      {item.url_documentacion_ingreso && <div className="col-span-3"><span className="text-xs text-muted-foreground">URL: </span><a href={item.url_documentacion_ingreso} target="_blank" rel="noopener noreferrer" className="text-primary underline text-xs">{item.url_documentacion_ingreso}</a></div>}
                     </div>
                     <Button variant="ghost" size="icon" onClick={() => startEdit(item)}><PencilIcon className="size-4" /></Button>
                   </div>

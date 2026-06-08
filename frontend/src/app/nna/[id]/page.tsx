@@ -3,7 +3,7 @@
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
-import { api, type NNA } from "@/lib/api";
+import { api, type NNA, type SolicitanteIngreso } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -64,9 +64,10 @@ export default function NNADetailPage({ params }: { params: Promise<{ id: string
 
         // Fetch all sections in parallel
         const [
-          ingresos, docs, consumo, disc, e2p, pmf, ncfas,
+          sols, ingresos, docs, consumo, disc, e2p, pmf, ncfas,
           historial, gestiones, informes, salud, escolar, familiar,
         ] = await Promise.all([
+          api.solicitanteIngreso.list().catch(() => [] as SolicitanteIngreso[]),
           api.antecedenteIngreso.list(id).catch(() => []),
           api.documentacionIngreso.list(id).catch(() => []),
           api.historialConsumoNNA.list(id).catch(() => []),
@@ -111,8 +112,11 @@ export default function NNADetailPage({ params }: { params: Promise<{ id: string
         setNna(nnaData);
         setSummaries({
           ingreso: ing ? (() => {
+            const solNombre = ing.id_solicitante_ingreso
+              ? sols.find((s) => s.id_solicitante_ingreso === ing.id_solicitante_ingreso)?.nombre || ing.id_solicitante_ingreso
+              : "—";
             const parts = [
-              ing.id_solicitante_ingreso || "—",
+              solNombre,
               ing.tribunal || "—",
               ing.fecha_ingreso_residencia || "—",
             ];

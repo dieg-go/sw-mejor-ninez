@@ -22,6 +22,8 @@ interface E2PFormDialogProps {
   nnaId: string;
   nna: NNA;
   familiares: Familiar[];
+  vinculados: Familiar[];
+  idAdultoResponsable: string | null;
   initialData?: Instrumento;
   existingPuntaje?: E2PPuntaje | null;
   onCreated: (item: Instrumento) => void;
@@ -29,10 +31,14 @@ interface E2PFormDialogProps {
 }
 
 export function E2PFormDialog({
-  open, onOpenChange, mode, nnaId, nna, familiares, initialData, existingPuntaje,
+  open, onOpenChange, mode, nnaId, nna, familiares, vinculados, idAdultoResponsable,
+  initialData, existingPuntaje,
   onCreated, onUpdated,
 }: E2PFormDialogProps) {
-  const [idFamiliar, setIdFamiliar] = useState(initialData?.id_familiar || "");
+  const [idFamiliar, setIdFamiliar] = useState(
+    initialData?.id_familiar
+    || (mode === "create" && idAdultoResponsable ? idAdultoResponsable : "")
+  );
   const [observacion, setObservacion] = useState(initialData?.observacion || "");
   const [fechaEval, setFechaEval] = useState<Date | undefined>(
     initialData?.fecha_evaluacion ? new Date(initialData.fecha_evaluacion + "T00:00:00") : undefined
@@ -131,6 +137,8 @@ export function E2PFormDialog({
     }));
   }, [existingPuntaje, questions, answers]);
 
+  const familiarOptions = mode === "create" ? vinculados : familiares;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -141,17 +149,21 @@ export function E2PFormDialog({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <Label className="text-xs">Familiar</Label>
-              <Select value={idFamiliar} onValueChange={handleFamiliarChange}>
-                <SelectTrigger className="mt-1 w-full"><SelectValue placeholder="Seleccionar" /></SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="none">— Sin familiar —</SelectItem>
-                    {familiares.map((f) => (
-                      <SelectItem key={f.id_familiar} value={f.id_familiar}>{f.nombre || f.id_familiar.slice(0, 8)}</SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+              {familiarOptions.length === 0 && mode === "create" ? (
+                <p className="text-sm text-muted-foreground mt-1.5">No hay familiares vinculados al NNA</p>
+              ) : (
+                <Select value={idFamiliar} onValueChange={handleFamiliarChange}>
+                  <SelectTrigger className="mt-1 w-full"><SelectValue placeholder="Seleccionar" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {mode === "edit" && <SelectItem value="none">— Sin familiar —</SelectItem>}
+                      {familiarOptions.map((f) => (
+                        <SelectItem key={f.id_familiar} value={f.id_familiar}>{f.nombre || f.id_familiar.slice(0, 8)}</SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              )}
             </div>
             <div>
               <Label className="text-xs">Fecha evaluación</Label>

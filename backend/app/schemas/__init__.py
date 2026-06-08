@@ -92,6 +92,10 @@ from app.schemas.centro_salud import (
     CentroSaludCreate,
     CentroSaludUpdate,
 )
+from app.schemas.registro_grupo_familiar import (
+    RegistroGrupoFamiliarRead,
+    RegistroGrupoFamiliarCreate,
+)
 from app.schemas.vinculo_nna import (
     VinculoNNARead,
     VinculoNNACreate,
@@ -171,6 +175,8 @@ __all__ = [
     "CentroSaludRead",
     "CentroSaludCreate",
     "CentroSaludUpdate",
+    "RegistroGrupoFamiliarRead",
+    "RegistroGrupoFamiliarCreate",
     "VinculoNNARead",
     "VinculoNNACreate",
     "VinculoNNAUpdate",

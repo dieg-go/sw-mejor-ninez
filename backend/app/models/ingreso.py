@@ -45,6 +45,7 @@ class DocumentacionIngreso(SQLModel, table=True):
     estado_recepcion: bool = False
     fecha_recepcion: Optional[date] = None
     observacion: Optional[str] = None
+    url_documentacion_ingreso: Optional[str] = None
 
     nna: "NNA" = Relationship(back_populates="documentacion_ingreso")
 

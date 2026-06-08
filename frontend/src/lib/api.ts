@@ -163,6 +163,7 @@ export interface DocumentacionIngreso {
   estado_recepcion: boolean;
   fecha_recepcion: string | null;
   observacion: string | null;
+  url_documentacion_ingreso: string | null;
 }
 
 export type DocumentacionIngresoUpdate = Partial<Omit<DocumentacionIngreso, "id_documentacion" | "id_nna">>;
@@ -323,11 +324,12 @@ export interface CentroSalud {
 export type CentroSaludUpdate = Partial<Omit<CentroSalud, "id_centro_salud">>;
 
 export interface VinculoNNA {
+  id_vinculo_nna: string;
   id_nna_1: string;
   id_nna_2: string;
   parentesco: string | null;
 }
-export type VinculoNNAUpdate = Partial<Omit<VinculoNNA, "id_nna_1" | "id_nna_2">>;
+export type VinculoNNAUpdate = Partial<Omit<VinculoNNA, "id_nna_1" | "id_nna_2" | "id_vinculo_nna">>;
 
 // ── NNA ──────────────────────────────────────────────────────────────────────
 
@@ -578,7 +580,7 @@ export const api = {
 
   vinculoNNA: {
     list: (idNna: string) => request<VinculoNNA[]>(`/nna/${idNna}/vinculos-nna`),
-    create: (idNna: string, data: Omit<VinculoNNA, "id_nna_1">) =>
+    create: (idNna: string, data: Omit<VinculoNNA, "id_nna_1" | "id_vinculo_nna">) =>
       request<VinculoNNA>(`/nna/${idNna}/vinculos-nna`, { method: "POST", body: JSON.stringify(data) }),
     get: (id: string) => request<VinculoNNA>(`/vinculo-nna/${id}`),
     update: (id: string, data: VinculoNNAUpdate) =>

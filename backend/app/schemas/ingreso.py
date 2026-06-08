@@ -43,6 +43,7 @@ class DocumentacionIngresoBase(BaseModel):
     estado_recepcion: bool = False
     fecha_recepcion: Optional[date] = None
     observacion: Optional[str] = None
+    url_documentacion_ingreso: Optional[str] = None
 
 
 class DocumentacionIngresoCreate(DocumentacionIngresoBase):
@@ -54,6 +55,7 @@ class DocumentacionIngresoUpdate(BaseModel):
     estado_recepcion: Optional[bool] = None
     fecha_recepcion: Optional[date] = None
     observacion: Optional[str] = None
+    url_documentacion_ingreso: Optional[str] = None
 
 
 class DocumentacionIngresoRead(DocumentacionIngresoBase):

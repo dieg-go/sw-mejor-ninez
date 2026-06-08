@@ -9,10 +9,11 @@ interface E2PHeaderProps {
   nnaId: string;
   nnaName: string | null;
   itemCount: number;
+  canCreate: boolean;
   onNew: () => void;
 }
 
-export function E2PHeader({ nnaId, nnaName, itemCount, onNew }: E2PHeaderProps) {
+export function E2PHeader({ nnaId, nnaName, itemCount, canCreate, onNew }: E2PHeaderProps) {
   return (
     <>
       <Button variant="ghost" asChild className="-ml-2 mb-4">
@@ -26,7 +27,11 @@ export function E2PHeader({ nnaId, nnaName, itemCount, onNew }: E2PHeaderProps) 
       <h2 className="text-lg font-semibold mb-3">E2P</h2>
       <div className="flex items-center justify-between mb-4">
         <span className="text-sm text-muted-foreground">{itemCount} registro{itemCount !== 1 ? "s" : ""}</span>
-        <Button size="sm" onClick={onNew}><PlusIcon /> Nuevo E2P</Button>
+        {canCreate ? (
+          <Button size="sm" onClick={onNew}><PlusIcon /> Nuevo E2P</Button>
+        ) : (
+          <span className="text-xs text-muted-foreground">Vincula un familiar al NNA para crear E2P</span>
+        )}
       </div>
     </>
   );
