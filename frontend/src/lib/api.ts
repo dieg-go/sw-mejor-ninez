@@ -586,4 +586,39 @@ export const api = {
     update: (id: string, data: VinculoNNAUpdate) =>
       request<VinculoNNA>(`/vinculo-nna/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   },
+
+  upload: {
+    docs: async (file: File): Promise<{ url: string; filename: string }> => {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const token = typeof window !== "undefined" ? localStorage.getItem(AUTH_TOKEN_KEY) : null;
+      const headers: Record<string, string> = {};
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      const res = await fetch(`${API_BASE}/upload/docs`, {
+        method: "POST",
+        headers,
+        body: formData,
+      });
+
+      if (res.status === 401) {
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("auth_token");
+          localStorage.removeItem("auth_user");
+          window.location.href = "/login";
+        }
+        throw new Error("Sesión expirada");
+      }
+
+      if (!res.ok) {
+        const body = await res.text();
+        throw new Error(`${res.status}: ${body}`);
+      }
+
+      const data = await res.json();
+      const baseOrigin = API_BASE.replace(/\/api$/, "");
+      return { url: `${baseOrigin}${data.url}`, filename: data.filename };
+    },
+  },
 };

@@ -29,6 +29,8 @@ services:
       - DB_NAME=sw_mejor_ninez
     ports:
       - "8000:8000"
+    volumes:
+      - uploads:/app/uploads
     depends_on:
       db:
         condition: service_healthy
@@ -49,3 +51,4 @@ services:
 
 volumes:
   pgdata:
+  uploads:

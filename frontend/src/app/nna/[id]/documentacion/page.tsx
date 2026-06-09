@@ -1,8 +1,8 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeftIcon, CalendarIcon, PlusIcon, PencilIcon } from "lucide-react";
+import { ArrowLeftIcon, CalendarIcon, PencilIcon, PlusIcon, UploadIcon } from "lucide-react";
 import { api, type NNA, type DocumentacionIngreso } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -56,6 +56,30 @@ export default function DocumentacionPage({ params }: { params: Promise<{ id: st
   const [editFecha, setEditFecha] = useState<Date | undefined>(undefined);
   const [editSaving, setEditSaving] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadTarget, setUploadTarget] = useState<"create" | "edit" | null>(null);
+
+  const handleFileUpload = async (file: File, target: "create" | "edit") => {
+    setUploadTarget(target);
+    setUploading(true);
+    setUploadError(null);
+    try {
+      const result = await api.upload.docs(file);
+      if (target === "create") {
+        setForm((p) => ({ ...p, url_documentacion_ingreso: result.url }));
+      } else {
+        setEditForm((p) => ({ ...p, url_documentacion_ingreso: result.url }));
+      }
+    } catch (e: any) {
+      setUploadError(e.message);
+    } finally {
+      setUploading(false);
+      setUploadTarget(null);
+    }
+  };
 
   useEffect(() => {
     (async () => {
@@ -130,6 +154,20 @@ export default function DocumentacionPage({ params }: { params: Promise<{ id: st
         {!showForm && <Button size="sm" onClick={() => setShowForm(true)}><PlusIcon /> Nuevo documento</Button>}
       </div>
 
+      {uploadError && <p className="text-destructive text-sm mb-2">{uploadError}</p>}
+      {uploading && <p className="text-sm text-muted-foreground mb-2">Subiendo archivo...</p>}
+      <input
+        type="file"
+        ref={fileInputRef}
+        className="hidden"
+        accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.doc,.docx,.xls,.xlsx"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file && uploadTarget) handleFileUpload(file, uploadTarget);
+          e.target.value = "";
+        }}
+      />
+
       {showForm && (
         <Card className="mb-6 border-primary/30">
           <CardHeader className="pb-2"><CardTitle className="text-base">Nuevo documento</CardTitle></CardHeader>
@@ -168,8 +206,18 @@ export default function DocumentacionPage({ params }: { params: Promise<{ id: st
                   <Input className="mt-1" value={form.observacion} onChange={(e) => setForm((p) => ({ ...p, observacion: e.target.value }))} placeholder="Observaciones" />
                 </div>
                 <div className="sm:col-span-2">
-                  <Label className="text-xs">URL del documento</Label>
-                  <Input className="mt-1" value={form.url_documentacion_ingreso} onChange={(e) => setForm((p) => ({ ...p, url_documentacion_ingreso: e.target.value }))} placeholder="https://..." />
+                  <Label className="text-xs">Documento</Label>
+                  <div className="flex gap-1 mt-1 items-center">
+                    <Button type="button" variant="outline" size="sm" disabled={uploading} onClick={() => { setUploadTarget("create"); fileInputRef.current?.click(); }}>
+                      <UploadIcon className="size-4 mr-1" />
+                      {form.url_documentacion_ingreso ? "Cambiar archivo" : "Subir archivo"}
+                    </Button>
+                    {form.url_documentacion_ingreso && (
+                      <span className="text-xs text-muted-foreground truncate" title={form.url_documentacion_ingreso}>
+                        {form.url_documentacion_ingreso.split("/").pop()}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
               {formError && <p className="text-destructive text-sm">{formError}</p>}
@@ -224,8 +272,18 @@ export default function DocumentacionPage({ params }: { params: Promise<{ id: st
                         <Input className="mt-1" value={editForm.observacion} onChange={(e) => setEditForm((p) => ({ ...p, observacion: e.target.value }))} />
                       </div>
                       <div className="sm:col-span-2">
-                        <Label className="text-xs">URL del documento</Label>
-                        <Input className="mt-1" value={editForm.url_documentacion_ingreso} onChange={(e) => setEditForm((p) => ({ ...p, url_documentacion_ingreso: e.target.value }))} placeholder="https://..." />
+                        <Label className="text-xs">Documento</Label>
+                        <div className="flex gap-1 mt-1 items-center">
+                          <Button type="button" variant="outline" size="sm" disabled={uploading} onClick={() => { setUploadTarget("edit"); fileInputRef.current?.click(); }}>
+                            <UploadIcon className="size-4 mr-1" />
+                            {editForm.url_documentacion_ingreso ? "Cambiar archivo" : "Subir archivo"}
+                          </Button>
+                          {editForm.url_documentacion_ingreso && (
+                            <span className="text-xs text-muted-foreground truncate" title={editForm.url_documentacion_ingreso}>
+                              {editForm.url_documentacion_ingreso.split("/").pop()}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                     {editError && <p className="text-destructive text-sm">{editError}</p>}
