@@ -33,3 +33,38 @@ class PMF(SQLModel, table=True):
         back_populates="evaluaciones_pmf",
         sa_relationship_kwargs={"foreign_keys": "[PMF.id_familiar]"},
     )
+    respuestas_list: list["RespuestaPMF"] = Relationship(back_populates="evaluacion")
+
+
+class PreguntaPMF(SQLModel, table=True):
+    __tablename__ = "PreguntaPMF"
+
+    id_pregunta_pmf: uuid.UUID = Field(
+        default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
+    )
+    numero: int = Field()
+    afirmacion: str = Field()
+    escala: Optional[str] = Field(default=None)
+
+    respuestas: list["RespuestaPMF"] = Relationship(back_populates="pregunta")
+
+
+class RespuestaPMF(SQLModel, table=True):
+    __tablename__ = "RespuestaPMF"
+
+    id_respuesta_pmf: uuid.UUID = Field(
+        default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
+    )
+    id_pmf: uuid.UUID = Field(
+        foreign_key="PMF.id_pmf",
+        sa_type=UUID(as_uuid=True),
+        ondelete="CASCADE",
+    )
+    id_pregunta_pmf: uuid.UUID = Field(
+        foreign_key="PreguntaPMF.id_pregunta_pmf",
+        sa_type=UUID(as_uuid=True),
+    )
+    respuesta: bool = Field()
+
+    evaluacion: "PMF" = Relationship(back_populates="respuestas_list")
+    pregunta: "PreguntaPMF" = Relationship(back_populates="respuestas")

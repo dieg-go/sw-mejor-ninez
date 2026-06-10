@@ -38,6 +38,7 @@ from app.api.routes.e2p import (
 from app.api.routes.pmf import (
     pmf_familiar_router,
     pmf_item_router,
+    pmf_questions_router,
     pmf_router,
 )
 from app.api.routes.ncfas import (
@@ -92,6 +93,7 @@ routers = [
     e2p_router,
     e2p_item_router,
     pmf_router,
+    pmf_questions_router,
     pmf_item_router,
     ncfas_router,
     ncfas_item_router,

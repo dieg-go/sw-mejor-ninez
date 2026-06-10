@@ -21,6 +21,7 @@ from app.models import (
     E2P,
     EstablecimientoEducacional,
     PreguntaE2P,
+    PreguntaPMF,
     VinculoFamiliar,
     GestionBusquedaFamiliar,
     HistorialConsumoAdulto,
@@ -93,6 +94,31 @@ async def seed_e2p_static(session):
     print(f"Static E2P data seeded: {len(preguntas_rows)} preguntas, {len(baremo_rows)} baremos.")
 
 
+async def seed_pmf_static(session):
+    count_preguntas = (
+        await session.execute(select(PreguntaPMF))
+    ).scalars().first()
+    if count_preguntas:
+        print("PreguntaPMF ya tiene datos — skipping static seed.")
+        return
+
+    with open(_DATA_DIR / "pmf_afirmaciones.json", encoding="utf-8") as f:
+        afirmaciones_data = json.load(f)
+
+    preguntas_rows = []
+    for q in afirmaciones_data:
+        preguntas_rows.append(
+            PreguntaPMF(
+                numero=q["id"],
+                afirmacion=q["afirmacion"],
+            )
+        )
+
+    session.add_all(preguntas_rows)
+    await session.commit()
+    print(f"Static PMF data seeded: {len(preguntas_rows)} preguntas.")
+
+
 _ESCALA_KEY_MAP = {
     "v_0_3_meses": 1,
     "v_4_10_meses": 2,
@@ -160,6 +186,7 @@ async def seed():
     async with async_session() as session:
         await seed_admin_user(session)
         await seed_e2p_static(session)
+        await seed_pmf_static(session)
         await seed_catalogs(session)
 
         count_nna = (await session.execute(select(NNA))).scalars().all()

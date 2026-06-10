@@ -221,10 +221,8 @@ export interface InformeTribunal {
 
 export type InformeTribunalUpdate = Partial<Omit<InformeTribunal, "id_informe" | "id_nna">>;
 
-export interface Instrumento {
+export interface E2PEvaluacion {
   id_e2p: string;
-  id_pmf?: string;
-  id_ncfas?: string;
   id_nna: string;
   id_familiar: string | null;
   fecha_evaluacion: string | null;
@@ -235,7 +233,35 @@ export interface Instrumento {
   observacion: string | null;
 }
 
-export type InstrumentoUpdate = Partial<Omit<Instrumento, "id_e2p" | "id_pmf" | "id_ncfas" | "id_nna">>;
+export type E2PCreate = Partial<Omit<E2PEvaluacion, "id_e2p" | "id_nna">>;
+export type E2PUpdate = Partial<Omit<E2PEvaluacion, "id_e2p" | "id_nna">>;
+
+export interface PMFEvaluacion {
+  id_pmf: string;
+  id_nna: string;
+  id_familiar: string | null;
+  fecha_evaluacion: string | null;
+  fecha_proxima_evaluacion: string | null;
+  respuestas: Record<string, boolean> | null;
+  resultado: string | null;
+  observacion: string | null;
+}
+
+export type PMFCreate = Partial<Omit<PMFEvaluacion, "id_pmf" | "id_nna">>;
+export type PMFUpdate = Partial<Omit<PMFEvaluacion, "id_pmf" | "id_nna">>;
+
+export interface NCFASEvaluacion {
+  id_ncfas: string;
+  id_nna: string;
+  id_familiar: string | null;
+  fecha_evaluacion: string | null;
+  fecha_proxima_evaluacion: string | null;
+  resultado: string | null;
+  observacion: string | null;
+}
+
+export type NCFASCreate = Partial<Omit<NCFASEvaluacion, "id_ncfas" | "id_nna">>;
+export type NCFASUpdate = Partial<Omit<NCFASEvaluacion, "id_ncfas" | "id_nna">>;
 
 export interface AntecedenteSalud {
   id_antecedente_salud: string;
@@ -299,6 +325,13 @@ export interface E2PPuntaje {
     rango_zona: string;
   }[];
   respuestas: Record<string, number>;
+}
+
+export interface PMFQuestions {
+  id_pregunta_pmf: string;
+  numero: number;
+  afirmacion: string;
+  escala: string | null;
 }
 
 export interface SolicitanteIngreso {
@@ -474,40 +507,41 @@ export const api = {
 
   e2p: {
     getQuestions: (version: number) => request<E2PQuestions>(`/e2p/versions/${version}`),
-    listByNna: (idNna: string) => request<Instrumento[]>(`/nna/${idNna}/e2p`),
-    listByFamiliar: (idFamiliar: string) => request<Instrumento[]>(`/familiares/${idFamiliar}/e2p`),
-    createByNna: (idNna: string, data: Omit<Instrumento, "id_e2p" | "id_nna">) =>
-      request<Instrumento>(`/nna/${idNna}/e2p`, { method: "POST", body: JSON.stringify(data) }),
-    createByFamiliar: (idFamiliar: string, data: Omit<Instrumento, "id_e2p" | "id_nna">) =>
-      request<Instrumento>(`/familiares/${idFamiliar}/e2p`, { method: "POST", body: JSON.stringify(data) }),
-    get: (id: string) => request<Instrumento>(`/e2p/${id}`),
+    listByNna: (idNna: string) => request<E2PEvaluacion[]>(`/nna/${idNna}/e2p`),
+    listByFamiliar: (idFamiliar: string) => request<E2PEvaluacion[]>(`/familiares/${idFamiliar}/e2p`),
+    createByNna: (idNna: string, data: E2PCreate) =>
+      request<E2PEvaluacion>(`/nna/${idNna}/e2p`, { method: "POST", body: JSON.stringify(data) }),
+    createByFamiliar: (idFamiliar: string, data: E2PCreate) =>
+      request<E2PEvaluacion>(`/familiares/${idFamiliar}/e2p`, { method: "POST", body: JSON.stringify(data) }),
+    get: (id: string) => request<E2PEvaluacion>(`/e2p/${id}`),
     getPuntaje: (id: string) => request<E2PPuntaje>(`/e2p/${id}/puntaje`),
-    update: (id: string, data: InstrumentoUpdate) =>
-      request<Instrumento>(`/e2p/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+    update: (id: string, data: E2PUpdate) =>
+      request<E2PEvaluacion>(`/e2p/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   },
 
   pmf: {
-    listByNna: (idNna: string) => request<Instrumento[]>(`/nna/${idNna}/pmf`),
-    listByFamiliar: (idFamiliar: string) => request<Instrumento[]>(`/familiares/${idFamiliar}/pmf`),
-    createByNna: (idNna: string, data: Omit<Instrumento, "id_e2p" | "id_nna">) =>
-      request<Instrumento>(`/nna/${idNna}/pmf`, { method: "POST", body: JSON.stringify(data) }),
-    createByFamiliar: (idFamiliar: string, data: Omit<Instrumento, "id_e2p" | "id_nna">) =>
-      request<Instrumento>(`/familiares/${idFamiliar}/pmf`, { method: "POST", body: JSON.stringify(data) }),
-    get: (id: string) => request<Instrumento>(`/pmf/${id}`),
-    update: (id: string, data: InstrumentoUpdate) =>
-      request<Instrumento>(`/pmf/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+    getQuestions: () => request<PMFQuestions[]>(`/pmf/preguntas`),
+    listByNna: (idNna: string) => request<PMFEvaluacion[]>(`/nna/${idNna}/pmf`),
+    listByFamiliar: (idFamiliar: string) => request<PMFEvaluacion[]>(`/familiares/${idFamiliar}/pmf`),
+    createByNna: (idNna: string, data: PMFCreate) =>
+      request<PMFEvaluacion>(`/nna/${idNna}/pmf`, { method: "POST", body: JSON.stringify(data) }),
+    createByFamiliar: (idFamiliar: string, data: PMFCreate) =>
+      request<PMFEvaluacion>(`/familiares/${idFamiliar}/pmf`, { method: "POST", body: JSON.stringify(data) }),
+    get: (id: string) => request<PMFEvaluacion>(`/pmf/${id}`),
+    update: (id: string, data: PMFUpdate) =>
+      request<PMFEvaluacion>(`/pmf/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   },
 
   ncfas: {
-    listByNna: (idNna: string) => request<Instrumento[]>(`/nna/${idNna}/ncfas`),
-    listByFamiliar: (idFamiliar: string) => request<Instrumento[]>(`/familiares/${idFamiliar}/ncfas`),
-    createByNna: (idNna: string, data: Omit<Instrumento, "id_e2p" | "id_nna">) =>
-      request<Instrumento>(`/nna/${idNna}/ncfas`, { method: "POST", body: JSON.stringify(data) }),
-    createByFamiliar: (idFamiliar: string, data: Omit<Instrumento, "id_e2p" | "id_nna">) =>
-      request<Instrumento>(`/familiares/${idFamiliar}/ncfas`, { method: "POST", body: JSON.stringify(data) }),
-    get: (id: string) => request<Instrumento>(`/ncfas/${id}`),
-    update: (id: string, data: InstrumentoUpdate) =>
-      request<Instrumento>(`/ncfas/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+    listByNna: (idNna: string) => request<NCFASEvaluacion[]>(`/nna/${idNna}/ncfas`),
+    listByFamiliar: (idFamiliar: string) => request<NCFASEvaluacion[]>(`/familiares/${idFamiliar}/ncfas`),
+    createByNna: (idNna: string, data: NCFASCreate) =>
+      request<NCFASEvaluacion>(`/nna/${idNna}/ncfas`, { method: "POST", body: JSON.stringify(data) }),
+    createByFamiliar: (idFamiliar: string, data: NCFASCreate) =>
+      request<NCFASEvaluacion>(`/familiares/${idFamiliar}/ncfas`, { method: "POST", body: JSON.stringify(data) }),
+    get: (id: string) => request<NCFASEvaluacion>(`/ncfas/${id}`),
+    update: (id: string, data: NCFASUpdate) =>
+      request<NCFASEvaluacion>(`/ncfas/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   },
 
   // ── Antecedentes ───────────────────────────────────────────────────────────

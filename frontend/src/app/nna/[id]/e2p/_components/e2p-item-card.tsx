@@ -2,13 +2,13 @@
 
 import { PencilIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Instrumento, Familiar, E2PPuntaje } from "@/lib/api";
+import type { E2PEvaluacion, Familiar, E2PPuntaje } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatDate, ZONE_COLORS, RESULTADO_STYLES } from "./e2p-utils";
 
 interface E2PItemCardProps {
-  item: Instrumento;
+  item: E2PEvaluacion;
   puntaje: E2PPuntaje | null;
   familiares: Familiar[];
   onEdit: () => void;

@@ -40,7 +40,7 @@ function LikertRadios({ questionId, value, onChange, disabled }: LikertRadiosPro
 
 interface E2PQuestionnaireProps {
   questions: E2PQuestions;
-  answers: Record<string, number>; // Considera cambiarlo a Record<number, number> en el padre si es posible
+  answers: Record<string, number>;
   onChange: (qId: number, val: number) => void;
   disabled: boolean;
 }

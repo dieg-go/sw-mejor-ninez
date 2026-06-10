@@ -3,7 +3,7 @@
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeftIcon, CalendarIcon, PlusIcon, PencilIcon } from "lucide-react";
-import { api, type NNA, type Instrumento, type Familiar } from "@/lib/api";
+import { api, type NNA, type NCFASEvaluacion, type Familiar } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -24,7 +24,7 @@ export default function NCFASPage({ params }: { params: Promise<{ id: string }> 
   const { id } = use(params);
   const [nna, setNna] = useState<NNA | null>(null);
   const [familiares, setFamiliares] = useState<Familiar[]>([]);
-  const [items, setItems] = useState<Instrumento[]>([]);
+  const [items, setItems] = useState<NCFASEvaluacion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -86,7 +86,7 @@ export default function NCFASPage({ params }: { params: Promise<{ id: string }> 
     finally { setSaving(false); }
   };
 
-  const startEdit = (item: Instrumento) => {
+  const startEdit = (item: NCFASEvaluacion) => {
     setEditingId(item.id_ncfas ?? null);
     setEditIdFamiliar(item.id_familiar || "");
     setEditResultado(item.resultado || "");

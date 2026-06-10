@@ -1,7 +1,7 @@
 "use client";
 
 import { use, useEffect, useMemo, useState } from "react";
-import { api, type AntecedenteFamiliar, type VinculoFamiliar, type NNA, type Familiar, type Instrumento, type E2PPuntaje } from "@/lib/api";
+import { api, type AntecedenteFamiliar, type VinculoFamiliar, type NNA, type Familiar, type E2PEvaluacion, type E2PPuntaje } from "@/lib/api";
 import { Spinner } from "@/components/ui/spinner";
 import { Empty } from "@/components/ui/empty";
 import { E2PHeader } from "./_components/e2p-header";
@@ -12,19 +12,19 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
   const { id } = use(params);
   const [nna, setNna] = useState<NNA | null>(null);
   const [familiares, setFamiliares] = useState<Familiar[]>([]);
-  const [items, setItems] = useState<Instrumento[]>([]);
+  const [items, setItems] = useState<E2PEvaluacion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [puntajes, setPuntajes] = useState<Record<string, E2PPuntaje | null>>({});
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogMode, setDialogMode] = useState<"create" | "edit">("create");
-  const [editingItem, setEditingItem] = useState<Instrumento | undefined>(undefined);
+  const [editingItem, setEditingItem] = useState<E2PEvaluacion | undefined>(undefined);
   const [dialogKey, setDialogKey] = useState(0);
   const [vinculos, setVinculos] = useState<VinculoFamiliar[]>([]);
   const [antecedentes, setAntecedentes] = useState<AntecedenteFamiliar[]>([]);
 
-  const fetchPuntaje = async (item: Instrumento) => {
+  const fetchPuntaje = async (item: E2PEvaluacion) => {
     if (item.respuestas && Object.keys(item.respuestas).length > 0) {
       try {
         const p = await api.e2p.getPuntaje(item.id_e2p);
@@ -85,12 +85,12 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
     return () => { cancelled = true; };
   }, [items]);
 
-  const handleCreated = (item: Instrumento) => {
+  const handleCreated = (item: E2PEvaluacion) => {
     setItems((prev) => [...prev, item]);
     fetchPuntaje(item);
   };
 
-  const handleUpdated = (item: Instrumento) => {
+  const handleUpdated = (item: E2PEvaluacion) => {
     setItems((prev) => prev.map((i) => (i.id_e2p === item.id_e2p ? item : i)));
     fetchPuntaje(item);
   };
@@ -102,7 +102,7 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
     setDialogOpen(true);
   };
 
-  const openEdit = (item: Instrumento) => {
+  const openEdit = (item: E2PEvaluacion) => {
     setEditingItem(item);
     setDialogMode("edit");
     setDialogKey((k) => k + 1);

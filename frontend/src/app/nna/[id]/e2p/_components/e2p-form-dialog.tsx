@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { CalendarIcon } from "lucide-react";
-import { api, type NNA, type Familiar, type Instrumento, type InstrumentoUpdate, type E2PQuestions, type E2PPuntaje } from "@/lib/api";
+import { api, type NNA, type Familiar, type E2PEvaluacion, type E2PUpdate, type E2PQuestions, type E2PPuntaje } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -24,10 +24,10 @@ interface E2PFormDialogProps {
   familiares: Familiar[];
   vinculados: Familiar[];
   idAdultoResponsable: string | null;
-  initialData?: Instrumento;
+  initialData?: E2PEvaluacion;
   existingPuntaje?: E2PPuntaje | null;
-  onCreated: (item: Instrumento) => void;
-  onUpdated: (item: Instrumento) => void;
+  onCreated: (item: E2PEvaluacion) => void;
+  onUpdated: (item: E2PEvaluacion) => void;
 }
 
 export function E2PFormDialog({
@@ -103,10 +103,10 @@ export function E2PFormDialog({
     try {
       const p = buildPayload();
       if (mode === "create") {
-        const created = await api.e2p.createByNna(nnaId, p as Omit<Instrumento, "id_e2p" | "id_nna">);
+        const created = await api.e2p.createByNna(nnaId, p as E2PUpdate);
         onCreated(created);
       } else if (initialData) {
-        const updated = await api.e2p.update(initialData.id_e2p, p as InstrumentoUpdate);
+        const updated = await api.e2p.update(initialData.id_e2p, p as E2PUpdate);
         onUpdated(updated);
       }
       onOpenChange(false);

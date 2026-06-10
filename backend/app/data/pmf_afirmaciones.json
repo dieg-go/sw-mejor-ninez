@@ -1,0 +1,458 @@
+[
+  {
+    "id": 1,
+    "afirmacion": "A veces siento pena por los demás"
+  },
+  {
+    "id": 2,
+    "afirmacion": "Algunas cosas me dan vergüenza"
+  },
+  {
+    "id": 3,
+    "afirmacion": "Me gusta que me traten bien"
+  },
+  {
+    "id": 4,
+    "afirmacion": "Soy una persona confusa (soy una persona que no tiene las cosas claras)"
+  },
+  {
+    "id": 5,
+    "afirmacion": "Desconfío de la mayoría de la gente"
+  },
+  {
+    "id": 6,
+    "afirmacion": "Muchas veces estoy confundido(a)."
+  },
+  {
+    "id": 7,
+    "afirmacion": "Es bueno que los niños y jóvenes hagan deporte"
+  },
+  {
+    "id": 8,
+    "afirmacion": "A veces he hecho alguna lesera"
+  },
+  {
+    "id": 9,
+    "afirmacion": "Algunas veces actúo sin pensar"
+  },
+  {
+    "id": 10,
+    "afirmacion": "Soy una persona feliz"
+  },
+  {
+    "id": 11,
+    "afirmacion": "Las niñas adolescentes necesitan ser protegidas (las niñas entre 12 y 14 años necesitan ser protegidas)"
+  },
+  {
+    "id": 12,
+    "afirmacion": "Muchas veces estoy enojado(a) por dentro."
+  },
+  {
+    "id": 13,
+    "afirmacion": "A veces me siento completamente solo(a) en el mundo."
+  },
+  {
+    "id": 14,
+    "afirmacion": "Los cuchillos son peligrosos para los niños"
+  },
+  {
+    "id": 15,
+    "afirmacion": "Muchas veces siento que me rechazan."
+  },
+  {
+    "id": 16,
+    "afirmacion": "Muchas veces me siento solo(a) por dentro."
+  },
+  {
+    "id": 17,
+    "afirmacion": "Muchas veces siento que las cosas no me salen como quiero."
+  },
+  {
+    "id": 18,
+    "afirmacion": "Los niños siempre deberían obedecer."
+  },
+  {
+    "id": 19,
+    "afirmacion": "A veces me da miedo perder el control de mí mismo."
+  },
+  {
+    "id": 20,
+    "afirmacion": "Tengo un hijo que es torpe"
+  },
+  {
+    "id": 21,
+    "afirmacion": "Me da lo mismo enfermarme"
+  },
+  {
+    "id": 22,
+    "afirmacion": "Muchas veces me siento solo(a)."
+  },
+  {
+    "id": 23,
+    "afirmacion": "Me gustaría tener más plata"
+  },
+  {
+    "id": 24,
+    "afirmacion": "Alguna vez he querido tener zapatos nuevos"
+  },
+  {
+    "id": 25,
+    "afirmacion": "Soy una persona con mala suerte."
+  },
+  {
+    "id": 26,
+    "afirmacion": "En la vida las cosas generalmente han ido en mi contra."
+  },
+  {
+    "id": 27,
+    "afirmacion": "A veces he deseado tener una casa propia"
+  },
+  {
+    "id": 28,
+    "afirmacion": "A veces me preocupo primero por mí antes que por los demás"
+  },
+  {
+    "id": 29,
+    "afirmacion": "A veces siento que valgo nada."
+  },
+  {
+    "id": 30,
+    "afirmacion": "Mis padres se preocuparon muy poco de mí"
+  },
+  {
+    "id": 31,
+    "afirmacion": "A veces estoy muy triste."
+  },
+  {
+    "id": 32,
+    "afirmacion": "A los niños se les debe pegar"
+  },
+  {
+    "id": 33,
+    "afirmacion": "Tengo un(a) hijo(a) que rompe cosas"
+  },
+  {
+    "id": 34,
+    "afirmacion": "Generalmente me siento preocupado(a)."
+  },
+  {
+    "id": 35,
+    "afirmacion": "Si supiera que mi pareja me engaña con otra persona, me daría lo mismo"
+  },
+  {
+    "id": 36,
+    "afirmacion": "Es malo que un niño conteste a sus mayores."
+  },
+  {
+    "id": 37,
+    "afirmacion": "Me gustaría tener más tiempo para hacer las cosas que me gustan"
+  },
+  {
+    "id": 38,
+    "afirmacion": "Muchas veces me altero con facilidad."
+  },
+  {
+    "id": 39,
+    "afirmacion": "Los jóvenes deberían estudiar para ser alguien en la vida"
+  },
+  {
+    "id": 40,
+    "afirmacion": "A veces he hecho algunas cosas al lote"
+  },
+  {
+    "id": 41,
+    "afirmacion": "Es preferible que los niños sepan nadar"
+  },
+  {
+    "id": 42,
+    "afirmacion": "A veces estoy con flojera de hacer las cosas de la casa"
+  },
+  {
+    "id": 43,
+    "afirmacion": "Muchas veces estoy preocupado por dentro."
+  },
+  {
+    "id": 44,
+    "afirmacion": "A veces he pelado a alguien"
+  },
+  {
+    "id": 45,
+    "afirmacion": "La gente me ha causado mucho dolor."
+  },
+  {
+    "id": 46,
+    "afirmacion": "Alguna vez he tenido que decir una mentira"
+  },
+  {
+    "id": 47,
+    "afirmacion": "Tengo un hijo que se mete mucho en problemas."
+  },
+  {
+    "id": 48,
+    "afirmacion": "La plata ayuda mucho en la vida"
+  },
+  {
+    "id": 49,
+    "afirmacion": "En estos tiempos, es difícil saber en quién confiar (Es difícil saber a quien pedirle ayuda)"
+  },
+  {
+    "id": 50,
+    "afirmacion": "En general, mi vida es feliz."
+  },
+  {
+    "id": 51,
+    "afirmacion": "A otras personas les cuesta entender cómo me siento."
+  },
+  {
+    "id": 52,
+    "afirmacion": "Los niños deberían callarse y escuchar."
+  },
+  {
+    "id": 53,
+    "afirmacion": "La escuela es la principal responsable de educar al niño"
+  },
+  {
+    "id": 54,
+    "afirmacion": "Mi familia actual pelea mucho."
+  },
+  {
+    "id": 55,
+    "afirmacion": "Sufro de dolores de cabeza."
+  },
+  {
+    "id": 56,
+    "afirmacion": "Cuando niño(a) me trataron mal"
+  },
+  {
+    "id": 57,
+    "afirmacion": "Pegar es el mejor castigo"
+  },
+  {
+    "id": 58,
+    "afirmacion": "En general, me desagrada que me toquen"
+  },
+  {
+    "id": 59,
+    "afirmacion": "A los niños se les debería lavar antes de acostarse"
+  },
+  {
+    "id": 60,
+    "afirmacion": "Me río muy poco."
+  },
+  {
+    "id": 61,
+    "afirmacion": "Mi familia actual tiene problemas para llevarse bien."
+  },
+  {
+    "id": 62,
+    "afirmacion": "Muchas veces me parece que a la vida le falta sentido."
+  },
+  {
+    "id": 63,
+    "afirmacion": "La gente me comprende muy poco."
+  },
+  {
+    "id": 64,
+    "afirmacion": "Muchas veces siento que valgo nada."
+  },
+  {
+    "id": 65,
+    "afirmacion": "Alguna gente ha hecho mi vida infeliz."
+  },
+  {
+    "id": 66,
+    "afirmacion": "A veces me extraña comportarme como lo hago."
+  },
+  {
+    "id": 67,
+    "afirmacion": "Tengo muchos problemas personales."
+  },
+  {
+    "id": 68,
+    "afirmacion": "Tengo un hijo que a menudo se hace daño (Tengo un hijo que se golpea)"
+  },
+  {
+    "id": 69,
+    "afirmacion": "Muchas veces me siento muy alterado(a)."
+  },
+  {
+    "id": 70,
+    "afirmacion": "En general, mi vida es buena."
+  },
+  {
+    "id": 71,
+    "afirmacion": "Me altero fácilmente con mis problemas."
+  },
+  {
+    "id": 72,
+    "afirmacion": "En general, mis padres me entendían."
+  },
+  {
+    "id": 73,
+    "afirmacion": "Mi hijo(a) tiene problemas especiales (Mi hijo tiene problemas poco comunes, que no tienen todos los niños)"
+  },
+  {
+    "id": 74,
+    "afirmacion": "Me disgusta la mayoría de los niños"
+  },
+  {
+    "id": 75,
+    "afirmacion": "Es bueno que los niños lean"
+  },
+  {
+    "id": 76,
+    "afirmacion": "Generalmente me siento deprimido(a)."
+  },
+  {
+    "id": 77,
+    "afirmacion": "Generalmente estoy alterado(a)."
+  },
+  {
+    "id": 78,
+    "afirmacion": "Los niños deberían siempre hacer felices a sus padres"
+  },
+  {
+    "id": 79,
+    "afirmacion": "A veces preferiría que otros cuidaran a mis hijos"
+  },
+  {
+    "id": 80,
+    "afirmacion": "Tengo un(a) hijo(a) que es lento."
+  },
+  {
+    "id": 81,
+    "afirmacion": "Los padres deben castigar a sus hijos si quieren que se porten bien."
+  },
+  {
+    "id": 82,
+    "afirmacion": "Los niños siempre deberían dar cero problemas."
+  },
+  {
+    "id": 83,
+    "afirmacion": "Un niño necesita reglas muy estrictas."
+  },
+  {
+    "id": 84,
+    "afirmacion": "Los niños siempre deberían obedecer a sus padres"
+  },
+  {
+    "id": 85,
+    "afirmacion": "Cuando niño(a) muchas veces estaba asustado(a)"
+  },
+  {
+    "id": 86,
+    "afirmacion": "Los niños deberían ser siempre educados y tranquilos"
+  },
+  {
+    "id": 87,
+    "afirmacion": "Muchas veces estoy alterado(a), y no sé por qué."
+  },
+  {
+    "id": 88,
+    "afirmacion": "A veces tengo miedo que mis hijos no me quieran"
+  },
+  {
+    "id": 89,
+    "afirmacion": "Muchas veces me siento muy solo(a)."
+  },
+  {
+    "id": 90,
+    "afirmacion": "La gente siempre debería disimular su rabia"
+  },
+  {
+    "id": 91,
+    "afirmacion": "Mi familia actual tiene muchos problemas."
+  },
+  {
+    "id": 92,
+    "afirmacion": "Otras personas han hecho mi vida difícil."
+  },
+  {
+    "id": 93,
+    "afirmacion": "Casi todos los días me río."
+  },
+  {
+    "id": 94,
+    "afirmacion": "Generalmente me siento asustado(a)"
+  },
+  {
+    "id": 95,
+    "afirmacion": "A veces levanto la voz cuando me enojo"
+  },
+  {
+    "id": 96,
+    "afirmacion": "Cuando niño(a) mis padres me pegaban"
+  },
+  {
+    "id": 97,
+    "afirmacion": "A veces me preocupo primero por mí antes que por los demás"
+  },
+  {
+    "id": 98,
+    "afirmacion": "A veces digo alguna mentira"
+  },
+  {
+    "id": 99,
+    "afirmacion": "Tengo bonitos recuerdos de mi niñez"
+  },
+  {
+    "id": 100,
+    "afirmacion": "Mis padres me pusieron muy poca atención"
+  },
+  {
+    "id": 101,
+    "afirmacion": "A los niños hay que enseñarles con palabras y buenos ejemplos"
+  },
+  {
+    "id": 102,
+    "afirmacion": "En general, es bueno confiar en los demás"
+  },
+  {
+    "id": 103,
+    "afirmacion": "Mis padres se desquitaban con nosotros o conmigo (Mis padres descargaban su rabia con nosotros o conmigo)"
+  },
+  {
+    "id": 104,
+    "afirmacion": "Tengo una buena relación con mi pareja"
+  },
+  {
+    "id": 105,
+    "afirmacion": "Mis padres eran cariñosos conmigo"
+  },
+  {
+    "id": 106,
+    "afirmacion": "Los niños deberían dar siempre gusto a sus padres"
+  },
+  {
+    "id": 107,
+    "afirmacion": "Mi pareja me trata mal"
+  },
+  {
+    "id": 108,
+    "afirmacion": "Mi pareja siempre anda con mala cara"
+  },
+  {
+    "id": 109,
+    "afirmacion": "Soy una persona que sabe controlarse"
+  },
+  {
+    "id": 110,
+    "afirmacion": "En mi familia actual las cosas se conversan"
+  },
+  {
+    "id": 111,
+    "afirmacion": "Es mejor razonar con los niños que castigarlos"
+  },
+  {
+    "id": 112,
+    "afirmacion": "Le tenía miedo a mi padre"
+  },
+  {
+    "id": 113,
+    "afirmacion": "Mi familia actual es muy unida"
+  },
+  {
+    "id": 114,
+    "afirmacion": "Mis padres me apoyaban cuando tenía problemas"
+  }
+]
