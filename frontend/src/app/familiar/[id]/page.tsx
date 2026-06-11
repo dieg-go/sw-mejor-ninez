@@ -50,25 +50,28 @@ function InstrumentoSection({
   items: any[];
 }) {
   if (items.length === 0) return null;
+
+  const isNcfas = label === "NCFAS";
+
   return (
     <div>
       <h4 className="text-sm font-medium mb-2">{label}</h4>
       <div className="flex flex-col gap-2">
         {items.map((i: any) => (
-          <Card key={i.id_e2p}>
+          <Card key={isNcfas ? i.id_ncfas : (i.id_e2p || i.id_pmf)}>
             <CardContent className="pt-4">
               <div className="flex items-center justify-between">
                 <div>
                   <Badge variant="outline" className="mb-1">
-                    {i.resultado || "Pendiente"}
+                    {isNcfas ? (i.estado || "Pendiente") : (i.resultado || "Pendiente")}
                   </Badge>
                   <p className="text-xs text-muted-foreground">
-                    {i.observacion || "Sin observaciones"}
+                    {isNcfas ? (i.observacion_general || "Sin observaciones") : (i.observacion || "Sin observaciones")}
                   </p>
                 </div>
                 <div className="text-xs text-muted-foreground text-right">
-                  <p>Evaluado: {i.fecha_evaluacion || "—"}</p>
-                  <p>Próxima: {i.fecha_proxima_evaluacion || "—"}</p>
+                  <p>Evaluado: {isNcfas ? (i.fecha_apertura || "—") : (i.fecha_evaluacion || "—")}</p>
+                  <p>{isNcfas ? "Cierre" : "Próxima"}: {isNcfas ? (i.fecha_cierre || "—") : (i.fecha_proxima_evaluacion || "—")}</p>
                 </div>
               </div>
             </CardContent>

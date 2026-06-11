@@ -1,0 +1,71 @@
+{
+  "dimension": {
+    "letra": "A",
+    "nombre": "Entorno",
+    "items": [
+      {
+        "numero": 1,
+        "nombre": "Estabilidad de la Vivienda",
+        "rubricas": {
+          "+2": "Se refiere a una familia que ocupa una vivienda adecuada por más de tres años. Si es menos de tres años, el traslado fue provocado por un cambio de trabajo o una mudanza a una mejor vivienda, etc. El arriendo/renta/hipoteca o dividendo se paga a tiempo. No hay problemas en cumplir las obligaciones financieras de renta o hipoteca.",
+          "0": "Se refiere a una familia que está experimentando (o previamente ha experimentado) problemas menores para permanecer en la misma residencia, pero que es relativamente capaz de cumplir con sus obligaciones financieras, la vivienda actual no está amenazada y los miembros de la familia no están restringidos en su capacidad de respuesta a otras obligaciones debido a estos problemas.",
+          "-3": "Se refiere a una familia que está siendo amenazada con el desalojo. Incapaz de cumplir con sus obligaciones de renta/arriendo o hipoteca/dividendo a tiempo, o del todo. O, la familia no tiene vivienda, está conviviendo con diferentes parientes o amigos, o está viviendo en un refugio de indigentes. La familia no está satisfecha con su situación de vivienda."
+        }
+      },
+      {
+        "numero": 2,
+        "nombre": "Seguridad en la Comunidad",
+        "rubricas": {
+          "+2": "Se refiere a un vecindario protector y seguro para los niños. Los cuidadores pueden permitir a los niños jugar afuera sin miedo. Los vecinos se cuidan los unos a los otros (p.ej., los vecinos “vigilan”).",
+          "0": "Se refiere a disturbios o conflictos menores en el vecindario, pero los conflictos no impiden que los miembros de la familia y los niños/as pasen tiempo afuera, en la comunidad.",
+          "-3": "Se refiere a muchos conflictos, tales como peleas y/o revueltas en el vecindario. El vecindario no es seguro para que los niños/as jueguen al aire libre o para que caminen al bus o a la escuela. Hay evidencia de violencia, ventanas clausuradas o enrejadas, armas de fuego, uso de alcohol o drogas y/o tráfico de drogas en el vecindario. Vecinos temerosos de “verse involucrados”."
+        }
+      },
+      {
+        "numero": 3,
+        "nombre": "Riesgos del Entorno",
+        "rubricas": {
+          "+2": "Se refiere a que las circunstancias de vida y del vecindario de la familia están esencialmente libres de riesgos ambientales, tales como químicos tóxicos, gases industriales o basura, pintura o cañerías de plomo, plagas de alimañas, moho, alta congestión de tráfico, construcción o demolición de edificios cercanos o riesgos similares. Los cuidadores reconocen los riesgos ambientales y buscan remedios para proteger a los niños/as y la familia.",
+          "0": "Se refiere a que las circunstancias de vida y del vecindario de la familia están ampliamente libres de riesgos ambientales conocidos. Algunos riesgos ambientales pueden estar presentes, pero los cuidadores parecen identificar esos riesgos y están tomando las acciones apropiadas para proteger a los niños/as y la familia. Los cuidadores pueden no ser conscientes de todos los riesgos potenciales, pero generalmente toman las medidas adecuadas para reducirlos.",
+          "-3": "Las circunstancias de vida y del vecindario de la familia están cargadas de riesgos ambientales. Ratas, cucarachas y otras alimañas están presentes, y hay basurales cercanos. Los niños/as o miembros de la familia pueden sufrir asma debido a gases o desperdicios industriales. Edificios abandonados, destruidos o edificios bajo construcción, ponen en riesgo a los niños/as mientras juegan. Las áreas de juego de los niños no están suficientemente protegidas del tráfico y otros riesgos. Pintura o cañerías de plomo presentan un serio riesgo de ingestión de metales. Los cuidadores no muestran voluntad o capacidad para detectar o reconocer riesgos, y no toman las medidas adecuadas para remediar la situación o proteger a los niños/as y la familia."
+        }
+      },
+      {
+        "numero": 4,
+        "nombre": "Habitabilidad de la Vivienda",
+        "rubricas": {
+          "+2": "Se refiere a una familia y a los vecinos experimentando su hogar como “cálido”. La casa es muy limpia y ordenada. Abundante espacio y privacidad para los niños/as. Numerosos muebles en buen estado. Se consideran y toman precauciones de seguridad, tales como el uso de cerrojos fijos en las puertas exteriores. Los objetos venenosos se mantienen bajo llave y fuera del alcance de los niños/as. La plomería/cañerías están en buen estado.",
+          "0": "Se refiere a mínimos problemas en el hogar, tales como leve hacinamiento o algo de aglomeración de objetos. Sin embargo, se toman la mayoría de las precauciones de seguridad (p.ej., los venenos están fuera de la vista, pero no bajo llave). Puede ser evidente la necesidad de reparaciones pequeñas en la casa (p.ej., yeso desmoronado), pero éstas no requieren atención inmediata.",
+          "-3": "Se refiere a situaciones de insalubridad, incluyendo basura, desorden y olores desagradables en la casa. Trozos de comida y/o comida pudriéndose en los mostradores y mesas. Muebles empapados o manchados de orina, pañales sucios, platos sucios, inundación de basura, y/o heces humanas o animales en el piso. Hay obstáculos para sentarse o entrar en la casa. La plomería no funciona y/o la casa está sin electricidad. Muchos peligros al alcance de los niños, tales como pistolas, cuchillos, drogas, o medicamentos abiertos y venenos."
+        }
+      },
+      {
+        "numero": 5,
+        "nombre": "Higiene Personal",
+        "rubricas": {
+          "+2": "Se refiere a que los niños se ven limpios y bien arreglados. Los niños/as tienen abundante ropa, apropiada a la estación. Los adultos se ven aseados y bien arreglados. Los adultos tienen abundante ropa, apropiada a la estación. Conciencia de la higiene y el aseo personal. Tienen orgullo y respeto por sí mismos y su apariencia.",
+          "0": "Se refiere a los niños/as ocasionalmente vistiendo ropa inapropiada o mostrándose desarreglados. Sin embargo, la apariencia o ropa inapropiadas no causan problemas a la familia o a los niños.",
+          "-3": "Se refiere a una apariencia contantemente desarreglada o sucia en los niños/as. Apariencia desarreglada en los adultos. La higiene personal es notoriamente pobre, la higiene dental es evidentemente pobre, y/o se percibe hedor corporal. Falta de conciencia en niños y adultos sobre la importancia de la higiene y el aseo personal. El vestuario es inapropiado para la estación."
+        }
+      },
+      {
+        "numero": 6,
+        "nombre": "Entorno de Aprendizaje",
+        "rubricas": {
+          "+2": "Se refiere al entusiasmo de los cuidadores por enseñar a los niños/as. La familia tiene rutinas para el juego y el estudio. Hay tiempo planificado para la lectura, ir a excursiones, y actividades estructuradas. Los cuidadores se involucran activamente en la escuela (p.ej., se exhiben las tareas escolares), y ayudan a los niños en las tareas propias de cada etapa del desarrollo. Se provee de juegos y juguetes apropiados para la edad, y éstos son evidentes en la casa. Los cuidadores respaldan al personal de la escuela.",
+          "0": "Se refiere a cuidadores que planifican ocasionalmente tiempo para actividades de aprendizaje. Los cuidadores no buscan activamente involucrarse con la escuela del niño, pero se hacen de tiempo según se les solicite. Se observan algunos juegos o juguetes apropiados para la edad.",
+          "-3": "Se refiere a cuidadores que muestran poca atención (o impiden) las tareas propias de cada etapa del desarrollo de los niños/as; y se observa un bajo o ausente involucramiento con la escuela de los niños/as. Los cuidadores no valoran la educación, y están frustrados y enojados con las necesidades de aprendizaje de los niños/as. No hay oportunidades de aprendizaje en el hogar. No hay juegos o juguetes, y/o los juegos y juguetes no son apropiados para la edad, o son de una naturaleza violenta. Los cuidadores no son cooperativos con el personal de la escuela, o son desdeñosos del esfuerzo de los niños por aprender, o de los profesores y escuelas públicas."
+        }
+      },
+      {
+        "numero": 7,
+        "nombre": "Entorno en general",
+        "rubricas": {
+          "+2": "Se refiere a una familia recibiendo puntajes muy altos en las siguientes áreas: estabilidad de la vivienda, seguridad en la comunidad, riesgos del entorno, habitabilidad de la vivienda, higiene personal y entorno de aprendizaje.",
+          "0": "Se refiere a una familia experimentando algunos problemas mínimos en las siguientes áreas: estabilidad de la vivienda, seguridad en la comunidad, riesgos del entorno, habitabilidad de la vivienda, higiene personal y entorno de aprendizaje. Sin embargo, los problemas no interfieren con la habilidad de la familia para funcionar, y los problemas no necesitan ser abordados.",
+          "-3": "Se refiere a una familia recibiendo puntajes muy bajos en las siguientes áreas: estabilidad de la vivienda, seguridad en la comunidad, riesgos del entorno, habitabilidad de la vivienda, higiene personal y entorno de aprendizaje."
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "dimension": {
+    "letra": "J",
+    "nombre": "Preparación para la Reunificación",
+    "items": [
+      {
+        "numero": 1,
+        "nombre": "Resolución de Factores de Riesgo CPS Significativos",
+        "rubricas": {
+          "+2": "El cuidador/a ha abordado las necesidades básicas de la familia (transporte, vivienda, empleo, ingresos, supervisión, etc.). Si corresponde, el perpetrador ha sido removido de la familia por el cuidador/a restante. El cuidador/a ha reconstruido un entorno de vida que permita ofrecer protección y cuidados al niño/a.",
+          "0": "El cuidador/a ha hecho progresos significativos hacia la resolución de los factores de riesgo que llevaron a la remoción. Algunos temas pueden permanecer sin resolverse, pero han mejorado, y se continúan haciendo progresos. El cuidador/a reconoce y acepta su responsabilidad para continuar trabajando en esos tópicos.",
+          "-3": "El cuidador/a ha mantenido relaciones destructivas, inapropiadas o abusivas con otros adultos (o el perpetrador) o ha establecido nuevas relaciones de ese tipo en ausencia del niño/a. El cuidador/a ha fallado en abordar la necesidades básicas que pusieron a la familia bajo extremo estrés o amenaza de intervención legal, tales como el continuo uso de drogas, alcohol o el involucramiento en prostitución, o estilo de vida criminal, etc."
+        }
+      },
+      {
+        "numero": 2,
+        "nombre": "Finalización del Plan de Servicios del Caso",
+        "rubricas": {
+          "+2": "El cuidador/a ha completado exitosamente los servicios requeridos y/o servicios voluntarios (especialmente abuso de alcohol/drogas, manejo del enojo, manejo de crisis, comunicación) y ha demostrado nuevas habilidades/competencias adquiridas. El cuidador/a parece gratificado por las nuevas habilidades/competencias, y parece haber internalizado el cambio. El cuidador es accesible y receptivo a la idea de continuar recibiendo servicios, y está ansioso o dispuesto a participar.",
+          "0": "El cuidador/a ha completado los servicios requeridos al menos hasta el punto requerido por la orden de tribunales o por el plan autorizado de servicios. El cuidador/a puede verbalizar conocimiento acerca de habilidades/conductas/competencias, pero no ha demostrado necesariamente lo mismo. El cuidador/a puede negar la necesidad de alguno de los servicios ofrecidos, pero reconoce los beneficios de algunos de ellos.",
+          "-3": "El cuidador/a niega fuertemente la necesidad de servicios, es oposicionista a recibir servicios, ha fallado en participar significativamente o en completar los servicios requeridos. El cuidador/a muestra repetidamente conductas que fueron el foco del plan de servicios, y/o alardea de su desacato a los proveedores de servicios u otros con autoridad. El cuidador culpa a otros, incluyendo a los proveedores de servicios, el sistema, compañero(s) adulto(s) o al niño/a por los problemas y en defensa de su no-participación."
+        }
+      },
+      {
+        "numero": 3,
+        "nombre": "Resolución de Temas Legales",
+        "rubricas": {
+          "+2": "El cuidador/a ha buscado medios legales o aceptado servicios legales para resolver temas específicos de naturaleza legal, incluyendo obtener una orden de restricción por violencia doméstica, o resolviendo los cargos legales resultantes de las acusaciones por abuso o negligencia. Si corresponde, se ha establecido el reconocimiento de la paternidad y se está entregando apoyo al niño/a. Se han resuelto otras dificultades legales/criminales experimentadas por el cuidador/a que puedan afectar su habilidad futura para criar o entregar cuidados (p.ej., desahucios pendientes, casos judiciales criminales pendientes).",
+          "0": "El cuidador/a está involucrado en el proceso de resolver los temas legales que puedan afectar su habilidad para proveer cuidados competentes y estables. Algunos temas no están completamente resueltos, pero el cuidador/a está involucrado en el proceso de su resolución, con expectativas realistas y apropiadas. El cuidador/a no está resistente a recibir asistencia legal cuando sea necesario. No es probable que alguno de los temas legales no resueltos cause caos familiar o remoción del niño/a o problemas graves en el cuidado del niño/a.",
+          "-3": "A pesar de una orden de restricción, el cuidador/a continúa manteniendo relaciones destructivas o peligrosas con otro adulto(s); el cuidador/a ha resuelto oponerse legalmente a la autoridad, a pesar de las bajas probabilidades de ganar y está gastando su energía en perder conflictos legales más que en llegar a ser un cuidador/a más competente y adecuado. El cuidador/a tiene serios cargos pendientes que pueden resultar en su encarcelamiento u otros serios impedimentos para la entrega futura de cuidados al niño/a."
+        }
+      },
+      {
+        "numero": 4,
+        "nombre": "Comprensión del Progenitor/Cuidador de las Necesidades de Tratamiento del Niño/a",
+        "rubricas": {
+          "+2": "El cuidador/a ha completado educación o consejería en temas centrados en el niño/a y comprende qué puede esperar del niño, de acuerdo a su edad, incluyendo posibles etapas de desarrollo del niño, diferentes a aquellas anteriores a la remoción (p.ej., pubertad). Si el niño o niña tiene discapacidades cognitivas o del desarrollo, el cuidador/a sabe qué esperar y tiene planes de servicio acordados para ayudar al desarrollo del niño/a. Si el niño o niña está volviendo de una institución residencial o un tratamiento en aislamiento, el cuidador es consciente y apoyador de las metas del tratamiento y está preparado para apoyar futuros tratamientos.",
+          "0": "El cuidador/a está bastante consciente del tratamiento entregado al niño/a durante el período de colocación fuera del hogar y parece entender las metas del tratamiento. El cuidador/a puede no entender completamente las potenciales necesidades futuras de tratamiento del niño/a, pero profesa apoyar futuros tratamientos si resulta necesario. Puede no entender completamente las discapacidades cognitivas o del desarrollo del niño/a, pero está dispuesto a aceptar ayuda externa, si es necesario. El cuidador/a puede no comprender completamente el régimen de medicación, pero está dispuesto a administrar la medicación y a permitir al niño/a tener acceso a los servicios psicológicos actualmente en curso.",
+          "-3": "El cuidador/a culpa al niño/a por su discapacidad cognitiva o del desarrollo, y hace responsable al niño/a por progresos que pueden no ser alcanzables. El cuidador ve los procesos de desarrollo normal infantil como deliberadamente contrarios a la autoridad del cuidador o como una falta de respeto. El cuidador/a no está dispuesto a involucrarse en conversaciones sobre las experiencias del niño/a durante el cuidado institucional residencial o en instalaciones aisladas, y espera que el niño/a regrese “arreglado” o “curado”. El cuidador/a niega la necesidad o se opone a la medicación o a servicios psicológicos o médicos actualmente en curso."
+        }
+      },
+      {
+        "numero": 5,
+        "nombre": "Plan de Servicios y/o Apoyos de Contingencia Establecidos",
+        "rubricas": {
+          "+2": "El cuidador/a ha establecido planes, y planes de contingencia, para la supervisión del niño/a, el acceso a servicios familiares de emergencia, y para descansar si es necesario. El cuidador/a tiene planes para acceder a servicios sociales, servicios de salud mental, o apoyo legal, si es necesario. Amigos y familiares están disponibles para brindar apoyo social y emocional. Los planes y mecanismos están operando para proveer cuidados de salud, educación y socialización apropiadas a la edad del niño o niña.",
+          "0": "El cuidador/a tiene algunos planes pensados para ofrecer supervisión básica del niño/a o para acceder a servicios en caso de una emergencia. El cuidador/a tiene un mínimo apoyo social/familiar. El cuidador/a no se opone a los esfuerzos en bien de la salud, educación o socialización del niño o niña, pero es mayormente pasivo, apoyándose en recursos externos tales como el sistema escolar y el cuidado médico de urgencia.",
+          "-3": "El cuidador/a no ha construido planes o ha construido planes ineficientes para el cuidado y supervisión del niño o niña. El cuidador/a se opone a la entrega externa de servicios (p.ej., rehúsa responder a los requerimientos de la escuela para las reuniones de apoderados). El cuidador/a permanece oposicionista con respecto a los servicios sociales, servicios de salud mental y servicios psicológicos ofrecidos por el sistema público, y no se ha involucrado en esos servicios para apoyo post-reunificación. El cuidador/a permanece separado de su familia y/o permanece socialmente aislado y por lo tanto sin apoyo social o apoyo emocional si emergiera una crisis o la necesidad de asistencia."
+        }
+      },
+      {
+        "numero": 6,
+        "nombre": "Preparación para la Reunificación en general",
+        "rubricas": {
+          "+2": "La familia ha hecho progresos significativos en temas prácticos/logísticos/legales desde la remoción, y está lista para tener al niño o niña de regreso en forma permanente. Generalmente, la familia recibe puntajes de leve a clara fortaleza en los ítems asociados con este dominio: Resolución de Factores de Riesgo CPS Significativos; Finalización del Plan de Servicios del Caso; Resolución de Temas Legales; Comprensión del Progenitor/Cuidador de las Necesidades de Tratamiento del Niño/a; Plan de Servicios y/o Apoyos de Contingencia Establecidos.",
+          "0": "La familia ha hecho algunos progresos prácticos en los temas prácticos/logísticos/legales, y se está moviendo en la dirección correcta. Pueden permanecer algunos temas, pero no son vistos como suficientemente serios para impedir la reunificación. Puede ser necesario ofrecer servicios adicionales para continuar progresando en temas sobresalientes o no resueltos. Pueden ser evidentes algunos puntajes de problemas leves en ítems del dominio, pero la familia está haciendo progresos en estos ítems.",
+          "-3": "La familia claramente no está lista para el regreso del niño o niña debido al caos familiar, situaciones insatisfactorias o de alto riesgo vital, o estilos de vida familiares peligrosos o ilegales. Se ha hecho poco o ningún progreso en los tópicos que llevaron a la remoción. La familia se ve envuelta en pleitos con la ley y con figuras de autoridad en general. La familia recibe numerosos puntajes de problema en los ítems de este dominio."
+        }
+      }
+    ]
+  }
+}

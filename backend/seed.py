@@ -29,6 +29,7 @@ from app.models import (
     HistorialRedProteccional,
     InformeTribunal,
     NCFAS,
+    ItemNCFAS,
     NNA,
     PMF,
     RegistroCausalIngreso,
@@ -119,6 +120,38 @@ async def seed_pmf_static(session):
     print(f"Static PMF data seeded: {len(preguntas_rows)} preguntas.")
 
 
+async def seed_ncfas_items(session):
+    count_items = (
+        await session.execute(select(ItemNCFAS))
+    ).scalars().first()
+    if count_items:
+        print("ItemNCFAS ya tiene datos — skipping static seed.")
+        return
+
+    dimension_files = sorted(_DATA_DIR.glob("ncfas_definicion_dimension_*.json"))
+    rows = []
+    for path in dimension_files:
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+        dim = data["dimension"]
+        total_items = len(dim["items"])
+        for item_data in dim["items"]:
+            rows.append(
+                ItemNCFAS(
+                    letra_dimension=dim["letra"],
+                    nombre_dimension=dim["nombre"],
+                    numero_item=item_data["numero"],
+                    nombre_item=item_data["nombre"],
+                    definiciones=item_data.get("rubricas"),
+                    es_item_general=item_data["numero"] == total_items,
+                )
+            )
+
+    session.add_all(rows)
+    await session.commit()
+    print(f"Static NCFAS items seeded: {len(rows)} items across {len(dimension_files)} dimensions.")
+
+
 _ESCALA_KEY_MAP = {
     "v_0_3_meses": 1,
     "v_4_10_meses": 2,
@@ -187,6 +220,7 @@ async def seed():
         await seed_admin_user(session)
         await seed_e2p_static(session)
         await seed_pmf_static(session)
+        await seed_ncfas_items(session)
         await seed_catalogs(session)
 
         count_nna = (await session.execute(select(NNA))).scalars().all()
@@ -454,10 +488,11 @@ async def seed():
         session.add(NCFAS(
             id_nna=carlos.id_nna,
             id_familiar=padre_carlos.id_familiar,
-            fecha_evaluacion=fecha_hace(15),
-            fecha_proxima_evaluacion=fecha_hace(-60),
-            resultado="Pendiente",
-            observacion="Padre no se presentó a la última sesión.",
+            es_reunificacion=False,
+            fecha_apertura=fecha_hace(15),
+            fecha_cierre=None,
+            estado="Ingreso completado",
+            observacion_general="Padre no se presentó a la última sesión.",
         ))
 
         # ═══ NNA #3: María Huenchul ═══════════════════════════════════════════

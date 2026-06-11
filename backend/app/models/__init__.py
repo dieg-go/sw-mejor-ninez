@@ -11,7 +11,12 @@ from app.models.ingreso import (
 from app.models.historial import GestionBusquedaFamiliar, HistorialRedProteccional, InformeTribunal
 from app.models.e2p import E2P, PreguntaE2P, RespuestaE2P, BaremoE2P, PuntajeE2P
 from app.models.pmf import PMF, PreguntaPMF, RespuestaPMF
-from app.models.ncfas import NCFAS
+from app.models.ncfas import (
+    ComentarioDimensionNCFAS,
+    ItemNCFAS,
+    NCFAS,
+    RespuestaNCFAS,
+)
 from app.models.antecedentes import (
     AntecedenteEscolar,
     AntecedenteFamiliar,
@@ -49,6 +54,9 @@ __all__ = [
     "PreguntaPMF",
     "RespuestaPMF",
     "NCFAS",
+    "ItemNCFAS",
+    "RespuestaNCFAS",
+    "ComentarioDimensionNCFAS",
     "AntecedenteSalud",
     "AntecedenteEscolar",
     "AntecedenteFamiliar",

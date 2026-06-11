@@ -1,0 +1,80 @@
+{
+  "dimension": {
+    "letra": "C",
+    "nombre": "Interacciones Familiares",
+    "items": [
+      {
+        "numero": 1,
+        "nombre": "Vínculo con el Niño(s)",
+        "rubricas": {
+          "+2": "Se refiere a la proximidad saludable del cuidador con su hijo/a y a su habilidad para criar un niño o niña de forma cálida y sensible. Los cuidadores estimulan la apropiada independencia del niño/a y dan amor y atención gratuitamente al niño/a. Responden apropiadamente a sus necesidades y tienen un sentimiento de apego con el niño/a.",
+          "0": "Se refiere a la habilidad del cuidador para estar cerca de su hijo/a. Los cuidadores no estimulan abiertamente la independencia en los niños/as, y pueden no darles abiertamente afecto. Sin embargo, las necesidades del niño/a parecen estar cubiertas.",
+          "-3": "Se refiere a la inhabilidad de los cuidadores para formar una relación cercana con sus niños/as, e incompetencia para criarlos de forma cálida y sensible. Los cuidadores están resentidos, rechazantes o desvinculados con sus hijos/as. También se refiere a la falta de respuesta, respuesta inapropiada o involucramiento excesivo con el niño/a."
+        }
+      },
+      {
+        "numero": 2,
+        "nombre": "Comunicación con el Niño(s)",
+        "rubricas": {
+          "+2": "Se refiere al uso del cuidador de comunicación afectuosa y apropiada a la edad de los niños/as. La comunicación no verbal con infantes es tranquila y tierna; la elección de palabras y el volumen de voz es apropiado para la etapa de desarrollo de los niños. Incluso estando enojados, los cuidadores mantienen control de su voz y cuerpo, y se comunican efectivamente. La comunicación verbal frecuentemente se acompaña de contacto físico afectuoso (ej., tocar, abrazar).",
+          "0": "Se refiere a la habilidad básica de los cuidadores para comunicarse efectivamente verbal y no verbalmente con los niños/as. Los cuidadores pueden levantar la voz, imponerse sobre los niños/as, dar severos sermones cuando están enojados. Los cuidadores pueden expresar frustración de que los niños/as no escuchan, cuando la comprensión o el estilo de comunicación es un tema. Sin embargo, los niños no están en riesgo, y la intervención no se justifica.",
+          "-3": "Se refiere a la incapacidad de los cuidadores para comunicarse efectivamente con los niños/as. La comunicación es infrecuente o ausente, o constante y abrumadora; frecuentemente acusatoria en tono y contenido. Pueden ocurrir arrebatos físicos y verbales en forma habitual. Se da poca o ninguna consideración al nivel de desarrollo de los niños/as y a su habilidad para procesar y comprender la comunicación. Los cuidadores culpan a los niños/as por la pobre comunicación."
+        }
+      },
+      {
+        "numero": 3,
+        "nombre": "Expectativas sobre el Niño(s)",
+        "rubricas": {
+          "+2": "Se refiere al cuidador teniendo expectativas apropiadas a la edad del niño o niña, y expectativas claras sobre el niño(s). Está sobre el promedio en la comprensión del desarrollo cognitivo, físico, social y emocional del niño/a.",
+          "0": "Se refiere a un cuidador con expectativas sobre el niño/a que son mayoritariamente apropiadas a su edad. Los cuidadores parecen tener una comprensión promedio de las necesidades de desarrollo del niño/a, y ocasionalmente se equivocan en sus expectativas de lo que es normal o apropiado a la edad, pero este entendimiento no justifica intervenir.",
+          "-3": "Se refiere al cuidador teniendo expectativas no realistas y confusas sobre el niño/a. No tolera errores en el niño/a. Se espera que el niño/a asuma las responsabilidades del adulto (p.ej., “parentalizado”). O, no se le permite al niño o niña involucrarse en comportamientos adecuados para su edad (p.ej., deportes, citas). Hay poco o inapropiado entendimiento del desarrollo infantil normal."
+        }
+      },
+      {
+        "numero": 4,
+        "nombre": "Apoyo Mutuo dentro de la Familia",
+        "rubricas": {
+          "+2": "Se refiere a un excelente apoyo emocional y/o instrumental dentro de la familia. Se da apoyo instrumental cuando se necesita, como proveer cuidados diarios, transporte o ayuda financiera. Los miembros de la familia parecen ayudarse unos a otros voluntariamente y saben que pueden contar con los demás en emergencias.",
+          "0": "Se refiere a un buen apoyo dentro de la familia. Se entrega algo de apoyo instrumental cuando lo solicita un miembro de la familia. La mayoría de las peticiones de ayuda de los miembros de la familia son cubiertas por otros miembros de la familia.",
+          "-3": "Se refiere a la pobreza o falta de apoyo emocional o apoyo instrumental entre los miembros de la familia. La familia no provee de transporte, cuidados diarios, o ayuda financiera cuando se necesita. Se socavan lo unos a los otros en la familia. Los miembros de la familia no toleran el éxito de otros miembros de la familia."
+        }
+      },
+      {
+        "numero": 5,
+        "nombre": "Relación entre los Progenitores / Cuidadores",
+        "rubricas": {
+          "+2": "Se refiere a una relación entre los cuidadores, evaluada como estable, consistente, afectiva y cariñosa. La pareja es capaz de comunicarse claramente y estimularse uno al otro. La pareja mantiene una “separación saludable” de los niños con claros vínculos parento-filiales.",
+          "0": "Se refiere a la relación entre los cuidadores. Algunos conflictos son evidentes, pero no parecen estar llevando al divorcio, la separación o el abandono. Hay algunas dificultades menores en la comunicación pero no dañan significativamente la relación o el cuidado y crianza de los niños/as.",
+          "-3": "Se refiere a una relación entre los cuidadores sin apoyo mutuo e inestable. Hay importantes dificultades de comunicación, con evidencia de discordia, violencia o indiferencia. El divorcio, la separación o el abandono son temas destacados. Los vínculos no se mantienen claramente entre los cónyuges, o entre la pareja y los niños."
+        }
+      },
+      {
+        "numero": 6,
+        "nombre": "Rutinas y Rituales Familiares",
+        "rubricas": {
+          "+2": "Se refiere al uso de los cuidadores de rutinas diarias para facilitar las actividades familiares al comienzo y final del día. Puede involucrar higiene, tareas de alimentación, preparación para el trabajo o el cuidado de los niños/as. Entregan estructura y expectativas tanto para los cuidadores como para el niño/a. Se observa flexibilidad en ocasiones especiales. Los niños participan en los rituales y rutinas de forma apropiada para su edad. La familia respeta de forma regular rituales como los cumpleaños, expresiones de fe en feriados religiosos u otros. Los rituales fomentan un sentido de seguridad y pertenencia en los niños.",
+          "0": "Existen actividades y rutinas familiares regulares que generalmente sirven para satisfacer las necesidades cotidianas de la familia. Las rutinas pueden quebrarse o llegar a ser muy rígidas, convirtiéndose en obstáculos más que en ayudas para aliviar la vida familiar. La familia celebra algunos rituales, pero puede no integrar prácticas observantes en su vida cotidiana. Los niños/as son usualmente incluidos en los ritos, pero pueden no tener un rol activo en las prácticas. Se observa un sentido básico de seguridad y pertenencia.",
+          "-3": "Se refiere tanto a una ausencia de rutinas, que lleva al caos en la familia y luchas diarias para comenzar o terminar las actividades del día, como a rutinas tan rígidas e inflexibles que los miembros de la familia pueden estar resentidos o rebeldes. La observancia de cumpleaños y otros días o eventos importantes es esporádica e inconsistente. La falta de rituales lleva a sentimientos de exclusión en los niños. Hay participación en rituales que no son apropiados para la edad, o son violentos, llevando a conductas temerosas o violentas en los niños/as."
+        }
+      },
+      {
+        "numero": 7,
+        "nombre": "Recreación Familiar y Actividades Lúdicas",
+        "rubricas": {
+          "+2": "Se refiere a la familia contando con tiempo regular para recreación o para jugar juntos. Puede involucrar deportes, picnics, salidas al parque/zoológico, campings, o juegos de tablero, cartas, puzles, etc. La planificación de la recreación toma en cuenta las necesidades y deseos de todos los miembros de la familia y las actividades son apropiadas a la edad. La recreación está equilibrada con el trabajo y con las actividades del hogar; estimula relaciones familiares saludables.",
+          "0": "Se refiere a la familia teniendo algún tiempo de recreación en conjunto. La recreación o el juego pueden estar levemente desequilibrados con el trabajo o los deberes del hogar, pero el desequilibrio no afecta adversamente el cumplimiento de las necesidades familiares básicas, y las relaciones familiares son básicamente saludables.",
+          "-3": "Se refiere a la familia no teniendo momentos de recreación o juego en conjunto, o contando con tiempo para recreación que está totalmente acomodado a las necesidades de los adultos, o que es claramente inapropiado para los niños/as. La recreación o el juego está claramente desequilibrado con el trabajo o los deberes: o bien no hay salidas recreativas, o la recreación se hace a expensas de cumplir con las necesidades familiares básicas."
+        }
+      },
+      {
+        "numero": 8,
+        "nombre": "Interacciones Familiares en general",
+        "rubricas": {
+          "+2": "Se refiere a una familia recibiendo puntajes muy altos en las siguientes áreas: vínculo con el niño(s); comunicación con el niño(s); expectativas sobre el niño(s); apoyo mutuo dentro de la familia; relación entre los progenitores; rutinas y rituales familiares; recreación familiar y actividades lúdicas.",
+          "0": "Se refiere a una familia recibiendo puntajes de “adecuado” en las siguientes áreas: vínculo con el niño(s); comunicación con el niño(s); expectativas sobre el niño(s); apoyo mutuo dentro de la familia; relación entre los progenitores; rutinas y rituales familiares; recreación familiar y actividades lúdicas.",
+          "-3": "Se refiere a una familia recibiendo puntajes muy bajos en las siguientes áreas: vínculo con el niño(s); comunicación con el niño(s); expectativas sobre el niño(s); apoyo mutuo dentro de la familia; relación entre los progenitores; rutinas y rituales familiares; recreación familiar y actividades lúdicas."
+        }
+      }
+    ]
+  }
+}

@@ -42,8 +42,10 @@ from app.api.routes.pmf import (
     pmf_router,
 )
 from app.api.routes.ncfas import (
+    ncfas_comentarios_router,
     ncfas_familiar_router,
     ncfas_item_router,
+    ncfas_items_router,
     ncfas_router,
 )
 from app.api.routes.antecedentes import (
@@ -96,6 +98,8 @@ routers = [
     pmf_questions_router,
     pmf_item_router,
     ncfas_router,
+    ncfas_items_router,
+    ncfas_comentarios_router,
     ncfas_item_router,
     e2p_familiar_router,
     e2p_questions_router,

@@ -59,8 +59,12 @@ from app.schemas.pmf import (
     PMFUpdate,
 )
 from app.schemas.ncfas import (
-    NCFASRead,
+    ComentarioDimensionNCFASCreate,
+    ComentarioDimensionNCFASRead,
+    DimensionNCFASRead,
+    ItemNCFASRead,
     NCFASCreate,
+    NCFASRead,
     NCFASUpdate,
 )
 from app.schemas.antecedentes import (
@@ -154,6 +158,10 @@ __all__ = [
     "NCFASRead",
     "NCFASCreate",
     "NCFASUpdate",
+    "ItemNCFASRead",
+    "DimensionNCFASRead",
+    "ComentarioDimensionNCFASRead",
+    "ComentarioDimensionNCFASCreate",
     "AntecedenteSaludRead",
     "AntecedenteSaludCreate",
     "AntecedenteSaludUpdate",

@@ -254,10 +254,35 @@ export interface NCFASEvaluacion {
   id_ncfas: string;
   id_nna: string;
   id_familiar: string | null;
-  fecha_evaluacion: string | null;
-  fecha_proxima_evaluacion: string | null;
-  resultado: string | null;
-  observacion: string | null;
+  es_reunificacion: boolean;
+  fecha_apertura: string | null;
+  fecha_cierre: string | null;
+  estado: string | null;
+  observacion_general: string | null;
+  respuestas: Record<string, Record<string, string>> | null;
+}
+
+export interface ItemNCFAS {
+  id_item_ncfas: string;
+  letra_dimension: string;
+  nombre_dimension: string;
+  numero_item: number;
+  nombre_item: string;
+  definiciones: Record<string, string> | null;
+  es_item_general: boolean;
+}
+
+export interface DimensionNCFAS {
+  letra: string;
+  nombre: string;
+  items: ItemNCFAS[];
+}
+
+export interface ComentarioNCFAS {
+  id_comentario_ncfas: string;
+  id_ncfas: string;
+  letra_dimension: string;
+  comentario: string;
 }
 
 export type NCFASCreate = Partial<Omit<NCFASEvaluacion, "id_ncfas" | "id_nna">>;
@@ -542,6 +567,13 @@ export const api = {
     get: (id: string) => request<NCFASEvaluacion>(`/ncfas/${id}`),
     update: (id: string, data: NCFASUpdate) =>
       request<NCFASEvaluacion>(`/ncfas/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+    getItems: () => request<DimensionNCFAS[]>(`/ncfas/items`),
+    getComentarios: (idNcfas: string) => request<ComentarioNCFAS[]>(`/ncfas/${idNcfas}/comentarios`),
+    saveComentario: (idNcfas: string, letra: string, comentario: string) =>
+      request<ComentarioNCFAS>(`/ncfas/${idNcfas}/comentarios/${letra}`, {
+        method: "PUT",
+        body: JSON.stringify({ comentario }),
+      }),
   },
 
   // ── Antecedentes ───────────────────────────────────────────────────────────

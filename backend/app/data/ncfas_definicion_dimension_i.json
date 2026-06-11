@@ -1,0 +1,62 @@
+{
+  "dimension": {
+    "letra": "I",
+    "nombre": "Ambivalencia Cuidador - Niño/a",
+    "items": [
+      {
+        "numero": 1,
+        "nombre": "Ambivalencia del Progenitor/Cuidador hacia el Niño/a",
+        "rubricas": {
+          "+2": "El cuidador/a responde apropiadamente al niño o niña, tanto verbal como no-verbalmente. El cuidador es receptivo y responsivo a los servicios diseñados para apoyar la reunificación mediante acercamientos entre el cuidador y el niño o niña; está dispuesto a atender las necesidades del niño/a antes que las propias. El cuidador reconoce y acepta su responsabilidad en el rol de las dificultades familiares que llevaron a la remoción del niño/a del hogar.",
+          "0": "El cuidador/a generalmente responde de forma apropiada al niño o niña, pero puede guardar algún resentimiento, o sentimientos ocasionales de intrusión o demandas excesivas por parte del niño/a. El cuidador acepta alguna responsabilidad por las dificultades familiares que llevaron a la remoción y está haciendo progresos en esta área. En general, tiene sentimientos positivos hacia el niño, pero puede necesitar apoyo continuo o servicios adicionales después de la reunificación.",
+          "-3": "El cuidador/a deliberadamente abusó/ejerció negligencia hacia el niño o niña en el pasado; expresa desafecto por el niño/a; asocia sentimientos negativos hacia el niño/a con sentimientos negativos hacia el otro cuidador del niño; pidió originalmente la salida del niño/a del hogar. El cuidador declara no entender al niño o niña, falla en responderle apropiadamente o responde muy inadecuadamente; expresa desilusión sobre el niño/a, siente rabia o un sentimiento de violencia hacia el niño/a, y/o resiente la interferencia del niño/a con su propia vida. El cuidador culpa al niño/a por las dificultades familiares que llevaron a la remoción; el cuidador ha rehusado responder a los servicios dirigidos a lograr la reunificación."
+        }
+      },
+      {
+        "numero": 2,
+        "nombre": "Ambivalencia del Niño/a hacia el Progenitor/Cuidador",
+        "rubricas": {
+          "+2": "El niño/a está muy cómodo en presencia del cuidador/a; expresa amor por él/ella. El niño/a responde apropiadamente al afecto del cuidador, a sus expresiones de amor y al ejercicio de sus responsabilidades parentales (como fijar límites, disciplina). Según sea apropiado a su edad, el niño/a exhibe un deseo de vivir con el cuidador/a; reconoce y acepta cualquier responsabilidad que haya tenido en las dificultades familiares que llevaron a la remoción; ha respondido y se ha involucrado en los servicios dirigidos a lograr la reunificación.",
+          "0": "El niño/a está generalmente cómodo en presencia del cuidador, pero puede responder temerosamente o alejarse si él/ella se enoja o si surgen tensiones familiares. Generalmente, responde en forma apropiada a su afecto, pero puede resistir la puesta de límites o la disciplina parental. No siempre reconoce la autoridad o responsabilidad del cuidador/a. El niño declara un deseo de estar con él/ella, pero expresa algunas reservas respecto al deseo recíproco del cuidador/a. El niño/a está algo conflictuado por el deseo de retornar a casa, dejando atrás los sentimientos de seguridad o comodidad logrados durante el período de cuidados substitutos.",
+          "-3": "El niño/a está temeroso del cuidador/a. El niño/a experimentó serio daño físico o emocional antes de la remoción y sostiene la responsabilidad del cuidador (verbal o conductualmente) por ello. Según lo apropiado a su edad, el niño/a expresa verbal o de otra forma, miedo, desconfianza, enojo o sentimientos de violencia hacia el cuidador o cuidadora, siente que la disciplina parental es muy estricta, se siente avergonzado/a del cuidador/a; declara que no se quedará con el cuidador/a para resolver los problemas que puedan surgir en el futuro."
+        }
+      },
+      {
+        "numero": 3,
+        "nombre": "Ambivalencia mostrada por el Proveedor de Cuidados Substitutos",
+        "rubricas": {
+          "+2": "El proveedor de cuidados substitutos siempre ha esperado que ocurra la reunificación; apoya filosóficamente la reunificación; está dispuesto a trabajar con y/o ser un recurso para el cuidador/a, para lograr una reunificación exitosa.",
+          "0": "El proveedor de cuidados substitutos entiende la política de reunificación, pero se ha apegado al niño/a y está experimentando sentimientos de separación/pérdida. Según lo apropiado para su edad, el niño/a siente y se comporta con reciprocidad. El proveedor de cuidados substitutos expresa algunas reservas sobre la habilidad de los cuidadores para cuidar adecuadamente al niño/a, pero está dispuesto a dar al cuidador/a una oportunidad justa de reasumir su rol parental.",
+          "-3": "El proveedor de cuidados substitutos se opone a la reunificación; amenaza o ha tomado acciones legales para bloquear la reunificación; visualiza fuertemente al cuidador como carente o no merecedor del regreso del niño/a; ha entregado/estimulado un entorno socio-económico diferente (p.ej., comida, vestuario, juguetes, recreación) para el niño/a, y usa esa diferencia para sabotear los esfuerzos de reunificación. El proveedor de cuidados substitutos ha denigrado al cuidador/a frente al niño/a, expresando activamente su visión de la incapacidad del cuidador para retomar su rol parental."
+        }
+      },
+      {
+        "numero": 4,
+        "nombre": "Apego Interrumpido",
+        "rubricas": {
+          "+2": "Tanto el cuidador/a como el niño/a hace tiempo retomaron su relación familiar íntima. Según lo apropiado para su edad, cada uno reconoce las fortalezas y limitaciones del otro, y está dispuesto/ansioso por retomar la relación acomodándose a las limitaciones.",
+          "0": "El niño/a, y/o el cuidador/a reconoce que la separación ha sido dolorosa y ha trabajado/está trabajando para reparar la relación. La reparación relacional incluye consejería u otro tratamiento respecto al desarrollo y expectativas adecuadas para la edad, para lograr la re-conexión entre el niño/a y el cuidador/a.",
+          "-3": "El niño/a, el cuidador/a o ambos, expresan marcados sentimientos de pérdida de apego hacia el otro. El período de separación ha sido muy extenso, y/o el niño fue removido a una edad muy temprana y se ha desarrollado/crecido/vinculado en relación con otras personas en vez del cuidador/a. El niño o niña está en una etapa del desarrollo marcadamente diferente (particularmente niños de más edad) que cuando ocurrió la separación del cuidador. El cuidador/a puede haber tenido otro niño/a, o unido a otra familia, y ha transferido su afecto/atención a otras personas."
+        }
+      },
+      {
+        "numero": 5,
+        "nombre": "Visitas Domiciliarias Pre-Reunificación",
+        "rubricas": {
+          "+2": "Tanto el cuidador/a como el niño/a (según lo apropiado para su edad) muestran una anticipación positiva de las visitas domiciliarias. El cuidador planifica actividades o un tiempo especial junto al niño/a, y ejecuta esos planes. Las visitas domiciliarias han progresado bien, en términos de un incremento en la frecuencia y duración y una disminución de la supervisión necesaria. Las visitas son libres de incidentes o dificultades; el niño/a y el cuidador/a expresan tristeza/pena de que el período de la visita termine.",
+          "0": "El cuidador/a y el niño/a (según lo apropiado a su edad) están trabajando temas y restableciendo roles durante las visitas domiciliarias. Pueden surgir algunos incidentes menores, pero el cuidador/a los discute con el proveedor de servicios y los usa como una oportunidad para aprender más y prepararse para la siguiente visita. El niño/a y/o el cuidador terminan las visitas con reservas menores acerca de una reunificación de largo plazo, pero continúan trabajando para resolver las diferencias o temas pendientes.",
+          "-3": "El cuidador/a no ha participado satisfactoriamente en las visitas domiciliarias programadas; ha perdido visitas, ha fallado en supervisar adecuadamente al niño/a durante las visitas; ha solicitado el término anticipado de las visitas, ha permitido que temas familiares escalen hasta incidentes de alta tensión o incluso se sospecha de abuso/negligencia hacia el niño. El niño/a ha solicitado una terminación anticipada de las visitas, ha rehusado estar con el cuidador o ha reportado maltrato (probado o no) a manos del cuidador/a durante las visitas."
+        }
+      },
+      {
+        "numero": 6,
+        "nombre": "Ambivalencia Cuidador - Niño/a en general",
+        "rubricas": {
+          "+2": "Tanto el niño/a como el cuidador/a están ansiosos por reunificarse, evidenciándose en expresiones verbales como conductuales el deseo de estar juntos. La familia recibe de leve a claros puntajes de fortaleza en los ítems de este dominio: Ambivalencia del Progenitor/Cuidador hacia el Niño/a; Ambivalencia del Niño hacia el Progenitor/Cuidador; Ambivalencia mostrada por el Proveedor de Cuidados Substitutos; Apego Interrumpido; Visitas Domiciliarias Pre-Reunificación.",
+          "0": "Tanto el niño/a como el cuidador/a dicen que quieren estar juntos; uno o ambos pueden estar aprehensivos o nerviosos sobre reunificarse, pero se determina que esta aprehensión corresponde a una inseguridad acerca de la “capacidad para”, más que a una competencia por afecto, una inhabilidad significativa para criar, o temas significativos no resueltos del tratamiento. Pueden existir algunos problemas leves en los ítems de este dominio, pero la familia está trabajando para resolverlos.",
+          "-3": "El niño/a y/o el cuidador/a expresan serias reservas acerca de estar juntos, tanto por miedo a daños futuros, afectos fuertemente negativos de una o ambas partes hacia el otro, historia previa de retirada de este u otro niño(s) y/o esfuerzos fallidos previos de reunificación. Hay puntajes generalmente problemáticos o algunos fuertemente negativos en los ítems de este dominio: Ambivalencia del Progenitor/Cuidador hacia el Niño/a; Ambivalencia del Niño hacia el Progenitor/Cuidador; Ambivalencia mostrada por el Proveedor de Cuidados Substitutos; Apego Interrumpido; Visitas Domiciliarias Pre-Reunificación."
+        }
+      }
+    ]
+  }
+}
