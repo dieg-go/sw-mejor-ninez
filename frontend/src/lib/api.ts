@@ -226,10 +226,10 @@ export interface E2PEvaluacion {
   id_nna: string;
   id_familiar: string | null;
   fecha_evaluacion: string | null;
-  fecha_proxima_evaluacion: string | null;
-  version: number | null;
+  edad_meses_evaluacion: number | null;
+  rango_etario: string | null;
   respuestas: Record<string, number> | null;
-  resultado: string | null;
+  perfil_resultado_global: string | null;
   observacion: string | null;
 }
 
@@ -335,19 +335,19 @@ export type VinculoFamiliarUpdate = Partial<Omit<VinculoFamiliar, "id_vinculo_fa
 export interface E2PQuestions {
   edad: string;
   escala: Record<string, string>;
-  preguntas: { id: number; texto: string; categoria: string }[];
+  preguntas: { id: number; texto: string; dimension: string; subdimension?: string | null }[];
 }
 
 export interface E2PPuntaje {
-  version: number;
+  rango_etario: string;
   edad: string;
   escala: Record<string, string>;
   categorias: {
-    categoria: string;
+    dimension: string;
     puntaje_bruto: number;
     puntaje_max: number;
-    zona: string;
-    rango_zona: string;
+    decil: number | null;
+    zona: string | null;
   }[];
   respuestas: Record<string, number>;
 }
@@ -531,7 +531,7 @@ export const api = {
   // ── Instrumentos ───────────────────────────────────────────────────────────
 
   e2p: {
-    getQuestions: (version: number) => request<E2PQuestions>(`/e2p/versions/${version}`),
+    getQuestions: (rango: string) => request<E2PQuestions>(`/e2p/versions/${rango}`),
     listByNna: (idNna: string) => request<E2PEvaluacion[]>(`/nna/${idNna}/e2p`),
     listByFamiliar: (idFamiliar: string) => request<E2PEvaluacion[]>(`/familiares/${idFamiliar}/e2p`),
     createByNna: (idNna: string, data: E2PCreate) =>

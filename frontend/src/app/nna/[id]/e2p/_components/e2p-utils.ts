@@ -6,15 +6,15 @@ export const LIKERT_OPTIONS = [
   { value: 4, label: "Siempre" },
 ];
 
-export const VERSION_MONTHS: [number, number][] = [
-  [0, 3],
-  [4, 10],
-  [11, 18],
-  [19, 36],
-  [37, 60],
-  [61, 84],
-  [85, 144],
-  [145, 204],
+export const RANGOS_ETARIOS: { rango: string; minMeses: number; maxMeses: number }[] = [
+  { rango: "0-3_meses",   minMeses: 0,   maxMeses: 3 },
+  { rango: "4-10_meses",  minMeses: 4,   maxMeses: 10 },
+  { rango: "11-18_meses", minMeses: 11,  maxMeses: 18 },
+  { rango: "19-36_meses", minMeses: 19,  maxMeses: 36 },
+  { rango: "3-5_anos",    minMeses: 37,  maxMeses: 60 },
+  { rango: "6-7_anos",    minMeses: 61,  maxMeses: 84 },
+  { rango: "8-12_anos",   minMeses: 85,  maxMeses: 144 },
+  { rango: "13-17_anos",  minMeses: 145, maxMeses: 204 },
 ];
 
 export const CATEGORY_COLORS: Record<string, string> = {
@@ -25,9 +25,9 @@ export const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export const ZONE_COLORS: Record<string, string> = {
-  Baja: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300",
-  Intermedia: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
-  Alta: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300",
+  "Baja frecuencia": "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300",
+  "Frecuencia intermedia": "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
+  "Alta frecuencia": "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300",
 };
 
 export const RESULTADO_STYLES: Record<string, string> = {
@@ -36,21 +36,35 @@ export const RESULTADO_STYLES: Record<string, string> = {
   Optimo: "bg-green-100 text-green-800 border-green-300 dark:bg-green-950 dark:text-green-300 dark:border-green-800",
 };
 
-export function ageToVersion(fechaNacimiento: string | null, evalDate: Date): number | null {
+export function ageToRangoEtario(fechaNacimiento: string | null, evalDate: Date): string | null {
   if (!fechaNacimiento) return null;
   const birth = new Date(fechaNacimiento + "T00:00:00");
   const months = (evalDate.getFullYear() - birth.getFullYear()) * 12 + (evalDate.getMonth() - birth.getMonth());
-  for (let v = 0; v < VERSION_MONTHS.length; v++) {
-    const [lo, hi] = VERSION_MONTHS[v];
-    if (months >= lo && months <= hi) return v + 1;
+  for (const r of RANGOS_ETARIOS) {
+    if (months >= r.minMeses && months <= r.maxMeses) return r.rango;
   }
-  if (months < 0) return 1;
-  return 8;
+  if (months < 0) return RANGOS_ETARIOS[0].rango;
+  return RANGOS_ETARIOS[RANGOS_ETARIOS.length - 1].rango;
 }
 
 export function formatDate(iso: string | null) {
   if (!iso) return "—";
   return new Date(iso + "T00:00:00").toLocaleDateString("es-CL");
+}
+
+const RANGO_LABELS: Record<string, string> = {
+  "0-3_meses": "0 a 3 meses",
+  "4-10_meses": "4 a 10 meses",
+  "11-18_meses": "11 a 18 meses",
+  "19-36_meses": "19 a 36 meses",
+  "3-5_anos": "3 a 5 años",
+  "6-7_anos": "6 a 7 años",
+  "8-12_anos": "8 a 12 años",
+  "13-17_anos": "13 a 17 años",
+};
+
+export function formatRangoEtario(rango: string) {
+  return RANGO_LABELS[rango] ?? rango;
 }
 
 export function getLikertLabel(value: number) {

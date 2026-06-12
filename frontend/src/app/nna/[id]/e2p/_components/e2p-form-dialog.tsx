@@ -12,7 +12,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ageToVersion, ZONE_COLORS } from "./e2p-utils";
+import { ageToRangoEtario, ZONE_COLORS } from "./e2p-utils";
 import { E2PQuestionnaire } from "./e2p-questionnaire";
 
 interface E2PFormDialogProps {
@@ -43,31 +43,25 @@ export function E2PFormDialog({
   const [fechaEval, setFechaEval] = useState<Date | undefined>(
     initialData?.fecha_evaluacion ? new Date(initialData.fecha_evaluacion + "T00:00:00") : undefined
   );
-  const [fechaProx, setFechaProx] = useState<Date | undefined>(
-    initialData?.fecha_proxima_evaluacion ? new Date(initialData.fecha_proxima_evaluacion + "T00:00:00") : undefined
-  );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const initialVersion = mode === "create"
-    ? ageToVersion(nna.fecha_nacimiento, new Date())
-    : (initialData?.version ?? null);
+  const initialRango = mode === "create"
+    ? ageToRangoEtario(nna.fecha_nacimiento, new Date())
+    : (initialData?.rango_etario ?? null);
 
-  const [version, setVersion] = useState<number | null>(initialVersion);
+  const rangoEtario = initialRango;
   const [questions, setQuestions] = useState<E2PQuestions | null>(null);
   const [answers, setAnswers] = useState<Record<string, number>>(initialData?.respuestas || {});
   const [questionsLoading, setQuestionsLoading] = useState(true);
 
   useEffect(() => {
-    const ver = mode === "create"
-      ? ageToVersion(nna.fecha_nacimiento, new Date())
-      : (initialData?.version ?? null);
-    if (!ver) {
+    if (!initialRango) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setQuestionsLoading(false);
       return;
     }
-    api.e2p.getQuestions(ver)
+    api.e2p.getQuestions(initialRango)
       .then(setQuestions)
       .catch(() => { setQuestions(null); setError("Error al cargar preguntas"); })
       .finally(() => setQuestionsLoading(false));
@@ -84,9 +78,12 @@ export function E2PFormDialog({
     if (observacion) p.observacion = observacion;
     if (fechaEval) p.fecha_evaluacion = fechaEval.toISOString().split("T")[0];
     else if (mode === "edit") p.fecha_evaluacion = null;
-    if (fechaProx) p.fecha_proxima_evaluacion = fechaProx.toISOString().split("T")[0];
-    else if (mode === "edit") p.fecha_proxima_evaluacion = null;
-    if (version) p.version = version;
+    if (rangoEtario) p.rango_etario = rangoEtario;
+    if (fechaEval && nna.fecha_nacimiento) {
+      const birth = new Date(nna.fecha_nacimiento + "T00:00:00");
+      const months = (fechaEval.getFullYear() - birth.getFullYear()) * 12 + (fechaEval.getMonth() - birth.getMonth());
+      p.edad_meses_evaluacion = months;
+    }
     if (mode === "edit") {
       p.respuestas = Object.keys(answers).length > 0 ? answers : null;
     } else {
@@ -97,7 +94,7 @@ export function E2PFormDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!version) { setError("No se pudo determinar la versión"); return; }
+    if (!rangoEtario) { setError("No se pudo determinar el rango etario"); return; }
     setError(null);
     setSaving(true);
     try {
@@ -118,23 +115,24 @@ export function E2PFormDialog({
   };
 
   const puntajeResumen = useMemo(() => {
-    if (existingPuntaje) return existingPuntaje.categorias;
-    if (!questions || Object.keys(answers).length === 0) return null;
-    const cats: Record<string, { total: number; count: number }> = {};
-    for (const q of questions.preguntas) {
-      const val = answers[String(q.id)];
-      if (val === undefined) continue;
-      const entry = cats[q.categoria] ?? (cats[q.categoria] = { total: 0, count: 0 });
-      entry.total += val;
-      entry.count += 1;
+    if (questions && Object.keys(answers).length > 0) {
+      const dims: Record<string, { bruto: number; max: number }> = {};
+      for (const q of questions.preguntas) {
+        const entry = dims[q.dimension] ?? (dims[q.dimension] = { bruto: 0, max: 0 });
+        entry.max += 4;
+        const val = answers[String(q.id)];
+        if (val !== undefined) entry.bruto += val;
+      }
+      return Object.entries(dims).map(([dimension, { bruto, max }]) => ({
+        dimension,
+        puntaje_bruto: bruto,
+        puntaje_max: max,
+        decil: null as number | null,
+        zona: "—" as const,
+      })).filter((c) => c.puntaje_bruto > 0);
     }
-    return Object.entries(cats).map(([categoria, { total, count }]) => ({
-      categoria,
-      puntaje_bruto: total,
-      puntaje_max: count * 4,
-      zona: "—" as const,
-      rango_zona: "",
-    }));
+    if (existingPuntaje) return existingPuntaje.categorias;
+    return null;
   }, [existingPuntaje, questions, answers]);
 
   const familiarOptions = mode === "create" ? vinculados : familiares;
@@ -178,26 +176,13 @@ export function E2PFormDialog({
                 </PopoverContent>
               </Popover>
             </div>
-            <div>
-              <Label className="text-xs">Próxima evaluación</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className={cn("w-full justify-start text-left font-normal mt-1", !fechaProx && "text-muted-foreground")}>
-                    <CalendarIcon />{fechaProx ? fechaProx.toLocaleDateString("es-CL") : "Seleccionar"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar mode="single" selected={fechaProx} onSelect={setFechaProx} />
-                </PopoverContent>
-              </Popover>
-            </div>
           </div>
 
           {puntajeResumen && (
             <div className="flex flex-wrap gap-1.5">
               {puntajeResumen.map((c) => (
-                <span key={c.categoria} className={cn("inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium", ZONE_COLORS[c.zona] || "bg-muted")}>
-                  {c.categoria} <span className="opacity-70">{c.puntaje_bruto}/{c.puntaje_max}</span>
+                <span key={c.dimension} className={cn("inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium", ZONE_COLORS[c.zona ?? ""] || "bg-muted")}>
+                  {c.dimension} <span className="opacity-70">{c.puntaje_bruto}/{c.puntaje_max}</span>
                 </span>
               ))}
             </div>

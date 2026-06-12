@@ -23,7 +23,7 @@ export function E2PQuestionnaire({ questions, answers, onChange, disabled }: E2P
   const grouped = useMemo(() => {
     const cats: Record<string, typeof questions.preguntas> = {};
     for (const q of questions.preguntas) {
-      (cats[q.categoria] ??= []).push(q);
+      (cats[q.dimension] ??= []).push(q);
     }
     return Object.entries(cats);
   }, [questions]);

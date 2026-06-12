@@ -61,32 +61,32 @@ async def seed_e2p_static(session):
         escala_data = json.load(f)
 
     preguntas_rows = []
-    for version_str, version_info in questions_data["versiones"].items():
-        version = int(version_str)
-        for q in version_info["preguntas"]:
+    for rango_etario, rango_info in questions_data["rangos_etarios"].items():
+        for q in rango_info["preguntas"]:
             preguntas_rows.append(
                 PreguntaE2P(
-                    version=version,
-                    numero=q["id"],
-                    texto=q["texto"],
-                    categoria=q["categoria"],
+                    rango_etario=rango_etario,
+                    numero_item=q["numero_item"],
+                    texto_afirmacion=q["texto_afirmacion"],
+                    dimension=q["dimension"],
+                    subdimension=q.get("subdimension"),
                 )
             )
 
     session.add_all(preguntas_rows)
 
     baremo_rows = []
-    for escala_key, categorias in escala_data["escalas_e2p"].items():
-        version = _escala_key_to_version(escala_key)
-        for cat_name, zonas in categorias.items():
-            for zona in zonas:
+    for rango_etario, dimensiones in escala_data["escalas_e2p"].items():
+        for dimension, baremos in dimensiones.items():
+            for b in baremos:
                 baremo_rows.append(
                     BaremoE2P(
-                        version=version,
-                        categoria=cat_name.capitalize(),
-                        zona=zona["zona"],
-                        puntaje_min=zona["min"],
-                        puntaje_max=zona["max"],
+                        rango_etario=rango_etario,
+                        dimension=dimension,
+                        decil=b["decil"],
+                        zona=b["zona"],
+                        puntaje_min=b["puntaje_min"],
+                        puntaje_max=b["puntaje_max"],
                     )
                 )
 
@@ -151,21 +151,6 @@ async def seed_ncfas_items(session):
     await session.commit()
     print(f"Static NCFAS items seeded: {len(rows)} items across {len(dimension_files)} dimensions.")
 
-
-_ESCALA_KEY_MAP = {
-    "v_0_3_meses": 1,
-    "v_4_10_meses": 2,
-    "v_11_18_meses": 3,
-    "v_19_36_meses": 4,
-    "v_3_5_anos": 5,
-    "v_6_7_anos": 6,
-    "v_8_12_anos": 7,
-    "v_13_17_anos": 8,
-}
-
-
-def _escala_key_to_version(key: str) -> int:
-    return _ESCALA_KEY_MAP.get(key, 0)
 
 
 async def seed_admin_user(session):
@@ -362,9 +347,9 @@ async def seed():
                 id_nna=ana.id_nna,
                 id_familiar=madre_ana.id_familiar,
                 fecha_evaluacion=fecha_hace(30),
-                fecha_proxima_evaluacion=fecha_hace(-30),
-                version=4,
-                resultado="Fortalecimiento en curso",
+                edad_meses_evaluacion=30,
+                rango_etario="19-36_meses",
+                perfil_resultado_global="Monitoreo",
                 observacion="Se observa mejora en vínculo materno-filial.",
             ),
             PMF(
@@ -586,9 +571,9 @@ async def seed():
             id_nna=maria.id_nna,
             id_familiar=abuela_maria.id_familiar,
             fecha_evaluacion=fecha_hace(45),
-            fecha_proxima_evaluacion=fecha_hace(-30),
-            version=1,
-            resultado="Positivo",
+            edad_meses_evaluacion=2,
+            rango_etario="0-3_meses",
+            perfil_resultado_global="Optimo",
             observacion="Abuela muestra buen manejo de la discapacidad de la NNA.",
         ))
 

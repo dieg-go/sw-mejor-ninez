@@ -25,7 +25,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -80,10 +79,8 @@ export default function IngresoPage({ params }: { params: Promise<{ id: string }
   const [editError, setEditError] = useState<string | null>(null);
 
   // Causales/Derechos per ingreso
-  const [expandedIngreso, setExpandedIngreso] = useState<string | null>(null);
-  const [causales, setCausales] = useState<CausalIngreso[]>([]);
-  const [derechos, setDerechos] = useState<DerechoVulnerado[]>([]);
-  const [subLoading, setSubLoading] = useState(false);
+  const [causalesMap, setCausalesMap] = useState<Record<string, CausalIngreso[]>>({});
+  const [derechosMap, setDerechosMap] = useState<Record<string, DerechoVulnerado[]>>({});
 
   // Causal create
   const [causalForm, setCausalForm] = useState({ nombre_causal: "", descripcion_detallada: "", estado: "Activo" });
@@ -104,6 +101,19 @@ export default function IngresoPage({ params }: { params: Promise<{ id: string }
         setNna(nnaData);
         setIngresos(list);
         setSolicitantes(sols);
+
+        const cm: Record<string, CausalIngreso[]> = {};
+        const dm: Record<string, DerechoVulnerado[]> = {};
+        await Promise.all(list.map(async (ingreso) => {
+          const [c, d] = await Promise.all([
+            api.causalIngreso.list(ingreso.id_antecedente_ingreso).catch(() => [] as CausalIngreso[]),
+            api.derechoVulnerado.list(ingreso.id_antecedente_ingreso).catch(() => [] as DerechoVulnerado[]),
+          ]);
+          cm[ingreso.id_antecedente_ingreso] = c;
+          dm[ingreso.id_antecedente_ingreso] = d;
+        }));
+        setCausalesMap(cm);
+        setDerechosMap(dm);
       } catch (e: any) {
         setError(e.message);
       } finally {
@@ -111,24 +121,6 @@ export default function IngresoPage({ params }: { params: Promise<{ id: string }
       }
     })();
   }, [id]);
-
-  const loadSubs = async (idIngreso: string) => {
-    setExpandedIngreso(idIngreso);
-    setSubLoading(true);
-    try {
-      const [c, d] = await Promise.all([
-        api.causalIngreso.list(idIngreso),
-        api.derechoVulnerado.list(idIngreso),
-      ]);
-      setCausales(c);
-      setDerechos(d);
-    } catch {
-      setCausales([]);
-      setDerechos([]);
-    } finally {
-      setSubLoading(false);
-    }
-  };
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -197,30 +189,34 @@ export default function IngresoPage({ params }: { params: Promise<{ id: string }
     }
   };
 
-  const createCausal = async () => {
-    if (!expandedIngreso) return;
+  const createCausal = async (idIngreso: string) => {
     setCausalSaving(true);
     try {
       const payload: any = {};
       if (causalForm.nombre_causal) payload.nombre_causal = causalForm.nombre_causal;
       if (causalForm.descripcion_detallada) payload.descripcion_detallada = causalForm.descripcion_detallada;
       if (causalForm.estado) payload.estado = causalForm.estado;
-      const created = await api.causalIngreso.create(expandedIngreso, payload);
-      setCausales((prev) => [...prev, created]);
+      const created = await api.causalIngreso.create(idIngreso, payload);
+      setCausalesMap((prev) => ({
+        ...prev,
+        [idIngreso]: [...(prev[idIngreso] || []), created],
+      }));
       setCausalForm({ nombre_causal: "", descripcion_detallada: "", estado: "Activo" });
     } catch {}
     finally { setCausalSaving(false); }
   };
 
-  const createDerecho = async () => {
-    if (!expandedIngreso) return;
+  const createDerecho = async (idIngreso: string) => {
     setDerechoSaving(true);
     try {
       const payload: any = {};
       if (derechoForm.nombre_derecho) payload.nombre_derecho = derechoForm.nombre_derecho;
       if (derechoForm.estado) payload.estado = derechoForm.estado;
-      const created = await api.derechoVulnerado.create(expandedIngreso, payload);
-      setDerechos((prev) => [...prev, created]);
+      const created = await api.derechoVulnerado.create(idIngreso, payload);
+      setDerechosMap((prev) => ({
+        ...prev,
+        [idIngreso]: [...(prev[idIngreso] || []), created],
+      }));
       setDerechoForm({ nombre_derecho: "", estado: "Activo" });
     } catch {}
     finally { setDerechoSaving(false); }
@@ -484,98 +480,84 @@ export default function IngresoPage({ params }: { params: Promise<{ id: string }
                     </div>
 
                     {/* Causales & Derechos */}
-                    <div className="mt-3 border-t pt-3">
-                      {expandedIngreso === ingreso.id_antecedente_ingreso ? (
-                        subLoading ? (
-                          <Spinner className="size-4" />
+                    <div className="mt-3 border-t pt-3 space-y-4">
+                      <div>
+                        <h4 className="text-xs font-semibold text-muted-foreground mb-2">Causales de Ingreso</h4>
+                        {(causalesMap[ingreso.id_antecedente_ingreso] || []).length === 0 ? (
+                          <p className="text-xs text-muted-foreground">Sin causales registradas.</p>
                         ) : (
-                          <div className="space-y-4">
-                            <div>
-                              <h4 className="text-xs font-semibold text-muted-foreground mb-2">Causales de Ingreso</h4>
-                              {causales.length === 0 ? (
-                                <p className="text-xs text-muted-foreground">Sin causales registradas.</p>
-                              ) : (
-                                <ul className="space-y-1 mb-2">
-                                  {causales.map((c) => (
-                                    <li key={c.id_registro_causales} className="text-sm flex items-center gap-2">
-                                      <span>{c.nombre_causal || "—"}</span>
-                                      <Badge variant="outline" className="text-xs">{c.estado || "—"}</Badge>
-                                    </li>
-                                  ))}
-                                </ul>
-                              )}
-                              <div className="flex items-center gap-2 mt-2">
-                                <Select value={causalForm.nombre_causal || "none"} onValueChange={(v) => setCausalForm((prev) => ({ ...prev, nombre_causal: v === "none" ? "" : v }))}>
-                                  <SelectTrigger className="h-7 text-xs w-44">
-                                    <SelectValue placeholder="Nombre causal" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="none">Ninguna</SelectItem>
-                                    {CATALOGO_CAUSALES.map((causal) => (
-                                      <SelectItem key={causal} value={causal}>{causal}</SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <Select value={causalForm.estado} onValueChange={(v) => setCausalForm((prev) => ({ ...prev, estado: v }))}>
-                                  <SelectTrigger className="h-7 text-xs w-28">
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="Activo">Activo</SelectItem>
-                                    <SelectItem value="Inactivo">Inactivo</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                <Button size="sm" className="h-7 text-xs" onClick={createCausal} disabled={causalSaving}>+</Button>
-                              </div>
-                            </div>
+                          <ul className="space-y-1 mb-2">
+                            {(causalesMap[ingreso.id_antecedente_ingreso] || []).map((c) => (
+                              <li key={c.id_registro_causales} className="text-sm flex items-center gap-2">
+                                <span>{c.nombre_causal || "—"}</span>
+                                <Badge variant="outline" className="text-xs">{c.estado || "—"}</Badge>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                        <div className="flex items-center gap-2 mt-2">
+                          <Select value={causalForm.nombre_causal || "none"} onValueChange={(v) => setCausalForm((prev) => ({ ...prev, nombre_causal: v === "none" ? "" : v }))}>
+                            <SelectTrigger className="h-7 text-xs w-44">
+                              <SelectValue placeholder="Nombre causal" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="none">Ninguna</SelectItem>
+                              {CATALOGO_CAUSALES.map((causal) => (
+                                <SelectItem key={causal} value={causal}>{causal}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Select value={causalForm.estado} onValueChange={(v) => setCausalForm((prev) => ({ ...prev, estado: v }))}>
+                            <SelectTrigger className="h-7 text-xs w-28">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Activo">Activo</SelectItem>
+                              <SelectItem value="Inactivo">Inactivo</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <Button size="sm" className="h-7 text-xs" onClick={() => createCausal(ingreso.id_antecedente_ingreso)} disabled={causalSaving}>+</Button>
+                        </div>
+                      </div>
 
-                            <div>
-                              <h4 className="text-xs font-semibold text-muted-foreground mb-2">Derechos Vulnerados</h4>
-                              {derechos.length === 0 ? (
-                                <p className="text-xs text-muted-foreground">Sin derechos registrados.</p>
-                              ) : (
-                                <ul className="space-y-1 mb-2">
-                                  {derechos.map((d) => (
-                                    <li key={d.id_registro_derecho_vulnerado} className="text-sm flex items-center gap-2">
-                                      <span>{d.nombre_derecho || "—"}</span>
-                                      <Badge variant="outline" className="text-xs">{d.estado || "—"}</Badge>
-                                    </li>
-                                  ))}
-                                </ul>
-                              )}
-                              <div className="flex items-center gap-2 mt-2">
-                                <Select value={derechoForm.nombre_derecho || "none"} onValueChange={(v) => setDerechoForm((prev) => ({ ...prev, nombre_derecho: v === "none" ? "" : v }))}>
-                                  <SelectTrigger className="h-7 text-xs w-44">
-                                    <SelectValue placeholder="Nombre derecho" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="none">Ninguno</SelectItem>
-                                    {CATALOGO_DERECHOS.map((derecho) => (
-                                      <SelectItem key={derecho} value={derecho}>{derecho}</SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <Select value={derechoForm.estado} onValueChange={(v) => setDerechoForm((prev) => ({ ...prev, estado: v }))}>
-                                  <SelectTrigger className="h-7 text-xs w-28">
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="Activo">Activo</SelectItem>
-                                    <SelectItem value="Inactivo">Inactivo</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                <Button size="sm" className="h-7 text-xs" onClick={createDerecho} disabled={derechoSaving}>+</Button>
-                              </div>
-                            </div>
-
-                            <Button variant="ghost" size="sm" onClick={() => setExpandedIngreso(null)}>Ocultar</Button>
-                          </div>
-                        )
-                      ) : (
-                        <Button variant="ghost" size="sm" onClick={() => loadSubs(ingreso.id_antecedente_ingreso)}>
-                          Causales & Derechos
-                        </Button>
-                      )}
+                      <div>
+                        <h4 className="text-xs font-semibold text-muted-foreground mb-2">Derechos Vulnerados</h4>
+                        {(derechosMap[ingreso.id_antecedente_ingreso] || []).length === 0 ? (
+                          <p className="text-xs text-muted-foreground">Sin derechos registrados.</p>
+                        ) : (
+                          <ul className="space-y-1 mb-2">
+                            {(derechosMap[ingreso.id_antecedente_ingreso] || []).map((d) => (
+                              <li key={d.id_registro_derecho_vulnerado} className="text-sm flex items-center gap-2">
+                                <span>{d.nombre_derecho || "—"}</span>
+                                <Badge variant="outline" className="text-xs">{d.estado || "—"}</Badge>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                        <div className="flex items-center gap-2 mt-2">
+                          <Select value={derechoForm.nombre_derecho || "none"} onValueChange={(v) => setDerechoForm((prev) => ({ ...prev, nombre_derecho: v === "none" ? "" : v }))}>
+                            <SelectTrigger className="h-7 text-xs w-44">
+                              <SelectValue placeholder="Nombre derecho" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="none">Ninguno</SelectItem>
+                              {CATALOGO_DERECHOS.map((derecho) => (
+                                <SelectItem key={derecho} value={derecho}>{derecho}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Select value={derechoForm.estado} onValueChange={(v) => setDerechoForm((prev) => ({ ...prev, estado: v }))}>
+                            <SelectTrigger className="h-7 text-xs w-28">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Activo">Activo</SelectItem>
+                              <SelectItem value="Inactivo">Inactivo</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <Button size="sm" className="h-7 text-xs" onClick={() => createDerecho(ingreso.id_antecedente_ingreso)} disabled={derechoSaving}>+</Button>
+                        </div>
+                      </div>
                     </div>
                   </>
                 )}

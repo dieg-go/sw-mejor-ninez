@@ -21,9 +21,9 @@ class E2P(SQLModel, table=True):
         foreign_key="Familiar.id_familiar", sa_type=UUID(as_uuid=True)
     )
     fecha_evaluacion: Optional[date] = None
-    fecha_proxima_evaluacion: Optional[date] = None
-    version: int = Field()
-    resultado: Optional[str] = None
+    edad_meses_evaluacion: int = Field()
+    rango_etario: str = Field()
+    perfil_resultado_global: Optional[str] = None
     observacion: Optional[str] = None
 
     nna: "NNA" = Relationship(
@@ -44,10 +44,11 @@ class PreguntaE2P(SQLModel, table=True):
     id_pregunta_e2p: uuid.UUID = Field(
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
     )
-    version: int = Field()
-    numero: int = Field()
-    texto: str = Field()
-    categoria: str = Field()
+    rango_etario: str = Field()
+    numero_item: int = Field()
+    texto_afirmacion: str = Field()
+    dimension: str = Field()
+    subdimension: Optional[str] = None
 
     respuestas: list["RespuestaE2P"] = Relationship(back_populates="pregunta")
 
@@ -58,13 +59,14 @@ class RespuestaE2P(SQLModel, table=True):
     id_respuesta_e2p: uuid.UUID = Field(
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
     )
-    id_instrumento: uuid.UUID = Field(
+    id_e2p: uuid.UUID = Field(
         foreign_key="E2P.id_e2p", sa_type=UUID(as_uuid=True)
     )
     id_pregunta_e2p: uuid.UUID = Field(
         foreign_key="PreguntaE2P.id_pregunta_e2p", sa_type=UUID(as_uuid=True)
     )
-    valor: int = Field()
+    valor_seleccionado: int = Field()
+    puntaje_calculado: int = Field()
 
     evaluacion: "E2P" = Relationship(back_populates="respuestas_list")
     pregunta: "PreguntaE2P" = Relationship(back_populates="respuestas")
@@ -76,8 +78,9 @@ class BaremoE2P(SQLModel, table=True):
     id_baremo_e2p: uuid.UUID = Field(
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
     )
-    version: int = Field()
-    categoria: str = Field()
+    rango_etario: str = Field()
+    dimension: str = Field()
+    decil: int = Field()
     zona: str = Field()
     puntaje_min: int = Field()
     puntaje_max: int = Field()
@@ -89,13 +92,12 @@ class PuntajeE2P(SQLModel, table=True):
     id_puntaje_e2p: uuid.UUID = Field(
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
     )
-    id_instrumento: uuid.UUID = Field(
+    id_e2p: uuid.UUID = Field(
         foreign_key="E2P.id_e2p", sa_type=UUID(as_uuid=True)
     )
-    categoria: str = Field()
+    dimension: str = Field()
     puntaje_bruto: int = Field()
-    puntaje_max: int = Field()
-    zona: str = Field()
-    rango_zona: str = Field()
+    decil: Optional[int] = None
+    zona: Optional[str] = None
 
     evaluacion: "E2P" = Relationship(back_populates="puntajes")
