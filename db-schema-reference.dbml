@@ -250,49 +250,100 @@ Table ComentarioDimensionNCFAS {
   }
 }
 
-Table E2P  {
-	id_e2p uuid [ pk, default: `gen_random_uuid()` ]
-	id_nna uuid [ not null ]
-	id_familiar uuid [ not null ]
-	fecha_evaluacion date
-	fecha_proxima_evaluacion date
-	version integer [ not null ]
-	resultado text
-	observacion text
+// 1. CABECERA DE LA EVALUACIÓN
+// Representa la aplicación de una encuesta a una díada (NNA + Cuidador) en una fecha específica.
+Table E2P {
+  id_e2p uuid [ pk, default: `gen_random_uuid()` ]
+  id_nna uuid [ not null ]
+  id_familiar uuid [ not null ]
+  fecha_evaluacion date [ not null ]
+  edad_meses_evaluacion integer [ not null, note: 'Edad del NNA en meses al momento de ser evaluado' ]
+  rango_etario text [ not null, note: 'Rango etario de la versión aplicada: 0-3_meses, 4-10_meses, etc.' ]
+  perfil_resultado_global text [ note: 'Resultado sintético del perfil: Riesgo, Monitoreo, Optimo' ]
+  observacion text
+
+  Checks {
+    `rango_etario IN ('0-3_meses', '4-10_meses', '11-18_meses', '19-36_meses', '3-5_anos', '6-7_anos', '8-12_anos', '13-17_anos')` [name: "chk_edad_dentro_de_rango"]
+    `perfil_resultado_global IN ('Riesgo', 'Monitoreo', 'Optimo')` [name: "chk_perfil_resultado"]
+  }
 }
 
-Table PreguntaE2P  {
-	id_pregunta_e2p uuid [ pk, default: `gen_random_uuid()` ]
-	version integer [ not null ]
-	numero integer [ not null ]
-	texto text [ not null ]
-	categoria text [ not null ]
+// 2. BANCO DE PREGUNTAS (Reactivos por rango etario)
+// Cada rango etario tiene sus propias preguntas con textos y ejemplos específicos.
+Table PreguntaE2P {
+  id_pregunta_e2p uuid [ pk, default: `gen_random_uuid()` ]
+  rango_etario text [ not null ]
+  numero_item integer [ not null, note: 'Número correlativo (1 al 60 o 1 al 56)' ]
+  texto_afirmacion text [ not null, note: 'Ej: Percibo las nuevas señales que empieza a generar mi hijo/a...' ]
+  dimension text [ not null, note: 'Vinculares, Formativas, Protectoras, Reflexivas' ]
+  subdimension text [ note: 'Subdimensión específica (ej: Regulación del estrés, Calidez emocional...)' ]
+
+  indexes {
+    (rango_etario, numero_item) [unique]
+  }
+
+  Checks {
+    `rango_etario IN ('0-3_meses', '4-10_meses', '11-18_meses', '19-36_meses', '3-5_anos', '6-7_anos', '8-12_anos', '13-17_anos')` [name: "chk_edad_dentro_de_rango"]
+    `dimension IN ('Vinculares', 'Formativas', 'Protectoras', 'Reflexivas')` [name: "chk_dimension"]
+  }
 }
 
-Table RespuestaE2P  {
-	id_respuesta_e2p uuid [ pk, default: `gen_random_uuid()` ]
-	id_e2p uuid [ not null ]
-	id_pregunta_e2p uuid [ not null ]
-	valor integer [ not null ]
+// 3. RESPUESTAS DETALLADAS
+// Registra la respuesta del evaluado para cada ítem.
+Table RespuestaE2P {
+  id_respuesta_e2p uuid [ pk, default: `gen_random_uuid()` ]
+  id_e2p uuid [ not null ]
+  id_pregunta_e2p uuid [ not null ]
+  valor_seleccionado integer [ not null, note: '0: Nunca, 1: Casi Nunca, 2: A veces, 3: Casi Siempre, 4: Siempre' ]
+  puntaje_calculado integer [ not null, note: 'Puntaje clínico real asignado tras aplicar reglas o excepciones' ]
+
+  indexes {
+    (id_e2p, id_pregunta_e2p) [unique]
+  }
+
+  Checks {
+    `valor_seleccionado BETWEEN 0 AND 4`
+    `puntaje_calculado BETWEEN 0 AND 4`
+  }
 }
 
-Table BaremoE2P  {
-	id_baremo_e2p uuid [ pk, default: `gen_random_uuid()` ]
-	version integer [ not null ]
-	categoria text [ not null ]
-	zona text [ not null ]
-	puntaje_min integer [ not null ]
-	puntaje_max integer [ not null ]
+// 4. TABLA DE BAREMOS (Normalización por rango etario)
+// Permite traducir puntajes brutos a deciles y zonas de frecuencia para cada dimensión.
+Table BaremoE2P {
+  id_baremo_e2p uuid [ pk, default: `gen_random_uuid()` ]
+  rango_etario text [ not null ]
+  dimension text [ not null, note: 'Vinculares, Formativas, Protectoras, Reflexivas, Total' ]
+  decil integer [ not null, note: 'Decil obtenido (1 al 10)' ]
+  zona text [ not null, note: 'Baja frecuencia, Frecuencia intermedia, Alta frecuencia' ]
+  puntaje_min integer [ not null ]
+  puntaje_max integer [ not null ]
+
+  Checks {
+    `rango_etario IN ('0-3_meses', '4-10_meses', '11-18_meses', '19-36_meses', '3-5_anos', '6-7_anos', '8-12_anos', '13-17_anos')`
+    `dimension IN ('Vinculares', 'Formativas', 'Protectoras', 'Reflexivas', 'Total')`
+    `decil BETWEEN 1 AND 10`
+    `zona IN ('Baja frecuencia', 'Frecuencia intermedia', 'Alta frecuencia')`
+  }
 }
 
-Table PuntajeE2P  {
-	id_puntaje_e2p uuid [ pk, default: `gen_random_uuid()` ]
-	id_e2p uuid [ not null ]
-	categoria text [ not null ]
-	puntaje_bruto integer [ not null ]
-	puntaje_max integer [ not null ]
-	zona text [ not null ]
-	rango_zona text [ not null ]
+// 5. RESUMEN DE PUNTAJES POR DIMENSIÓN
+// Almacena los resultados calculados por dimensión para agilizar reportería y generación de gráficos de perfil.
+Table PuntajeE2P {
+  id_puntaje_e2p uuid [ pk, default: `gen_random_uuid()` ]
+  id_e2p uuid [ not null ]
+  dimension text [ not null, note: 'Vinculares, Formativas, Protectoras, Reflexivas, Total' ]
+  puntaje_bruto integer [ not null, note: 'Suma de los puntos de los reactivos correspondientes' ]
+  decil integer [ note: 'Decil obtenido según Baremo' ]
+  zona text [ note: 'Baja frecuencia, Frecuencia intermedia o Alta frecuencia' ]
+
+  indexes {
+    (id_e2p, dimension) [unique]
+  }
+
+  Checks {
+    `dimension IN ('Vinculares', 'Formativas', 'Protectoras', 'Reflexivas', 'Total')`
+    `zona IN ('Baja frecuencia', 'Frecuencia intermedia', 'Alta frecuencia')`
+  }
 }
 
 Table SolicitanteIngreso  {
@@ -440,13 +491,6 @@ Ref fk_DiscapacidadAdulto_id_familiar_Familiar {
 	DiscapacidadAdulto.id_familiar > Familiar.id_familiar [ delete: no action, update: no action ]
 }
 
-Ref fk_E2P_id_nna_NNA {
-	E2P.id_nna > NNA.id_nna [ delete: no action, update: no action ]
-}
-
-Ref fk_E2P_id_familiar_Familiar {
-	E2P.id_familiar > Familiar.id_familiar [ delete: no action, update: no action ]
-}
 
 Ref fk_PMF_id_nna_NNA {
 	PMF.id_nna > NNA.id_nna [ delete: no action, update: no action ]
@@ -464,16 +508,24 @@ Ref fk_NCFAS_id_familiar_Familiar {
 	NCFAS.id_familiar > Familiar.id_familiar [ delete: no action, update: no action ]
 }
 
-Ref fk_RespuestaE2P_id_instrumento_E2P {
-	RespuestaE2P.id_e2p > E2P.id_e2p [ delete: no action, update: no action ]
+Ref fk_E2P_id_nna_NNA {
+  E2P.id_nna > NNA.id_nna [ delete: no action, update: no action ]
+}
+
+Ref fk_E2P_id_familiar_Familiar {
+  E2P.id_familiar > Familiar.id_familiar [ delete: no action, update: no action ]
+}
+
+Ref fk_RespuestaE2P_id_e2p_E2P {
+  RespuestaE2P.id_e2p > E2P.id_e2p [ delete: cascade, update: no action ]
 }
 
 Ref fk_RespuestaE2P_id_pregunta_e2p_PreguntaE2P {
-	RespuestaE2P.id_pregunta_e2p > PreguntaE2P.id_pregunta_e2p [ delete: no action, update: no action ]
+  RespuestaE2P.id_pregunta_e2p > PreguntaE2P.id_pregunta_e2p [ delete: no action, update: no action ]
 }
 
-Ref fk_PuntajeE2P_id_instrumento_E2P {
-	PuntajeE2P.id_e2p > E2P.id_e2p [ delete: no action, update: no action ]
+Ref fk_PuntajeE2P_id_e2p_E2P {
+  PuntajeE2P.id_e2p > E2P.id_e2p [ delete: cascade, update: no action ]
 }
 
 Ref fk_AntecedenteIngreso_id_solicitante_ingreso_SolicitanteIngreso {

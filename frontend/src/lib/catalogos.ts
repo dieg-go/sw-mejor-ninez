@@ -56,6 +56,18 @@ export const CATALOGO_DOCUMENTACION_INGRESO = [
   "Constatación de Lesiones", "Orden Judicial de Ingreso", "Certificado de Nacimiento", "Otro"
 ];
 
+export const CATALOGO_PROGRAMAS_PREVIOS = [
+  "Programa Prevencion Focalizada", 
+  "Programa de Intervención Especializada", 
+  "Programa de Diagnóstico Ambulatorio",
+  "Programa de Reparación de Maltrato",
+  "Otro"
+]
+
+export const CATALOGO_MOTIVO_EGRESO = [
+  "Fracaso de la intervención ambulatoria", "Agravamiento o cronicidad de las vulneraciones", "Otro"
+]
+
 export function detectTipoCausa(rit: string): string | null {
   if (!rit) return null;
   const first = rit.charAt(0).toUpperCase();

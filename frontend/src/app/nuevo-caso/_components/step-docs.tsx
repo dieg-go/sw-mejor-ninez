@@ -20,7 +20,7 @@ import { DateField } from "./date-field";
 import type { WizardData } from "./types";
 
 export function StepDocs({ data, onData, onBack, onNext }: { data: WizardData; onData: (d: WizardData) => void; onBack: () => void; onNext: () => void }) {
-  const addDoc = () => onData({ ...data, docs: [...data.docs, { tipo_documento: "", estado_recepcion: false, fecha_recepcion: null, observacion: "", url_documentacion_ingreso: "" }] });
+  const addDoc = () => onData({ ...data, docs: [...data.docs, { tipo_documento: "", tipo_documento_otro: "", estado_recepcion: false, fecha_recepcion: null, observacion: "", url_documentacion_ingreso: "" }] });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingIdx, setUploadingIdx] = useState<number | null>(null);
@@ -82,7 +82,7 @@ export function StepDocs({ data, onData, onBack, onNext }: { data: WizardData; o
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <Select value={doc.tipo_documento || "none"} onValueChange={(v) => {
-                  const ds = [...data.docs]; ds[i] = { ...ds[i], tipo_documento: v === "none" ? "" : v }; onData({ ...data, docs: ds });
+                  const ds = [...data.docs]; ds[i] = { ...ds[i], tipo_documento: v === "none" ? "" : v, tipo_documento_otro: v === "Otro" ? ds[i].tipo_documento_otro : "" }; onData({ ...data, docs: ds });
                 }}>
                   <SelectTrigger><SelectValue placeholder="Tipo de documento" /></SelectTrigger>
                   <SelectContent>
@@ -92,6 +92,16 @@ export function StepDocs({ data, onData, onBack, onNext }: { data: WizardData; o
                     ))}
                   </SelectContent>
                 </Select>
+                {doc.tipo_documento === "Otro" && (
+                  <Input
+                    className="sm:col-span-2"
+                    placeholder="Especificar tipo de documento..."
+                    value={doc.tipo_documento_otro}
+                    onChange={(e) => {
+                      const ds = [...data.docs]; ds[i] = { ...ds[i], tipo_documento_otro: e.target.value }; onData({ ...data, docs: ds });
+                    }}
+                  />
+                )}
                 <div className="flex gap-1">
                   <Button type="button" variant="outline" size="sm" disabled={uploadingIdx === i} onClick={() => { setPendingIdx(i); fileInputRef.current?.click(); }}>
                     <UploadIcon className="size-4 mr-1" />

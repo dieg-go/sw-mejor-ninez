@@ -69,10 +69,10 @@ export function StepNNA({ data, onData, onNext }: { data: WizardData; onData: (d
               <FieldLabel htmlFor="nna-domicilio">Domicilio</FieldLabel>
               <Input id="nna-domicilio" value={data.nna.domicilio ?? ""} onChange={setField("domicilio")} placeholder="Dirección" />
             </Field>
-            <Field>
+            {/* <Field>
               <FieldLabel htmlFor="nna-poblacion">Población o Villa</FieldLabel>
               <Input id="nna-poblacion" value={data.nna.poblacion_o_villa ?? ""} onChange={setField("poblacion_o_villa")} placeholder="Población o villa" />
-            </Field>
+            </Field> */}
             <Field>
               <FieldLabel htmlFor="nna-comuna">Comuna</FieldLabel>
               <Input id="nna-comuna" value={data.nna.comuna ?? ""} onChange={setField("comuna")} placeholder="Comuna" />

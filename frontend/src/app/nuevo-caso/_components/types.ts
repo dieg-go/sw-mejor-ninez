@@ -21,6 +21,7 @@ export interface DerechoEntry {
 }
 export interface DocEntry {
   tipo_documento: string;
+  tipo_documento_otro: string;
   estado_recepcion: boolean;
   fecha_recepcion: Date | null;
   observacion: string;
@@ -28,9 +29,11 @@ export interface DocEntry {
 }
 export interface HistorialEntry {
   nombre_programa: string;
+  nombre_programa_otro: string;
   fecha_ingreso: Date | null;
   fecha_egreso: Date | null;
   motivo_egreso: string;
+  motivo_egreso_otro: string;
 }
 
 export interface WizardData {
