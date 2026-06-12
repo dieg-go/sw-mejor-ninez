@@ -10,8 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { FamiliarSelect } from "@/components/familiar-select";
 import { ageToRangoEtario, ZONE_COLORS } from "./e2p-utils";
 import { E2PQuestionnaire } from "./e2p-questionnaire";
 
@@ -21,7 +21,6 @@ interface E2PFormDialogProps {
   mode: "create" | "edit";
   nnaId: string;
   nna: NNA;
-  familiares: Familiar[];
   vinculados: Familiar[];
   idAdultoResponsable: string | null;
   initialData?: E2PEvaluacion;
@@ -31,7 +30,7 @@ interface E2PFormDialogProps {
 }
 
 export function E2PFormDialog({
-  open, onOpenChange, mode, nnaId, nna, familiares, vinculados, idAdultoResponsable,
+  open, onOpenChange, mode, nnaId, nna, vinculados, idAdultoResponsable,
   initialData, existingPuntaje,
   onCreated, onUpdated,
 }: E2PFormDialogProps) {
@@ -135,7 +134,7 @@ export function E2PFormDialog({
     return null;
   }, [existingPuntaje, questions, answers]);
 
-  const familiarOptions = mode === "create" ? vinculados : familiares;
+  const familiarOptions = vinculados;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -145,24 +144,13 @@ export function E2PFormDialog({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <Label className="text-xs">Familiar</Label>
-              {familiarOptions.length === 0 && mode === "create" ? (
-                <p className="text-sm text-muted-foreground mt-1.5">No hay familiares vinculados al NNA</p>
-              ) : (
-                <Select value={idFamiliar} onValueChange={handleFamiliarChange}>
-                  <SelectTrigger className="mt-1 w-full"><SelectValue placeholder="Seleccionar" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {mode === "edit" && <SelectItem value="none">— Sin familiar —</SelectItem>}
-                      {familiarOptions.map((f) => (
-                        <SelectItem key={f.id_familiar} value={f.id_familiar}>{f.nombre || f.id_familiar.slice(0, 8)}</SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              )}
-            </div>
+            <FamiliarSelect
+              familiares={familiarOptions}
+              value={idFamiliar}
+              onChange={handleFamiliarChange}
+              nullable={mode === "edit"}
+              emptyMessage="No hay familiares vinculados al NNA"
+            />
             <div>
               <Label className="text-xs">Fecha evaluación</Label>
               <Popover>

@@ -1,7 +1,8 @@
 "use client";
 
 import { use, useEffect, useMemo, useState } from "react";
-import { api, type AntecedenteFamiliar, type VinculoFamiliar, type NNA, type Familiar, type E2PEvaluacion, type E2PPuntaje } from "@/lib/api";
+import { api, type AntecedenteFamiliar, type NNA, type Familiar, type E2PEvaluacion, type E2PPuntaje } from "@/lib/api";
+import { useVinculados } from "@/hooks/use-vinculados";
 import { Spinner } from "@/components/ui/spinner";
 import { Empty } from "@/components/ui/empty";
 import { E2PHeader } from "./_components/e2p-header";
@@ -21,7 +22,6 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
   const [dialogMode, setDialogMode] = useState<"create" | "edit">("create");
   const [editingItem, setEditingItem] = useState<E2PEvaluacion | undefined>(undefined);
   const [dialogKey, setDialogKey] = useState(0);
-  const [vinculos, setVinculos] = useState<VinculoFamiliar[]>([]);
   const [antecedentes, setAntecedentes] = useState<AntecedenteFamiliar[]>([]);
 
   const fetchPuntaje = async (item: E2PEvaluacion) => {
@@ -45,16 +45,14 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
     let cancelled = false;
     (async () => {
       try {
-        const [nnaData, famList, vincList, antList] = await Promise.all([
+        const [nnaData, famList, antList] = await Promise.all([
           api.nna.get(id),
           api.familiares.list(),
-          api.vinculoFamiliar.list(id).catch(() => [] as VinculoFamiliar[]),
           api.antecedenteFamiliar.list(id).catch(() => [] as AntecedenteFamiliar[]),
         ]);
         if (cancelled) return;
         setNna(nnaData);
         setFamiliares(famList);
-        setVinculos(vincList);
         setAntecedentes(antList);
         setItems(await api.e2p.listByNna(id));
       } catch (e: unknown) {
@@ -109,10 +107,7 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
     setDialogOpen(true);
   };
 
-  const vinculados = useMemo(() => {
-    const ids = new Set(vinculos.map((v) => v.id_familiar));
-    return familiares.filter((f) => ids.has(f.id_familiar));
-  }, [vinculos, familiares]);
+  const { vinculados } = useVinculados(id, familiares);
 
   const adultoResponsableId = useMemo(() => {
     const sorted = [...antecedentes]
@@ -148,7 +143,6 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
         mode={dialogMode}
         nnaId={id}
         nna={nna}
-        familiares={familiares}
         vinculados={vinculados}
         idAdultoResponsable={adultoResponsableId}
         initialData={editingItem}

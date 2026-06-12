@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeftIcon, CalendarIcon } from "lucide-react";
+import { ArrowLeftIcon, CalendarIcon, UploadIcon } from "lucide-react";
 import { api, type NNA } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,36 +50,82 @@ function DateField({ label, value, onChange }: { label?: string; value: Date | n
 
 // ═══ Antecedentes penales ═══════════════════════════════════════════════════
 
+interface PenalEntry {
+  descripcion: string;
+  url_adjunto: string;
+}
+
 function PenalesSection({
   items,
   onChange,
+  uploadingIdx,
+  uploadError,
+  onUpload,
 }: {
-  items: string[];
-  onChange: (d: string[]) => void;
+  items: PenalEntry[];
+  onChange: (d: PenalEntry[]) => void;
+  uploadingIdx: number | null;
+  uploadError: string | null;
+  onUpload: (file: File, idx: number) => void;
 }) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [pendingIdx, setPendingIdx] = useState<number | null>(null);
+
   return (
     <div className="border rounded-lg p-4">
       <div className="flex items-center justify-between mb-3">
         <h4 className="text-sm font-medium">Antecedentes penales</h4>
-        <Button type="button" variant="outline" size="sm" onClick={() => onChange([...items, ""])}>
+        <Button type="button" variant="outline" size="sm" onClick={() => onChange([...items, { descripcion: "", url_adjunto: "" }])}>
           + Agregar
         </Button>
       </div>
+      <input
+        type="file"
+        ref={fileInputRef}
+        className="hidden"
+        accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.doc,.docx,.xls,.xlsx"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file && pendingIdx !== null) onUpload(file, pendingIdx);
+          e.target.value = "";
+        }}
+      />
       {items.length === 0 && <p className="text-sm text-muted-foreground">Sin antecedentes.</p>}
-      {items.map((desc, i) => (
-        <div key={i} className="flex items-center gap-2 mb-2">
-          <Input
-            placeholder="Descripción del antecedente"
-            value={desc}
-            onChange={(e) => {
-              const next = [...items];
-              next[i] = e.target.value;
-              onChange(next);
-            }}
-          />
-          <Button type="button" variant="ghost" size="sm" className="text-destructive shrink-0" onClick={() => onChange(items.filter((_, j) => j !== i))}>
-            ×
-          </Button>
+      {uploadError && <p className="text-destructive text-xs mb-2">{uploadError}</p>}
+      {items.map((entry, i) => (
+        <div key={i} className="space-y-2 mb-3 p-3 border rounded-lg">
+          <div className="flex items-center gap-2">
+            <Input
+              placeholder="Descripción del antecedente"
+              value={entry.descripcion}
+              onChange={(e) => {
+                const next = [...items];
+                next[i] = { ...next[i], descripcion: e.target.value };
+                onChange(next);
+              }}
+            />
+            <Button type="button" variant="ghost" size="sm" className="text-destructive shrink-0" onClick={() => onChange(items.filter((_, j) => j !== i))}>
+              ×
+            </Button>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={uploadingIdx === i}
+              onClick={() => { setPendingIdx(i); fileInputRef.current?.click(); }}
+            >
+              <UploadIcon className="size-4 mr-1" />
+              {entry.url_adjunto ? "Cambiar archivo" : "Subir archivo"}
+            </Button>
+            {uploadingIdx === i && <Spinner className="size-4" />}
+            {entry.url_adjunto && (
+              <span className="text-xs text-muted-foreground truncate max-w-[200px]" title={entry.url_adjunto}>
+                {entry.url_adjunto.split("/").pop()}
+              </span>
+            )}
+          </div>
         </div>
       ))}
     </div>
@@ -219,13 +265,14 @@ export default function NuevoFamiliarPage() {
   const [direccion, setDireccion] = useState("");
   const [telefono, setTelefono] = useState("");
   const [tienePenales, setTienePenales] = useState(false);
-  const [penales, setPenales] = useState<string[]>([]);
+  const [penales, setPenales] = useState<PenalEntry[]>([]);
+  const [penalesUploading, setPenalesUploading] = useState<number | null>(null);
+  const [penalesUploadError, setPenalesUploadError] = useState<string | null>(null);
   const [consumo, setConsumo] = useState<ConsumoEntry[]>([]);
   const [discapacidades, setDiscapacidades] = useState<DiscapacidadEntry[]>([]);
 
   // NNA linking
   const [nnaList, setNnaList] = useState<NNA[]>([]);
-  const [linkNna, setLinkNna] = useState(false);
   const [nnaId, setNnaId] = useState<string>("");
   const [parentesco, setParentesco] = useState("");
 
@@ -236,10 +283,33 @@ export default function NuevoFamiliarPage() {
     api.nna.list(0, 500).then(setNnaList).catch(() => {});
   }, []);
 
+  const handlePenalUpload = async (file: File, idx: number) => {
+    setPenalesUploading(idx);
+    setPenalesUploadError(null);
+    try {
+      const result = await api.upload.docs(file);
+      setPenales((prev) => {
+        const next = [...prev];
+        next[idx] = { ...next[idx], url_adjunto: result.url };
+        return next;
+      });
+    } catch (e: unknown) {
+      setPenalesUploadError(e instanceof Error ? e.message : "Error al subir archivo");
+    } finally {
+      setPenalesUploading(null);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSubmitting(true);
+
+    if (!nnaId) {
+      setError("Debe seleccionar un NNA para vincular al familiar");
+      setSubmitting(false);
+      return;
+    }
 
     try {
       // 1. Create familiar
@@ -254,9 +324,12 @@ export default function NuevoFamiliarPage() {
       const idFamiliar = familiar.id_familiar;
 
       // 2. Antecedentes penales
-      for (const desc of penales) {
-        if (desc.trim()) {
-          await api.antecedentesPenales.create(idFamiliar, { descripcion: desc, url_documento_adjunto: null });
+      for (const p of penales) {
+        if (p.descripcion.trim() || p.url_adjunto) {
+          await api.antecedentesPenales.create(idFamiliar, {
+            descripcion: p.descripcion.trim() || null,
+            url_documento_adjunto: p.url_adjunto || null,
+          });
         }
       }
 
@@ -284,19 +357,17 @@ export default function NuevoFamiliarPage() {
         }
       }
 
-      // 5. Link to NNA if requested
-      if (linkNna && nnaId) {
-        const fam = await api.antecedenteFamiliar.create(nnaId, {
-          fecha_antecedente_familiar: new Date().toISOString().split("T")[0],
-          id_adulto_responsable: null,
-          con_quien_vive: null,
-          con_quien_vive_detalle: null,
-        });
-        await api.vinculoFamiliar.create(nnaId, {
-          id_familiar: idFamiliar,
-          parentesco: parentesco || null,
-        });
-      }
+      // 5. Link to NNA
+      await api.antecedenteFamiliar.create(nnaId, {
+        fecha_antecedente_familiar: new Date().toISOString().split("T")[0],
+        id_adulto_responsable: null,
+        con_quien_vive: null,
+        con_quien_vive_detalle: null,
+      });
+      await api.vinculoFamiliar.create(nnaId, {
+        id_familiar: idFamiliar,
+        parentesco: parentesco || null,
+      });
 
       router.push(`/familiar/${idFamiliar}`);
     } catch (err) {
@@ -350,36 +421,30 @@ export default function NuevoFamiliarPage() {
           <Card>
             <CardHeader>
               <CardTitle>Vincular a NNA</CardTitle>
-              <CardDescription>Opcional — asocia este familiar a un niño, niña o adolescente existente.</CardDescription>
+              <CardDescription>Asocia este familiar a un niño, niña o adolescente existente.</CardDescription>
             </CardHeader>
             <CardContent>
-              <label className="flex items-center gap-2 text-sm mb-4">
-                <Checkbox checked={linkNna} onCheckedChange={(v) => setLinkNna(!!v)} />
-                Vincular a un NNA al crear
-              </label>
-              {linkNna && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pl-6 border-l-2">
-                  <Field>
-                    <FieldLabel>NNA</FieldLabel>
-                    <Select value={nnaId} onValueChange={setNnaId}>
-                      <SelectTrigger><SelectValue placeholder="Seleccionar NNA" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          {nnaList.map((n) => (
-                            <SelectItem key={n.id_nna} value={n.id_nna}>
-                              {n.nombre || "Sin nombre"} {n.run ? `(${n.run})` : ""}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </Field>
-                  <Field>
-                    <FieldLabel>Parentesco</FieldLabel>
-                    <Input value={parentesco} onChange={(e) => setParentesco(e.target.value)} placeholder="Madre / Padre / Tío..." />
-                  </Field>
-                </div>
-              )}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Field>
+                  <FieldLabel>NNA</FieldLabel>
+                  <Select value={nnaId} onValueChange={setNnaId}>
+                    <SelectTrigger><SelectValue placeholder="Seleccionar NNA" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {nnaList.map((n) => (
+                          <SelectItem key={n.id_nna} value={n.id_nna}>
+                            {n.nombre || "Sin nombre"} {n.run ? `(${n.run})` : ""}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field>
+                  <FieldLabel>Parentesco</FieldLabel>
+                  <Input value={parentesco} onChange={(e) => setParentesco(e.target.value)} placeholder="Madre / Padre / Tío..." />
+                </Field>
+              </div>
             </CardContent>
           </Card>
 
@@ -396,7 +461,15 @@ export default function NuevoFamiliarPage() {
                 <Checkbox checked={tienePenales} onCheckedChange={(v) => setTienePenales(!!v)} />
                 Tiene antecedentes penales
               </label>
-              {tienePenales && <PenalesSection items={penales} onChange={setPenales} />}
+              {tienePenales && (
+                <PenalesSection
+                  items={penales}
+                  onChange={setPenales}
+                  uploadingIdx={penalesUploading}
+                  uploadError={penalesUploadError}
+                  onUpload={handlePenalUpload}
+                />
+              )}
             </CardContent>
           </Card>
 

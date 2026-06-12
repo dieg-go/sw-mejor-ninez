@@ -10,6 +10,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Empty } from "@/components/ui/empty";
 import { NcfasListCard } from "./_components/ncfas-list-card";
 import { NcfasFormDialog } from "./_components/ncfas-form-dialog";
+import { useVinculados } from "@/hooks/use-vinculados";
 
 export default function NCFASPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -18,6 +19,8 @@ export default function NCFASPage({ params }: { params: Promise<{ id: string }> 
   const [evaluations, setEvaluations] = useState<NCFASEvaluacion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const { vinculados } = useVinculados(id, familiares);
 
   // Dialog
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -100,9 +103,13 @@ export default function NCFASPage({ params }: { params: Promise<{ id: string }> 
         <span className="text-sm text-muted-foreground">
           {evaluations.length} registro{evaluations.length !== 1 ? "s" : ""}
         </span>
-        <Button size="sm" onClick={openCreate}>
-          <PlusIcon /> Nuevo NCFAS
-        </Button>
+        {vinculados.length > 0 ? (
+          <Button size="sm" onClick={openCreate}>
+            <PlusIcon /> Nuevo NCFAS
+          </Button>
+        ) : (
+          <span className="text-xs text-muted-foreground">Vincula un familiar al NNA para crear NCFAS</span>
+        )}
       </div>
 
       {loading ? (
@@ -128,7 +135,7 @@ export default function NCFASPage({ params }: { params: Promise<{ id: string }> 
         onOpenChange={setDialogOpen}
         mode={dialogMode}
         nnaId={id}
-        familiares={familiares}
+        vinculados={vinculados}
         evaluation={editingItem}
         onSaved={handleSaved}
       />

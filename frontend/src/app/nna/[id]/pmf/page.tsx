@@ -12,9 +12,10 @@ import { Spinner } from "@/components/ui/spinner";
 import { Empty } from "@/components/ui/empty";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useVinculados } from "@/hooks/use-vinculados";
+import { FamiliarSelect } from "@/components/familiar-select";
 
 function formatDate(iso: string | null) {
   if (!iso) return "—";
@@ -44,6 +45,9 @@ export default function PMFPage({ params }: { params: Promise<{ id: string }> })
   const [questions, setQuestions] = useState<PMFQuestions[]>([]);
   const [answers, setAnswers] = useState<Record<string, boolean>>({});
   const [questionsLoading, setQuestionsLoading] = useState(false);
+
+  const { vinculados } = useVinculados(id, familiares);
+  const familiarOptions = vinculados;
 
   const loadItems = async () => {
     setLoading(true);
@@ -160,7 +164,11 @@ export default function PMFPage({ params }: { params: Promise<{ id: string }> })
 
       <div className="flex items-center justify-between mb-4">
         <span className="text-sm text-muted-foreground">{items.length} registro{items.length !== 1 ? "s" : ""}</span>
-        <Button size="sm" onClick={() => openDialog("create")}><PlusIcon /> Nuevo PMF</Button>
+        {vinculados.length > 0 ? (
+          <Button size="sm" onClick={() => openDialog("create")}><PlusIcon /> Nuevo PMF</Button>
+        ) : (
+          <span className="text-xs text-muted-foreground">Vincula un familiar al NNA para crear PMF</span>
+        )}
       </div>
 
       {loading ? (
@@ -199,18 +207,12 @@ export default function PMFPage({ params }: { params: Promise<{ id: string }> })
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <Label className="text-xs">Familiar</Label>
-                <Select value={idFamiliar} onValueChange={handleFamiliarChange}>
-                  <SelectTrigger className="mt-1 w-full"><SelectValue placeholder="Seleccionar" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectItem value="none">— Sin familiar —</SelectItem>
-                      {familiares.map((f) => (
-                        <SelectItem key={f.id_familiar} value={f.id_familiar}>{f.nombre || f.id_familiar.slice(0, 8)}</SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+                <FamiliarSelect
+                  familiares={familiarOptions}
+                  value={idFamiliar}
+                  onChange={handleFamiliarChange}
+                  nullable
+                />
               </div>
               <div>
                 <Label className="text-xs">Resultado</Label>

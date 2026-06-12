@@ -293,6 +293,16 @@ function PenalesTab({ idFamiliar }: { idFamiliar: string }) {
               Antecedente penal
             </Badge>
             <p className="text-sm">{a.descripcion || "Sin descripción"}</p>
+            {a.url_documento_adjunto && (
+              <a
+                href={a.url_documento_adjunto}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline text-xs mt-1 inline-block"
+              >
+                Ver documento
+              </a>
+            )}
           </CardContent>
         </Card>
       ))}

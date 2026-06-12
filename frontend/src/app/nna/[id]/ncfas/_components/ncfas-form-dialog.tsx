@@ -9,9 +9,9 @@ import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { FamiliarSelect } from "@/components/familiar-select";
 import { cn } from "@/lib/utils";
 import { NcfasDimensionSection } from "./ncfas-dimension-section";
 import { MOMENTOS, isDimensionVisible, buildEmptyRespuestas } from "./ncfas-utils";
@@ -21,7 +21,7 @@ interface NcfasFormDialogProps {
   onOpenChange: (open: boolean) => void;
   mode: "create" | "edit";
   nnaId: string;
-  familiares: Familiar[];
+  vinculados: Familiar[];
   evaluation?: NCFASEvaluacion;
   onSaved: (saved: NCFASEvaluacion) => void;
 }
@@ -40,11 +40,12 @@ export function NcfasFormDialog({
   onOpenChange,
   mode,
   nnaId,
-  familiares,
+  vinculados,
   evaluation,
   onSaved,
 }: NcfasFormDialogProps) {
   const isEdit = mode === "edit" && !!evaluation;
+  const familiarOptions = vinculados;
 
   // Header — initialised from props (key ensures remount)
   const [idFamiliar, setIdFamiliar] = useState(isEdit ? (evaluation.id_familiar || "") : "");
@@ -183,18 +184,13 @@ export function NcfasFormDialog({
           {/* Header fields */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 shrink-0">
             <div>
-              <Label className="text-xs">Familiar</Label>
-              <Select value={idFamiliar} onValueChange={(v) => setIdFamiliar(v === "none" ? "" : v)}>
-                <SelectTrigger className="mt-1 w-full h-8 text-sm"><SelectValue placeholder="Seleccionar" /></SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="none">— Sin familiar —</SelectItem>
-                    {familiares.map((f) => (
-                      <SelectItem key={f.id_familiar} value={f.id_familiar}>{f.nombre || f.id_familiar.slice(0, 8)}</SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+              <FamiliarSelect
+                familiares={familiarOptions}
+                value={idFamiliar}
+                onChange={(v) => setIdFamiliar(v === "none" ? "" : v)}
+                nullable
+                emptyMessage="No hay familiares vinculados al NNA"
+              />
             </div>
             <div>
               <Label className="text-xs">Estado</Label>
