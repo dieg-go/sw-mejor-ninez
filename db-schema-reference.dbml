@@ -72,14 +72,33 @@ Table HistorialRedProteccional  {
 	motivo_egreso text
 }
 
-Table GestionBusquedaFamiliar  {
-	id_gestion_busqueda uuid [ pk, default: `gen_random_uuid()` ]
-	id_nna uuid [ not null ]
-	tipo_gestion text
-	fecha_solicitud_envio date
-	fecha_respuesta_recepcion date
-	resultado text
-	comprobante_adjunto boolean [ not null, default: false ]
+Table ProcesoDespejeFamiliar {
+	id_despeje uuid [ pk, default: `gen_random_uuid()` ]
+	id_nna uuid [ not null, unique, note: 'Un proceso de despeje único por NNA' ]
+	fecha_solicitud_informe date [ note: 'Fecha en que el tribunal ordena el informe de hijo al Registro Civil' ]
+	fecha_recepcion_informe date [ note: 'Fecha en que llega el árbol genealógico de 3 generaciones' ]
+	estado text [ note: 'Ej: Pendiente Informe, En Notificación, Evaluando, Cerrado Sin Red, Cerrado Con Red' ]
+	url_informe_hijo text [ note: 'Ruta al documento PDF del árbol genealógico' ]
+}
+
+Table NotificacionFamiliar {
+	id_notificacion uuid [ pk, default: `gen_random_uuid()` ]
+	id_despeje uuid [ not null ]
+	id_familiar uuid [ not null ]
+	
+	fecha_envio_carta_1 date
+	codigo_seguimiento_1 text
+	estado_entrega_1 text
+	fecha_recepcion_carta_1 date
+	
+	fecha_envio_carta_2 date
+	codigo_seguimiento_2 text
+	estado_entrega_2 text
+	fecha_recepcion_carta_2 date
+	
+	resultado_contacto text
+	fecha_respuesta date
+	observacion text
 }
 
 Table InformeTribunal  {
@@ -443,8 +462,16 @@ Ref fk_HistorialRedProteccional_id_nna_NNA {
 	HistorialRedProteccional.id_nna > NNA.id_nna [ delete: no action, update: no action ]
 }
 
-Ref fk_GestionBusquedaFamiliar_id_nna_NNA {
-	GestionBusquedaFamiliar.id_nna > NNA.id_nna [ delete: no action, update: no action ]
+Ref fk_ProcesoDespejeFamiliar_id_nna_NNA {
+	ProcesoDespejeFamiliar.id_nna > NNA.id_nna [ delete: no action, update: no action ]
+}
+
+Ref fk_NotificacionFamiliar_id_despeje {
+	NotificacionFamiliar.id_despeje > ProcesoDespejeFamiliar.id_despeje [ delete: cascade, update: no action ]
+}
+
+Ref fk_NotificacionFamiliar_id_familiar {
+	NotificacionFamiliar.id_familiar > Familiar.id_familiar [ delete: no action, update: no action ]
 }
 
 Ref fk_InformeTribunal_id_nna_NNA {

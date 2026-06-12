@@ -8,7 +8,8 @@ from app.models.ingreso import (
     RegistroCausalIngreso,
     RegistroDerechoVulnerado,
 )
-from app.models.historial import GestionBusquedaFamiliar, HistorialRedProteccional, InformeTribunal
+from app.models.historial import HistorialRedProteccional, InformeTribunal
+from app.models.busqueda_familiar import ProcesoDespejeFamiliar, NotificacionFamiliar
 from app.models.e2p import E2P, PreguntaE2P, RespuestaE2P, BaremoE2P, PuntajeE2P
 from app.models.pmf import PMF, PreguntaPMF, RespuestaPMF
 from app.models.ncfas import (
@@ -43,7 +44,8 @@ __all__ = [
     "RegistroCausalIngreso",
     "RegistroDerechoVulnerado",
     "HistorialRedProteccional",
-    "GestionBusquedaFamiliar",
+    "ProcesoDespejeFamiliar",
+    "NotificacionFamiliar",
     "InformeTribunal",
     "E2P",
     "PreguntaE2P",

@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from app.models.e2p import E2P
     from app.models.pmf import PMF
     from app.models.ncfas import NCFAS
+    from app.models.busqueda_familiar import NotificacionFamiliar
 
 
 class Familiar(SQLModel, table=True):
@@ -43,6 +44,7 @@ class Familiar(SQLModel, table=True):
         back_populates="familiar",
         sa_relationship_kwargs={"foreign_keys": "NCFAS.id_familiar"},
     )
+    notificaciones_despeje: list["NotificacionFamiliar"] = Relationship(back_populates="familiar")
 
 
 class AntecedentesPenales(SQLModel, table=True):

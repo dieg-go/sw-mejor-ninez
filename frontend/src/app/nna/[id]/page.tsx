@@ -2,8 +2,8 @@
 
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
-import { api, type NNA, type SolicitanteIngreso } from "@/lib/api";
+import { AlertTriangleIcon, ArrowLeftIcon, ArrowRightIcon, ClockIcon } from "lucide-react";
+import { api, type NNA, type NotificacionFamiliar, type SolicitanteIngreso } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +19,51 @@ function InfoRow({ label, value }: { label: string; value: string | null }) {
   );
 }
 
+function diasDesde(iso: string | null): number | null {
+  if (!iso) return null;
+  const diff = Date.now() - new Date(iso + "T00:00:00").getTime();
+  return Math.floor(diff / (1000 * 60 * 60 * 24));
+}
+
+function getAlertaResumen(notifs: NotificacionFamiliar[]): "roja" | "naranja" | "verde" | null {
+  let hasNaranja = false;
+  for (const n of notifs) {
+    if (n.resultado_contacto === "Acepta evaluación") return "verde";
+  }
+  for (const n of notifs) {
+    if (n.resultado_contacto) continue;
+    const dias2 = diasDesde(n.fecha_envio_carta_2);
+    if (n.fecha_envio_carta_2 && dias2 !== null && dias2 >= 15) return "roja";
+    const dias1 = diasDesde(n.fecha_envio_carta_1);
+    if (n.fecha_envio_carta_1 && !n.fecha_envio_carta_2 && dias1 !== null && dias1 >= 30) hasNaranja = true;
+  }
+  return hasNaranja ? "naranja" : null;
+}
+
+function AlertaBadge({ tipo }: { tipo: "roja" | "naranja" | "verde" }) {
+  if (tipo === "roja") {
+    return (
+      <Badge variant="destructive" className="self-start text-xs gap-1">
+        <AlertTriangleIcon className="h-3 w-3" />
+        Plazos vencidos
+      </Badge>
+    );
+  }
+  if (tipo === "naranja") {
+    return (
+      <Badge variant="outline" className="self-start text-xs gap-1 border-orange-500 text-orange-600 bg-orange-50">
+        <ClockIcon className="h-3 w-3" />
+        Pendiente 2ª carta
+      </Badge>
+    );
+  }
+  return (
+    <Badge variant="secondary" className="self-start text-xs gap-1 bg-green-100 text-green-700">
+      En evaluación
+    </Badge>
+  );
+}
+
 type SectionKey =
   | "ingreso"
   | "documentacion"
@@ -28,7 +73,7 @@ type SectionKey =
   | "pmf"
   | "ncfas"
   | "historial"
-  | "gestion"
+  | "busqueda-familiar"
   | "informes"
   | "salud"
   | "escolar"
@@ -43,7 +88,7 @@ const SECTIONS: { key: SectionKey; label: string }[] = [
   { key: "pmf", label: "PMF" },
   { key: "ncfas", label: "NCFAS" },
   { key: "historial", label: "Historial Red" },
-  { key: "gestion", label: "Gestión de Búsqueda" },
+  { key: "busqueda-familiar", label: "Búsqueda Familiar" },
   { key: "informes", label: "Informes Tribunal" },
   { key: "salud", label: "Salud" },
   { key: "escolar", label: "Escolar" },
@@ -56,6 +101,7 @@ export default function NNADetailPage({ params }: { params: Promise<{ id: string
   const [summaries, setSummaries] = useState<Record<SectionKey, { count: number; snippet: string } | null>>({} as any);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [busquedaAlerta, setBusquedaAlerta] = useState<"roja" | "naranja" | "verde" | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -65,7 +111,7 @@ export default function NNADetailPage({ params }: { params: Promise<{ id: string
         // Fetch all sections in parallel
         const [
           sols, ingresos, docs, consumo, disc, e2p, pmf, ncfas,
-          historial, gestiones, informes, salud, escolar, familiar,
+          historial, despeje, informes, salud, escolar, familiar,
         ] = await Promise.all([
           api.solicitanteIngreso.list().catch(() => [] as SolicitanteIngreso[]),
           api.antecedenteIngreso.list(id).catch(() => []),
@@ -76,7 +122,7 @@ export default function NNADetailPage({ params }: { params: Promise<{ id: string
           api.pmf.listByNna(id).catch(() => []),
           api.ncfas.listByNna(id).catch(() => []),
           api.historialRed.list(id).catch(() => []),
-          api.gestionBusqueda.list(id).catch(() => []),
+          api.despeje.getByNna(id).catch(() => null),
           api.informeTribunal.list(id).catch(() => []),
           api.antecedenteSalud.list(id).catch(() => []),
           api.antecedenteEscolar.list(id).catch(() => []),
@@ -90,7 +136,17 @@ export default function NNADetailPage({ params }: { params: Promise<{ id: string
         const con = last(consumo);
         const dsc = last(disc);
         const his = last(historial);
-        const ges = last(gestiones);
+        const des = despeje;
+
+        // Fetch notificaciones for alert badge
+        if (des) {
+          try {
+            const notifs = await api.notificacion.list(des.id_despeje);
+            const alerta = getAlertaResumen(notifs);
+            setBusquedaAlerta(alerta);
+          } catch {}
+        }
+
         const inf = last(informes);
         const sal = last(salud);
         const esc = last(escolar);
@@ -131,7 +187,7 @@ export default function NNADetailPage({ params }: { params: Promise<{ id: string
           pmf: pmf.length > 0 ? { count: pmf.length, snippet: `Evaluaciones: ${pmf.length}` } : null,
           ncfas: ncfas.length > 0 ? { count: ncfas.length, snippet: `Evaluaciones: ${ncfas.length}` } : null,
           historial: his ? { count: historial.length, snippet: `${his.nombre_programa || "—"} · Ingreso: ${his.fecha_ingreso || "—"}` } : null,
-          gestion: ges ? { count: gestiones.length, snippet: `${ges.tipo_gestion || "—"} · ${ges.resultado || "—"}` } : null,
+          "busqueda-familiar": des ? { count: 1, snippet: `${des.estado || "—"}` } : null,
           informes: inf ? { count: informes.length, snippet: `${inf.tipo_informe || "—"} · ${inf.estado || "—"} · Vence: ${inf.fecha_vencimiento || "—"}` } : null,
           salud: sal ? { count: salud.length, snippet: `${sal.prevision || "—"}` } : null,
           escolar: esc ? { count: escolar.length, snippet: `${esc.escolarizado ? "Escolarizado" : "No escolarizado"}` } : null,
@@ -211,6 +267,9 @@ export default function NNADetailPage({ params }: { params: Promise<{ id: string
                   ) : (
                     <div className="flex flex-col gap-1">
                       <p className="text-xs text-muted-foreground line-clamp-2">{s.snippet}</p>
+                      {key === "busqueda-familiar" && busquedaAlerta && (
+                        <AlertaBadge tipo={busquedaAlerta} />
+                      )}
                       {s.count > 1 && (
                         <Badge variant="secondary" className="self-start text-xs">
                           {s.count} registros

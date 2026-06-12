@@ -23,7 +23,6 @@ from app.models import (
     PreguntaE2P,
     PreguntaPMF,
     VinculoFamiliar,
-    GestionBusquedaFamiliar,
     HistorialConsumoAdulto,
     HistorialConsumoNNA,
     HistorialRedProteccional,
@@ -31,7 +30,9 @@ from app.models import (
     NCFAS,
     ItemNCFAS,
     NNA,
+    NotificacionFamiliar,
     PMF,
+    ProcesoDespejeFamiliar,
     RegistroCausalIngreso,
     RegistroDerechoVulnerado,
     SolicitanteIngreso,
@@ -595,22 +596,109 @@ async def seed():
                 motivo_egreso=None,
             ))
 
+        # ═══ Proceso de Despeje Familiar ════════════════════════════════════════
+        #
+        # Ana Muñoz — Búsqueda finalizada: 2 cartas a 2 familiares, sin red familiar
+        despeje_ana = ProcesoDespejeFamiliar(
+            id_nna=ana.id_nna,
+            fecha_solicitud_informe=fecha_hace(160),
+            fecha_recepcion_informe=fecha_hace(135),
+            estado="Cerrado Sin Red",
+            url_informe_hijo="/uploads/informe_hijo_ana.pdf",
+        )
+        session.add(despeje_ana)
+
+        # Carlos Rojas — En proceso: alerta naranja activa (≥30 días de 1ª carta sin enviar 2ª)
+        despeje_carlos = ProcesoDespejeFamiliar(
+            id_nna=carlos.id_nna,
+            fecha_solicitud_informe=fecha_hace(65),
+            fecha_recepcion_informe=fecha_hace(42),
+            estado="En Notificación",
+            url_informe_hijo="/uploads/informe_hijo_carlos.pdf",
+        )
+        session.add(despeje_carlos)
+
+        # María Huenchul — Evaluando: abuela aceptó, madre en plazo
+        despeje_maria = ProcesoDespejeFamiliar(
+            id_nna=maria.id_nna,
+            fecha_solicitud_informe=fecha_hace(90),
+            fecha_recepcion_informe=fecha_hace(65),
+            estado="Evaluando",
+            url_informe_hijo="/uploads/informe_hijo_maria.pdf",
+        )
+        session.add(despeje_maria)
+
+        await session.flush()  # get PKs for notifications
+
         session.add_all([
-            GestionBusquedaFamiliar(
-                id_nna=ana.id_nna,
-                tipo_gestion="Búsqueda de padre biológico",
-                fecha_solicitud_envio=fecha_hace(160),
-                fecha_respuesta_recepcion=fecha_hace(90),
-                resultado="No ubicado",
-                comprobante_adjunto=True,
+            # ── Ana: madre — 2 cartas, sin respuesta → cerrado ──────────────
+            NotificacionFamiliar(
+                id_despeje=despeje_ana.id_despeje,
+                id_familiar=madre_ana.id_familiar,
+                fecha_envio_carta_1=fecha_hace(130),
+                codigo_seguimiento_1="RC00123456CL",
+                estado_entrega_1="Entregada",
+                fecha_recepcion_carta_1=fecha_hace(125),
+                fecha_envio_carta_2=fecha_hace(95),
+                codigo_seguimiento_2="RC00123457CL",
+                estado_entrega_2="Entregada",
+                fecha_recepcion_carta_2=fecha_hace(90),
+                resultado_contacto="No responde",
+                fecha_respuesta=fecha_hace(75),
+                observacion="Madre no respondió a ninguna de las 2 cartas certificadas. Proceso cerrado por plazo vencido.",
             ),
-            GestionBusquedaFamiliar(
-                id_nna=carlos.id_nna,
-                tipo_gestion="Contacto con familia extensa materna",
-                fecha_solicitud_envio=fecha_hace(60),
-                fecha_respuesta_recepcion=None,
-                resultado="En proceso",
-                comprobante_adjunto=False,
+            # ── Ana: tío — 2 cartas, rechazó participación ──────────────────
+            NotificacionFamiliar(
+                id_despeje=despeje_ana.id_despeje,
+                id_familiar=tio_ana.id_familiar,
+                fecha_envio_carta_1=fecha_hace(130),
+                codigo_seguimiento_1="RC00123458CL",
+                estado_entrega_1="Entregada",
+                fecha_recepcion_carta_1=fecha_hace(127),
+                fecha_envio_carta_2=fecha_hace(95),
+                codigo_seguimiento_2="RC00123459CL",
+                estado_entrega_2="Devuelta — Dirección incorrecta",
+                fecha_recepcion_carta_2=None,
+                resultado_contacto="Rechaza participación",
+                fecha_respuesta=fecha_hace(88),
+                observacion="Tío contactó telefónicamente tras recibir 2ª carta. Manifiesta no tener condiciones para asumir cuidado.",
+            ),
+
+            # ── Carlos: padre — 1ª carta enviada hace 35 días, sin respuesta ─
+            #     → Debería disparar alerta naranja en el frontend
+            NotificacionFamiliar(
+                id_despeje=despeje_carlos.id_despeje,
+                id_familiar=padre_carlos.id_familiar,
+                fecha_envio_carta_1=fecha_hace(35),
+                codigo_seguimiento_1="RC00987654CL",
+                estado_entrega_1="Entregada",
+                fecha_recepcion_carta_1=fecha_hace(32),
+                fecha_envio_carta_2=None,
+                resultado_contacto=None,
+                observacion="Padre con consumo activo de pasta base. Prioridad alta de ubicación. Se requiere gestionar 2ª carta certificada.",
+            ),
+
+            # ── María: abuela — respondió rápido, acepta evaluación ─────────
+            NotificacionFamiliar(
+                id_despeje=despeje_maria.id_despeje,
+                id_familiar=abuela_maria.id_familiar,
+                fecha_envio_carta_1=fecha_hace(60),
+                codigo_seguimiento_1="RC00555111CL",
+                estado_entrega_1="Entregada",
+                fecha_recepcion_carta_1=fecha_hace(55),
+                resultado_contacto="Acepta evaluación",
+                fecha_respuesta=fecha_hace(45),
+                observacion="Abuela materna mostró disposición inmediata. Vive en comunidad mapuche rural. Se agenda evaluación E2P.",
+            ),
+            # ── María: madre — 1ª carta reciente, dentro del plazo ───────────
+            NotificacionFamiliar(
+                id_despeje=despeje_maria.id_despeje,
+                id_familiar=madre_maria.id_familiar,
+                fecha_envio_carta_1=fecha_hace(20),
+                codigo_seguimiento_1="RC00555112CL",
+                estado_entrega_1="En tránsito",
+                fecha_recepcion_carta_1=None,
+                observacion="Madre biológica reside en Padre Las Casas. Carta en proceso de entrega por Correos de Chile.",
             ),
         ])
 
@@ -623,7 +711,7 @@ async def seed():
         ))
 
         await session.commit()
-        print("Seed data created: 3 NNA, 5 familiares, ~40 child records, catalogs.")
+        print("Seed data created: 3 NNA, 5 familiares, 3 despejes, 6 notificaciones, ~40 child records, catalogs.")
 
 
 if __name__ == "__main__":

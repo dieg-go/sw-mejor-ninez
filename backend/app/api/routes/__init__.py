@@ -22,12 +22,16 @@ from app.api.routes.ingreso import (
     ingresos_router,
 )
 from app.api.routes.historial import (
-    busqueda_item_router,
-    busqueda_router,
     informe_item_router,
     informe_router,
     red_item_router,
     red_router,
+)
+from app.api.routes.busqueda_familiar import (
+    despeje_router,
+    despeje_item_router,
+    notificacion_router,
+    notificacion_item_router,
 )
 from app.api.routes.e2p import (
     e2p_familiar_router,
@@ -88,8 +92,10 @@ routers = [
     doc_ingreso_item_router,
     red_router,
     red_item_router,
-    busqueda_router,
-    busqueda_item_router,
+    despeje_router,
+    despeje_item_router,
+    notificacion_router,
+    notificacion_item_router,
     informe_router,
     informe_item_router,
     e2p_router,

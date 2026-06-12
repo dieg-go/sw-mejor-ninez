@@ -24,22 +24,6 @@ class HistorialRedProteccional(SQLModel, table=True):
     nna: "NNA" = Relationship(back_populates="historial_red_proteccional")
 
 
-class GestionBusquedaFamiliar(SQLModel, table=True):
-    __tablename__ = "GestionBusquedaFamiliar"
-
-    id_gestion_busqueda: uuid.UUID = Field(
-        default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
-    )
-    id_nna: uuid.UUID = Field(foreign_key="NNA.id_nna", sa_type=UUID(as_uuid=True))
-    tipo_gestion: Optional[str] = None
-    fecha_solicitud_envio: Optional[date] = None
-    fecha_respuesta_recepcion: Optional[date] = None
-    resultado: Optional[str] = None
-    comprobante_adjunto: bool = False
-
-    nna: "NNA" = Relationship(back_populates="gestiones_busqueda")
-
-
 class InformeTribunal(SQLModel, table=True):
     __tablename__ = "InformeTribunal"
 

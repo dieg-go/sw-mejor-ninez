@@ -30,7 +30,9 @@ export function E2PHeader({ nnaId, nnaName, itemCount, canCreate, onNew }: E2PHe
         {canCreate ? (
           <Button size="sm" onClick={onNew}><PlusIcon /> Nuevo E2P</Button>
         ) : (
-          <span className="text-xs text-muted-foreground">Vincula un familiar al NNA para crear E2P</span>
+          <Button size="sm" asChild>
+            <Link href="/familiar/nuevo">Vincular Familiar</Link>
+          </Button>
         )}
       </div>
     </>

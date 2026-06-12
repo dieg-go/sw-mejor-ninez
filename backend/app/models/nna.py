@@ -9,7 +9,8 @@ if TYPE_CHECKING:
     from app.models.consumo import HistorialConsumoNNA
     from app.models.discapacidad import DiscapacidadNNA
     from app.models.ingreso import AntecedenteIngreso, DocumentacionIngreso
-    from app.models.historial import HistorialRedProteccional, GestionBusquedaFamiliar, InformeTribunal
+    from app.models.historial import HistorialRedProteccional, InformeTribunal
+    from app.models.busqueda_familiar import ProcesoDespejeFamiliar
     from app.models.e2p import E2P
     from app.models.pmf import PMF
     from app.models.ncfas import NCFAS
@@ -39,7 +40,10 @@ class NNA(SQLModel, table=True):
     antecedentes_ingreso: list["AntecedenteIngreso"] = Relationship(back_populates="nna")
     documentacion_ingreso: list["DocumentacionIngreso"] = Relationship(back_populates="nna")
     historial_red_proteccional: list["HistorialRedProteccional"] = Relationship(back_populates="nna")
-    gestiones_busqueda: list["GestionBusquedaFamiliar"] = Relationship(back_populates="nna")
+    despeje: Optional["ProcesoDespejeFamiliar"] = Relationship(
+        back_populates="nna",
+        sa_relationship_kwargs={"uselist": False},
+    )
     informes_tribunal: list["InformeTribunal"] = Relationship(back_populates="nna")
     evaluaciones_e2p: list["E2P"] = Relationship(
         back_populates="nna",

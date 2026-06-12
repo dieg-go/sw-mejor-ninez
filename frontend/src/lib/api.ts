@@ -198,17 +198,36 @@ export interface HistorialRedProteccional {
 
 export type HistorialRedProteccionalUpdate = Partial<Omit<HistorialRedProteccional, "id_historial_red" | "id_nna">>;
 
-export interface GestionBusquedaFamiliar {
-  id_gestion_busqueda: string;
+
+export interface ProcesoDespejeFamiliar {
+  id_despeje: string;
   id_nna: string;
-  tipo_gestion: string | null;
-  fecha_solicitud_envio: string | null;
-  fecha_respuesta_recepcion: string | null;
-  resultado: string | null;
-  comprobante_adjunto: boolean;
+  fecha_solicitud_informe: string | null;
+  fecha_recepcion_informe: string | null;
+  estado: string | null;
+  url_informe_hijo: string | null;
 }
 
-export type GestionBusquedaFamiliarUpdate = Partial<Omit<GestionBusquedaFamiliar, "id_gestion_busqueda" | "id_nna">>;
+export type ProcesoDespejeFamiliarUpdate = Partial<Omit<ProcesoDespejeFamiliar, "id_despeje" | "id_nna">>;
+
+export interface NotificacionFamiliar {
+  id_notificacion: string;
+  id_despeje: string;
+  id_familiar: string;
+  fecha_envio_carta_1: string | null;
+  codigo_seguimiento_1: string | null;
+  estado_entrega_1: string | null;
+  fecha_recepcion_carta_1: string | null;
+  fecha_envio_carta_2: string | null;
+  codigo_seguimiento_2: string | null;
+  estado_entrega_2: string | null;
+  fecha_recepcion_carta_2: string | null;
+  resultado_contacto: string | null;
+  fecha_respuesta: string | null;
+  observacion: string | null;
+}
+
+export type NotificacionFamiliarUpdate = Partial<Omit<NotificacionFamiliar, "id_notificacion" | "id_despeje" | "id_familiar">>;
 
 export interface InformeTribunal {
   id_informe: string;
@@ -510,13 +529,21 @@ export const api = {
       request<HistorialRedProteccional>(`/historial-red/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   },
 
-  gestionBusqueda: {
-    list: (idNna: string) => request<GestionBusquedaFamiliar[]>(`/nna/${idNna}/gestiones-busqueda`),
-    create: (idNna: string, data: Omit<GestionBusquedaFamiliar, "id_gestion_busqueda" | "id_nna">) =>
-      request<GestionBusquedaFamiliar>(`/nna/${idNna}/gestiones-busqueda`, { method: "POST", body: JSON.stringify(data) }),
-    get: (id: string) => request<GestionBusquedaFamiliar>(`/gestion-busqueda/${id}`),
-    update: (id: string, data: GestionBusquedaFamiliarUpdate) =>
-      request<GestionBusquedaFamiliar>(`/gestion-busqueda/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  despeje: {
+    getByNna: (idNna: string) => request<ProcesoDespejeFamiliar>(`/nna/${idNna}/despeje`),
+    create: (idNna: string, data: Omit<ProcesoDespejeFamiliar, "id_despeje" | "id_nna">) =>
+      request<ProcesoDespejeFamiliar>(`/nna/${idNna}/despeje`, { method: "POST", body: JSON.stringify(data) }),
+    update: (id: string, data: ProcesoDespejeFamiliarUpdate) =>
+      request<ProcesoDespejeFamiliar>(`/despeje/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  },
+
+  notificacion: {
+    list: (idDespeje: string) => request<NotificacionFamiliar[]>(`/despeje/${idDespeje}/notificaciones`),
+    create: (idDespeje: string, data: Omit<NotificacionFamiliar, "id_notificacion" | "id_despeje">) =>
+      request<NotificacionFamiliar>(`/despeje/${idDespeje}/notificaciones`, { method: "POST", body: JSON.stringify(data) }),
+    get: (id: string) => request<NotificacionFamiliar>(`/notificacion/${id}`),
+    update: (id: string, data: NotificacionFamiliarUpdate) =>
+      request<NotificacionFamiliar>(`/notificacion/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   },
 
   informeTribunal: {
