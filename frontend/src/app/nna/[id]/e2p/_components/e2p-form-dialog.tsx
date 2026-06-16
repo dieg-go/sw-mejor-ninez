@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { CalendarIcon } from "lucide-react";
 import { api, type NNA, type Familiar, type E2PEvaluacion, type E2PUpdate, type E2PQuestions, type E2PPuntaje } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -53,6 +53,10 @@ export function E2PFormDialog({
   const [questions, setQuestions] = useState<E2PQuestions | null>(null);
   const [answers, setAnswers] = useState<Record<string, number>>(initialData?.respuestas || {});
   const [questionsLoading, setQuestionsLoading] = useState(true);
+
+  const handleAnswerChange = useCallback((qId: number, val: number) => {
+    setAnswers((prev) => ({ ...prev, [String(qId)]: val }));
+  }, []);
 
   useEffect(() => {
     if (!initialRango) {
@@ -184,7 +188,7 @@ export function E2PFormDialog({
             <E2PQuestionnaire
               questions={questions}
               answers={answers}
-              onChange={(qId, val) => setAnswers((prev) => ({ ...prev, [String(qId)]: val }))}
+              onChange={handleAnswerChange}
               disabled={saving}
             />
           )}

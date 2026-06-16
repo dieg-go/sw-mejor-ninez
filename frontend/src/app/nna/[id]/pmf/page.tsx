@@ -167,9 +167,7 @@ export default function PMFPage({ params }: { params: Promise<{ id: string }> })
         {vinculados.length > 0 ? (
           <Button size="sm" onClick={() => openDialog("create")}><PlusIcon /> Nuevo PMF</Button>
         ) : (
-          <Button size="sm" asChild>
-            <Link href="/familiar/nuevo">Vincular Familiar</Link>
-          </Button>
+          <span className="text-xs text-muted-foreground">Vincula un familiar al NNA para crear PMF</span>
         )}
       </div>
 

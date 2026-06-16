@@ -108,9 +108,7 @@ export default function NCFASPage({ params }: { params: Promise<{ id: string }> 
             <PlusIcon /> Nuevo NCFAS
           </Button>
         ) : (
-          <Button size="sm" asChild>
-            <Link href="/familiar/nuevo">Vincular Familiar</Link>
-          </Button>
+          <span className="text-xs text-muted-foreground">Vincula un familiar al NNA para crear NCFAS</span>
         )}
       </div>
 

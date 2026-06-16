@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { memo, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import type { E2PQuestions } from "@/lib/api";
 import { LIKERT_OPTIONS, CATEGORY_COLORS } from "./e2p-utils";
@@ -19,7 +19,7 @@ interface E2PQuestionnaireProps {
   disabled: boolean;
 }
 
-export function E2PQuestionnaire({ questions, answers, onChange, disabled }: E2PQuestionnaireProps) {
+export const E2PQuestionnaire = memo(function E2PQuestionnaire({ questions, answers, onChange, disabled }: E2PQuestionnaireProps) {
   const grouped = useMemo(() => {
     const cats: Record<string, typeof questions.preguntas> = {};
     for (const q of questions.preguntas) {
@@ -65,4 +65,4 @@ export function E2PQuestionnaire({ questions, answers, onChange, disabled }: E2P
       ))}
     </div>
   );
-}
+});
