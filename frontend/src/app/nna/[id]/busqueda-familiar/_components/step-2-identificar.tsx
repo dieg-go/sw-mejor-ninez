@@ -5,24 +5,26 @@ import { UserPlusIcon, ChevronRightIcon } from "lucide-react";
 import { type Familiar, type NotificacionFamiliar } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CrearFamiliarDialog } from "./crear-familiar-dialog";
 
 interface Step2IdentificarProps {
+  nnaId: string;
   notificaciones: NotificacionFamiliar[];
   familiaresDisponibles: Familiar[];
   getFamiliarNombre: (idFamiliar: string) => string;
   saving: boolean;
   onAsociarExistente: (familiarId: string) => void;
-  onCrearYAsociar: (nombre: string, parentesco: string) => void;
+  onCrearYAsociar: (familiar: Familiar, parentesco: string) => void;
   onFinalizar: () => void;
   onVolver: () => void;
 }
 
 export function Step2Identificar({
+  nnaId,
   notificaciones,
   familiaresDisponibles,
   getFamiliarNombre,
@@ -33,10 +35,10 @@ export function Step2Identificar({
   onVolver,
 }: Step2IdentificarProps) {
   const [selectedFamiliarId, setSelectedFamiliarId] = useState("");
-  const [nuevoFamiliarNombre, setNuevoFamiliarNombre] = useState("");
-  const [nuevoFamiliarParentesco, setNuevoFamiliarParentesco] = useState("");
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   return (
+    <>
     <Card className="border-primary/20">
       <CardHeader>
         <div className="flex items-center gap-2 text-primary">
@@ -79,18 +81,11 @@ export function Step2Identificar({
               </TabsContent>
 
               <TabsContent value="crear" className="space-y-4">
-                <div className="space-y-3">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Nombre Completo</Label>
-                    <Input value={nuevoFamiliarNombre} onChange={(e) => setNuevoFamiliarNombre(e.target.value)} placeholder="Ej: María Elena Soto" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Parentesco declarado en informe</Label>
-                    <Input value={nuevoFamiliarParentesco} onChange={(e) => setNuevoFamiliarParentesco(e.target.value)} placeholder="Ej: Abuela materna" />
-                  </div>
-                </div>
-                <Button className="w-full" disabled={!nuevoFamiliarNombre || saving} onClick={() => onCrearYAsociar(nuevoFamiliarNombre, nuevoFamiliarParentesco)}>
-                  Crear y Asociar Familiar
+                <p className="text-xs text-muted-foreground">
+                  Crea un nuevo familiar con todos sus datos y asócialo a esta búsqueda familiar.
+                </p>
+                <Button className="w-full" variant="outline" onClick={() => setDialogOpen(true)}>
+                  Abrir formulario de creación
                 </Button>
               </TabsContent>
             </Tabs>
@@ -126,5 +121,13 @@ export function Step2Identificar({
         </div>
       </CardContent>
     </Card>
+
+    <CrearFamiliarDialog
+      open={dialogOpen}
+      onOpenChange={setDialogOpen}
+      nnaId={nnaId}
+      onCreated={onCrearYAsociar}
+    />
+    </>
   );
 }

@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeftIcon, CalendarIcon, UploadIcon } from "lucide-react";
+import { ArrowLeftIcon, CalendarIcon } from "lucide-react";
 import { api, type NNA } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Field, FieldLabel, FieldGroup, FieldError } from "@/components/ui/field";
 import { Checkbox } from "@/components/ui/checkbox";
+import { FileUpload } from "@/components/ui/file-upload";
 import { cn } from "@/lib/utils";
 
 function fmt(d: Date | null): string | null {
@@ -58,19 +59,10 @@ interface PenalEntry {
 function PenalesSection({
   items,
   onChange,
-  uploadingIdx,
-  uploadError,
-  onUpload,
 }: {
   items: PenalEntry[];
   onChange: (d: PenalEntry[]) => void;
-  uploadingIdx: number | null;
-  uploadError: string | null;
-  onUpload: (file: File, idx: number) => void;
 }) {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [pendingIdx, setPendingIdx] = useState<number | null>(null);
-
   return (
     <div className="border rounded-lg p-4">
       <div className="flex items-center justify-between mb-3">
@@ -79,19 +71,7 @@ function PenalesSection({
           + Agregar
         </Button>
       </div>
-      <input
-        type="file"
-        ref={fileInputRef}
-        className="hidden"
-        accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.doc,.docx,.xls,.xlsx"
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file && pendingIdx !== null) onUpload(file, pendingIdx);
-          e.target.value = "";
-        }}
-      />
       {items.length === 0 && <p className="text-sm text-muted-foreground">Sin antecedentes.</p>}
-      {uploadError && <p className="text-destructive text-xs mb-2">{uploadError}</p>}
       {items.map((entry, i) => (
         <div key={i} className="space-y-2 mb-3 p-3 border rounded-lg">
           <div className="flex items-center gap-2">
@@ -108,24 +88,19 @@ function PenalesSection({
               ×
             </Button>
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={uploadingIdx === i}
-              onClick={() => { setPendingIdx(i); fileInputRef.current?.click(); }}
-            >
-              <UploadIcon className="size-4 mr-1" />
-              {entry.url_adjunto ? "Cambiar archivo" : "Subir archivo"}
-            </Button>
-            {uploadingIdx === i && <Spinner className="size-4" />}
-            {entry.url_adjunto && (
-              <span className="text-xs text-muted-foreground truncate max-w-[200px]" title={entry.url_adjunto}>
-                {entry.url_adjunto.split("/").pop()}
-              </span>
-            )}
-          </div>
+          <FileUpload
+            value={entry.url_adjunto || null}
+            onUploadSuccess={(url) => {
+              const next = [...items];
+              next[i] = { ...next[i], url_adjunto: url };
+              onChange(next);
+            }}
+            onClear={() => {
+              const next = [...items];
+              next[i] = { ...next[i], url_adjunto: "" };
+              onChange(next);
+            }}
+          />
         </div>
       ))}
     </div>
@@ -266,8 +241,6 @@ export default function NuevoFamiliarPage() {
   const [telefono, setTelefono] = useState("");
   const [tienePenales, setTienePenales] = useState(false);
   const [penales, setPenales] = useState<PenalEntry[]>([]);
-  const [penalesUploading, setPenalesUploading] = useState<number | null>(null);
-  const [penalesUploadError, setPenalesUploadError] = useState<string | null>(null);
   const [consumo, setConsumo] = useState<ConsumoEntry[]>([]);
   const [discapacidades, setDiscapacidades] = useState<DiscapacidadEntry[]>([]);
 
@@ -282,23 +255,6 @@ export default function NuevoFamiliarPage() {
   useEffect(() => {
     api.nna.list(0, 500).then(setNnaList).catch(() => {});
   }, []);
-
-  const handlePenalUpload = async (file: File, idx: number) => {
-    setPenalesUploading(idx);
-    setPenalesUploadError(null);
-    try {
-      const result = await api.upload.docs(file);
-      setPenales((prev) => {
-        const next = [...prev];
-        next[idx] = { ...next[idx], url_adjunto: result.url };
-        return next;
-      });
-    } catch (e: unknown) {
-      setPenalesUploadError(e instanceof Error ? e.message : "Error al subir archivo");
-    } finally {
-      setPenalesUploading(null);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -465,9 +421,6 @@ export default function NuevoFamiliarPage() {
                 <PenalesSection
                   items={penales}
                   onChange={setPenales}
-                  uploadingIdx={penalesUploading}
-                  uploadError={penalesUploadError}
-                  onUpload={handlePenalUpload}
                 />
               )}
             </CardContent>

@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
 import { Empty } from "@/components/ui/empty";
+import { FileUpload } from "@/components/ui/file-upload";
 
 const DEFAULT = { descripcion: "", url_documento_adjunto: "" };
 
@@ -116,8 +117,12 @@ export default function PenalesPage({ params }: { params: Promise<{ id: string }
                   <Input className="mt-1" value={form.descripcion} onChange={(e) => setForm((p) => ({ ...p, descripcion: e.target.value }))} placeholder="Descripción del antecedente" />
                 </div>
                 <div>
-                  <Label className="text-xs">URL Documento adjunto</Label>
-                  <Input className="mt-1" value={form.url_documento_adjunto} onChange={(e) => setForm((p) => ({ ...p, url_documento_adjunto: e.target.value }))} placeholder="https://..." />
+                  <Label className="text-xs">Documento adjunto</Label>
+                  <FileUpload
+                    value={form.url_documento_adjunto || null}
+                    onUploadSuccess={(url) => setForm((p) => ({ ...p, url_documento_adjunto: url }))}
+                    onClear={() => setForm((p) => ({ ...p, url_documento_adjunto: "" }))}
+                  />
                 </div>
               </div>
               {formError && <p className="text-destructive text-sm">{formError}</p>}
@@ -145,8 +150,12 @@ export default function PenalesPage({ params }: { params: Promise<{ id: string }
                         <Input className="mt-1" value={editForm.descripcion} onChange={(e) => setEditForm((p) => ({ ...p, descripcion: e.target.value }))} />
                       </div>
                       <div>
-                        <Label className="text-xs">URL Documento adjunto</Label>
-                        <Input className="mt-1" value={editForm.url_documento_adjunto} onChange={(e) => setEditForm((p) => ({ ...p, url_documento_adjunto: e.target.value }))} />
+                        <Label className="text-xs">Documento adjunto</Label>
+                        <FileUpload
+                          value={editForm.url_documento_adjunto || null}
+                          onUploadSuccess={(url) => setEditForm((p) => ({ ...p, url_documento_adjunto: url }))}
+                          onClear={() => setEditForm((p) => ({ ...p, url_documento_adjunto: "" }))}
+                        />
                       </div>
                     </div>
                     {editError && <p className="text-destructive text-sm">{editError}</p>}

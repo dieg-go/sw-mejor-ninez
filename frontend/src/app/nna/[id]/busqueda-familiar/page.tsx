@@ -117,17 +117,16 @@ export default function BusquedaFamiliarPage({ params }: { params: Promise<{ id:
     }
   };
 
-  const handleCrearYAsociarFamiliar = async (nombre: string, parentesco: string) => {
+  const handleCrearYAsociarFamiliar = async (familiar: Familiar, parentesco: string) => {
     if (!despeje) return;
     setActionSaving(true);
     try {
-      const nuevoFam = await api.familiares.create({ nombre } as any);
       const created = await api.notificacion.create(despeje.id_despeje, {
-        id_familiar: nuevoFam.id_familiar,
+        id_familiar: familiar.id_familiar,
         observacion: parentesco ? `Parentesco declarado: ${parentesco}` : "",
       } as any);
 
-      setFamiliares((prev) => [...prev, nuevoFam]);
+      setFamiliares((prev) => [...prev, familiar]);
       setNotificaciones((prev) => [...prev, created]);
     } catch (e: any) {
       setActionError(e.message);
@@ -196,6 +195,7 @@ export default function BusquedaFamiliarPage({ params }: { params: Promise<{ id:
 
       {activeStep === 2 && (
         <Step2Identificar
+          nnaId={id}
           notificaciones={notificaciones}
           familiaresDisponibles={familiaresDisponibles}
           getFamiliarNombre={getFamiliarNombre}

@@ -5,8 +5,7 @@ import { FileTextIcon, ClockIcon, CheckCircle2Icon, ChevronRightIcon } from "luc
 import { type ProcesoDespejeFamiliar } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FileUpload } from "@/components/ui/file-upload";
 import { formatDate } from "./utils";
 import { DatePicker } from "./date-picker";
 
@@ -73,10 +72,15 @@ export function Step1Informe({
               </div>
               <div className="space-y-4">
                 <DatePicker value={recepcionFecha} onChange={setRecepcionFecha} label="Fecha de Recepción del Documento" />
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Ruta / URL del documento PDF</Label>
-                  <Input value={informeUrl} onChange={(e) => setInformeUrl(e.target.value)} placeholder="Ej: /documentos/informe-hijo-123.pdf" />
-                </div>
+                <FileUpload
+                  value={informeUrl || null}
+                  onUploadSuccess={(url) => setInformeUrl(url)}
+                  onClear={() => setInformeUrl("")}
+                  // accept={{ "application/pdf": [".pdf"] }}
+                  // dropzoneLabel="Arrastra el informe PDF aquí o haz clic para buscar"
+                  dropzoneLabel="Arrastra el informe aquí o haz clic para buscar"
+                  // dropzoneHint="Solo archivos PDF (máx. 10 MB)"
+                />
                 <Button
                   className="w-full"
                   disabled={!recepcionFecha || saving}
