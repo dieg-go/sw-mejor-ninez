@@ -11,7 +11,7 @@ $frontendDir = Join-Path $root "frontend"
 
 if (-not $NoDb) {
   Write-Host "[db] starting..." -ForegroundColor Cyan
-  docker compose up -d
+  docker compose up -d db
   Write-Host "[db] running on localhost:5433" -ForegroundColor Green
 }
 

@@ -26,7 +26,7 @@ export function StepHistorial({ data, onData, onBack, onNext }: { data: WizardDa
     <Card>
       <CardHeader>
         <CardTitle>Historial en Red Proteccional</CardTitle>
-        <CardDescription>Programas previos por los que ha pasado el NNA (&ldquo;mochila&rdquo;).</CardDescription>
+        <CardDescription>Programas previos por los que ha pasado el niño o niña.</CardDescription>
       </CardHeader>
       <CardContent>
         <FieldGroup>

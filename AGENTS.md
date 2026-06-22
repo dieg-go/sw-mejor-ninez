@@ -26,7 +26,7 @@ docker compose up -d --build    # http://localhost:3000
 
 - **Frontend**: Next.js 16.2 (App Router, `use(params)` for async route params), React 19, Tailwind CSS v4, shadcn/ui (radix-nova), next-themes, pnpm. All data pages are client components (`useEffect` + `useState`).
 - **Backend**: FastAPI 0.115 (async), SQLModel 0.0.22, Pydantic v2, Alembic 1.14. Three-layer: Routes → Services → Models. Schemas separate from models.
-- **DB**: PostgreSQL 17 (Alpine). DB `sw_mejor_ninez`, user/pass `postgres/postgres`, port **5433** (host-mapped from 5432). Inside Docker Compose, containers use `db:5432`.
+- **DB**: PostgreSQL 17 (Alpine). DB `sw_mejor_ninez`, user/pass `postgres/postgres`, port **5433** (host-mapped from 5432). Inside Docker Compose, containers use `db:5432`. Schema reference: `db-schema-reference.dbml` (DBML format).
 - **Infra**: Docker Compose with three services (db/backend/frontend). Dockerfiles in both `backend/` and `frontend/`.
 - **Development workflow**: `docker compose up -d --build` for the full stack. For faster iteration, use `dev.ps1` (DB in Docker, backend + frontend locally with hot-reload) or `docker compose up -d db backend` + `cd frontend && pnpm dev` for frontend-only work.
 
@@ -34,8 +34,9 @@ docker compose up -d --build    # http://localhost:3000
 
 ```
 backend/
-  main.py → app/main.py    # FastAPI app, CORS (localhost:3000 only), /health
+  main.py                  # Shim: re-exports from app.main (so both `uvicorn main:app` and `uvicorn app.main:app` work)
   app/
+    main.py                # FastAPI app, CORS (localhost:3000 only), /health, static uploads mount
     api/routes/            # One file per domain; __init__.py aggregates all routers
     models/                # SQLModel tables (__tablename__ matches class name)
     schemas/               # Pydantic v2: *Base/*Create/*Update/*Read per entity
@@ -70,10 +71,10 @@ frontend/
 
 ### Database
 - Port **5433** locally (Docker maps 5433→5432). Inside Compose, hostname `db` on port 5432.
-- Alembic: use `python -m alembic` (not bare `alembic`). Needs running PostgreSQL.
+- Alembic: use `python -m alembic` (not bare `alembic`). Needs running PostgreSQL. `alembic.ini` has a hardcoded URL, but `env.py` overrides it with `settings.database_url_sync` from config — the `.env` file or Docker env vars control the real connection.
 - **Auto-migration**: `backend/entrypoint.sh` runs `alembic upgrade head` + `python seed.py` before starting uvicorn.
 - There is a single initial migration (`0b733fafb9a6`) that creates all tables from SQLModel metadata. To add tables, update models and generate a new migration.
-- `.env` lives in `backend/`, not repo root. Run `uvicorn` from `backend/` so pydantic-settings finds it.
+- `.env` lives in `backend/`, not repo root. Run `uvicorn` from `backend/` so pydantic-settings finds it. Docker Compose sets env vars directly (DB_HOST=db, etc.) which override `.env`.
 - All PKs are UUID (`default_factory=uuid.uuid4`). Omit when creating.
 - `tiene_antecedentes_penales` on Familiar is **denormalized** — must update when adding/removing `AntecedentesPenales`.
 

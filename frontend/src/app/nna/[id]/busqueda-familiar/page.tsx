@@ -126,6 +126,11 @@ export default function BusquedaFamiliarPage({ params }: { params: Promise<{ id:
         observacion: parentesco ? `Parentesco declarado: ${parentesco}` : "",
       } as any);
 
+      await api.vinculoFamiliar.create(id, {
+        id_familiar: familiar.id_familiar,
+        parentesco: parentesco || null,
+      });
+
       setFamiliares((prev) => [...prev, familiar]);
       setNotificaciones((prev) => [...prev, created]);
     } catch (e: any) {
