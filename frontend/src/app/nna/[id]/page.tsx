@@ -285,7 +285,7 @@ export default function NNADetailPage({ params }: { params: Promise<{ id: string
 
       {/* NNA Header */}
       <Card className="mb-8 overflow-hidden">
-        <div className="h-1.5 bg-gradient-to-r from-primary via-primary/60 to-primary/20" />
+        {/* <div className="h-1.5 bg-gradient-to-r from-primary via-primary/60 to-primary/20" /> */}
         <CardHeader className="pb-4">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div className="flex items-start gap-4">

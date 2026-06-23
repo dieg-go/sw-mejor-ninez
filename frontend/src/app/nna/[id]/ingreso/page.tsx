@@ -1,37 +1,17 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
-import Link from "next/link";
-import { ArrowLeftIcon, CalendarIcon, PlusIcon, PencilIcon } from "lucide-react";
-import {
-  api,
-  type NNA,
-  type AntecedenteIngreso,
-  type CausalIngreso,
-  type DerechoVulnerado,
-  type SolicitanteIngreso,
-} from "@/lib/api";
+import { PlusIcon } from "lucide-react";
+import { api, type NNA, type AntecedenteIngreso, type SolicitanteIngreso } from "@/lib/api";
 import { Button } from "@/components/ui/button";
-import { CATALOGO_CAUSALES, CATALOGO_DERECHOS, detectTipoCausa } from "@/lib/catalogos";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
 import { Empty } from "@/components/ui/empty";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+import { IngresoHeader } from "./_components/ingreso-header";
+import { IngresoFormFields, type IngresoFormData } from "./_components/ingreso-form-fields";
+import { IngresoCard } from "./_components/ingreso-card";
 
-const DEFAULT_INGRESO = {
+const DEFAULT_INGRESO: IngresoFormData = {
   fecha_ingreso_residencia: "",
   id_solicitante_ingreso: "",
   orden_tribunal: false,
@@ -42,18 +22,6 @@ const DEFAULT_INGRESO = {
   codigo_ruc: "",
 };
 
-function formatDate(iso: string | null) {
-  if (!iso) return "—";
-  const d = new Date(iso + "T00:00:00");
-  return d.toLocaleDateString("es-CL");
-}
-
-function getSolicitanteNombre(solicitantes: SolicitanteIngreso[], id: string | null): string {
-  if (!id) return "—";
-  const s = solicitantes.find((sol) => sol.id_solicitante_ingreso === id);
-  return s?.nombre || id;
-}
-
 export default function IngresoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const [nna, setNna] = useState<NNA | null>(null);
@@ -62,33 +30,12 @@ export default function IngresoPage({ params }: { params: Promise<{ id: string }
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Create form
   const [createOpen, setCreateOpen] = useState(false);
-  const [form, setForm] = useState(DEFAULT_INGRESO);
+  const [form, setForm] = useState<IngresoFormData>(DEFAULT_INGRESO);
   const [fechaIngreso, setFechaIngreso] = useState<Date | undefined>(undefined);
   const [fechaCausa, setFechaCausa] = useState<Date | undefined>(undefined);
   const [saving, setSaving] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
-
-  // Edit state
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState(DEFAULT_INGRESO);
-  const [editFechaIngreso, setEditFechaIngreso] = useState<Date | undefined>(undefined);
-  const [editFechaCausa, setEditFechaCausa] = useState<Date | undefined>(undefined);
-  const [editSaving, setEditSaving] = useState(false);
-  const [editError, setEditError] = useState<string | null>(null);
-
-  // Causales/Derechos per ingreso
-  const [causalesMap, setCausalesMap] = useState<Record<string, CausalIngreso[]>>({});
-  const [derechosMap, setDerechosMap] = useState<Record<string, DerechoVulnerado[]>>({});
-
-  // Causal create
-  const [causalForm, setCausalForm] = useState({ nombre_causal: "", descripcion_detallada: "", estado: "Activo" });
-  const [causalSaving, setCausalSaving] = useState(false);
-
-  // Derecho create
-  const [derechoForm, setDerechoForm] = useState({ nombre_derecho: "", estado: "Activo" });
-  const [derechoSaving, setDerechoSaving] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -101,19 +48,6 @@ export default function IngresoPage({ params }: { params: Promise<{ id: string }
         setNna(nnaData);
         setIngresos(list);
         setSolicitantes(sols);
-
-        const cm: Record<string, CausalIngreso[]> = {};
-        const dm: Record<string, DerechoVulnerado[]> = {};
-        await Promise.all(list.map(async (ingreso) => {
-          const [c, d] = await Promise.all([
-            api.causalIngreso.list(ingreso.id_antecedente_ingreso).catch(() => [] as CausalIngreso[]),
-            api.derechoVulnerado.list(ingreso.id_antecedente_ingreso).catch(() => [] as DerechoVulnerado[]),
-          ]);
-          cm[ingreso.id_antecedente_ingreso] = c;
-          dm[ingreso.id_antecedente_ingreso] = d;
-        }));
-        setCausalesMap(cm);
-        setDerechosMap(dm);
       } catch (e: any) {
         setError(e.message);
       } finally {
@@ -147,79 +81,10 @@ export default function IngresoPage({ params }: { params: Promise<{ id: string }
     }
   };
 
-  const startEdit = (ingreso: AntecedenteIngreso) => {
-    setEditingId(ingreso.id_antecedente_ingreso);
-    setEditForm({
-      fecha_ingreso_residencia: ingreso.fecha_ingreso_residencia || "",
-      id_solicitante_ingreso: ingreso.id_solicitante_ingreso || "",
-      orden_tribunal: ingreso.orden_tribunal,
-      fecha_causa: ingreso.fecha_causa || "",
-      tribunal: ingreso.tribunal || "",
-      materia: ingreso.materia || "",
-      codigo_rit: ingreso.codigo_rit || "",
-      codigo_ruc: ingreso.codigo_ruc || "",
-    });
-    setEditFechaIngreso(ingreso.fecha_ingreso_residencia ? new Date(ingreso.fecha_ingreso_residencia + "T00:00:00") : undefined);
-    setEditFechaCausa(ingreso.fecha_causa ? new Date(ingreso.fecha_causa + "T00:00:00") : undefined);
-    setEditError(null);
-  };
-
-  const handleUpdate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingId) return;
-    setEditError(null);
-    setEditSaving(true);
-    try {
-      const payload: any = {};
-      for (const [k, v] of Object.entries(editForm)) {
-        if (k === "orden_tribunal") { payload[k] = v; continue; }
-        if (v) payload[k] = v;
-      }
-      if (editFechaIngreso) payload.fecha_ingreso_residencia = editFechaIngreso.toISOString().split("T")[0];
-      else payload.fecha_ingreso_residencia = null;
-      if (editFechaCausa) payload.fecha_causa = editFechaCausa.toISOString().split("T")[0];
-      else payload.fecha_causa = null;
-      const updated = await api.antecedenteIngreso.update(editingId, payload);
-      setIngresos((prev) => prev.map((i) => (i.id_antecedente_ingreso === editingId ? updated : i)));
-      setEditingId(null);
-    } catch (e: any) {
-      setEditError(e.message);
-    } finally {
-      setEditSaving(false);
-    }
-  };
-
-  const createCausal = async (idIngreso: string) => {
-    setCausalSaving(true);
-    try {
-      const payload: any = {};
-      if (causalForm.nombre_causal) payload.nombre_causal = causalForm.nombre_causal;
-      if (causalForm.descripcion_detallada) payload.descripcion_detallada = causalForm.descripcion_detallada;
-      if (causalForm.estado) payload.estado = causalForm.estado;
-      const created = await api.causalIngreso.create(idIngreso, payload);
-      setCausalesMap((prev) => ({
-        ...prev,
-        [idIngreso]: [...(prev[idIngreso] || []), created],
-      }));
-      setCausalForm({ nombre_causal: "", descripcion_detallada: "", estado: "Activo" });
-    } catch {}
-    finally { setCausalSaving(false); }
-  };
-
-  const createDerecho = async (idIngreso: string) => {
-    setDerechoSaving(true);
-    try {
-      const payload: any = {};
-      if (derechoForm.nombre_derecho) payload.nombre_derecho = derechoForm.nombre_derecho;
-      if (derechoForm.estado) payload.estado = derechoForm.estado;
-      const created = await api.derechoVulnerado.create(idIngreso, payload);
-      setDerechosMap((prev) => ({
-        ...prev,
-        [idIngreso]: [...(prev[idIngreso] || []), created],
-      }));
-      setDerechoForm({ nombre_derecho: "", estado: "Activo" });
-    } catch {}
-    finally { setDerechoSaving(false); }
+  const handleUpdate = (updated: AntecedenteIngreso) => {
+    setIngresos((prev) =>
+      prev.map((i) => (i.id_antecedente_ingreso === updated.id_antecedente_ingreso ? updated : i))
+    );
   };
 
   if (loading) {
@@ -240,15 +105,7 @@ export default function IngresoPage({ params }: { params: Promise<{ id: string }
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <Button variant="ghost" asChild className="-ml-2 mb-4">
-        <Link href={`/nna/${id}`}><ArrowLeftIcon /> Volver al resumen</Link>
-      </Button>
-
-      <Card className="mb-4">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium">{nna.nombre}</CardTitle>
-        </CardHeader>
-      </Card>
+      <IngresoHeader nnaId={id} nnaName={nna.nombre} />
 
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold">Antecedentes de Ingreso</h2>
@@ -266,111 +123,24 @@ export default function IngresoPage({ params }: { params: Promise<{ id: string }
           </CardHeader>
           <CardContent>
             <form onSubmit={handleCreate} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-xs">Fecha ingreso residencia</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={cn("w-full justify-start text-left font-normal mt-1", !fechaIngreso && "text-muted-foreground")}
-                      >
-                        <CalendarIcon />
-                        {fechaIngreso ? fechaIngreso.toLocaleDateString("es-CL") : "Seleccionar"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar mode="single" selected={fechaIngreso} onSelect={setFechaIngreso} />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                <div>
-                  <Label className="text-xs">Quién solicita ingreso</Label>
-                  <Select
-                    value={form.id_solicitante_ingreso || "none"}
-                    onValueChange={(v) => setForm((prev) => ({ ...prev, id_solicitante_ingreso: v === "none" ? "" : v }))}
-                  >
-                    <SelectTrigger className="mt-1">
-                      <SelectValue placeholder="Seleccionar" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">Ninguno</SelectItem>
-                      {solicitantes.map((s) => (
-                        <SelectItem key={s.id_solicitante_ingreso} value={s.id_solicitante_ingreso}>
-                          {s.nombre}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex items-center gap-2 pt-2">
-                  <Checkbox
-                    id="orden-tribunal"
-                    checked={form.orden_tribunal}
-                    onCheckedChange={(v) => setForm((prev) => ({ ...prev, orden_tribunal: !!v }))}
-                  />
-                  <Label htmlFor="orden-tribunal" className="text-xs cursor-pointer">Orden de tribunal</Label>
-                </div>
-                <div>
-                  <Label className="text-xs">Tribunal</Label>
-                  <Input
-                    className="mt-1"
-                    value={form.tribunal}
-                    onChange={(e) => setForm((prev) => ({ ...prev, tribunal: e.target.value }))}
-                    placeholder="Tribunal"
-                  />
-                </div>
-                <div>
-                  <Label className="text-xs">Fecha causa</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={cn("w-full justify-start text-left font-normal mt-1", !fechaCausa && "text-muted-foreground")}
-                      >
-                        <CalendarIcon />
-                        {fechaCausa ? fechaCausa.toLocaleDateString("es-CL") : "Seleccionar"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar mode="single" selected={fechaCausa} onSelect={setFechaCausa} />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                <div>
-                  <Label className="text-xs">Materia</Label>
-                  <Input
-                    className="mt-1"
-                    value={form.materia}
-                    onChange={(e) => setForm((prev) => ({ ...prev, materia: e.target.value }))}
-                    placeholder="Materia"
-                  />
-                </div>
-                <div>
-                  <Label className="text-xs">Código RIT</Label>
-                  <Input
-                    className="mt-1"
-                    value={form.codigo_rit}
-                    onChange={(e) => setForm((prev) => ({ ...prev, codigo_rit: e.target.value }))}
-                    placeholder="RIT"
-                  />
-                </div>
-                <div>
-                  <Label className="text-xs">Código RUC</Label>
-                  <Input
-                    className="mt-1"
-                    value={form.codigo_ruc}
-                    onChange={(e) => setForm((prev) => ({ ...prev, codigo_ruc: e.target.value }))}
-                    placeholder="RUC"
-                  />
-                </div>
-              </div>
+              <IngresoFormFields
+                form={form}
+                setForm={setForm}
+                fechaIngreso={fechaIngreso}
+                setFechaIngreso={setFechaIngreso}
+                fechaCausa={fechaCausa}
+                setFechaCausa={setFechaCausa}
+                solicitantes={solicitantes}
+                idPrefix="create"
+              />
               {createError && <p className="text-destructive text-sm">{createError}</p>}
               <div className="flex gap-2">
-                <Button type="submit" size="sm" disabled={saving}>{saving ? "Guardando..." : "Guardar"}</Button>
-                <Button type="button" variant="outline" size="sm" onClick={() => setCreateOpen(false)}>Cancelar</Button>
+                <Button type="submit" size="sm" disabled={saving}>
+                  {saving ? "Guardando..." : "Guardar"}
+                </Button>
+                <Button type="button" variant="outline" size="sm" onClick={() => setCreateOpen(false)}>
+                  Cancelar
+                </Button>
               </div>
             </form>
           </CardContent>
@@ -378,191 +148,18 @@ export default function IngresoPage({ params }: { params: Promise<{ id: string }
       )}
 
       {ingresos.length === 0 ? (
-        <Empty><p className="text-sm text-muted-foreground">Sin antecedentes de ingreso.</p></Empty>
+        <Empty>
+          <p className="text-sm text-muted-foreground">Sin antecedentes de ingreso.</p>
+        </Empty>
       ) : (
         <div className="space-y-4">
           {ingresos.map((ingreso) => (
-            <Card key={ingreso.id_antecedente_ingreso}>
-              <CardContent className="pt-4">
-                {editingId === ingreso.id_antecedente_ingreso ? (
-                  <form onSubmit={handleUpdate} className="space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <Label className="text-xs">Fecha ingreso residencia</Label>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <Button variant="outline" size="sm" className={cn("w-full justify-start text-left font-normal mt-1", !editFechaIngreso && "text-muted-foreground")}>
-                              <CalendarIcon />
-                              {editFechaIngreso ? editFechaIngreso.toLocaleDateString("es-CL") : "Seleccionar"}
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar mode="single" selected={editFechaIngreso} onSelect={setEditFechaIngreso} />
-                          </PopoverContent>
-                        </Popover>
-                      </div>
-                      <div>
-                        <Label className="text-xs">Quién solicita</Label>
-                        <Select
-                          value={editForm.id_solicitante_ingreso || "none"}
-                          onValueChange={(v) => setEditForm((prev) => ({ ...prev, id_solicitante_ingreso: v === "none" ? "" : v }))}
-                        >
-                          <SelectTrigger className="mt-1">
-                            <SelectValue placeholder="Seleccionar" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">Ninguno</SelectItem>
-                            {solicitantes.map((s) => (
-                              <SelectItem key={s.id_solicitante_ingreso} value={s.id_solicitante_ingreso}>
-                                {s.nombre}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="flex items-center gap-2 pt-2">
-                        <Checkbox id={`edit-orden-${ingreso.id_antecedente_ingreso}`} checked={editForm.orden_tribunal} onCheckedChange={(v) => setEditForm((prev) => ({ ...prev, orden_tribunal: !!v }))} />
-                        <Label htmlFor={`edit-orden-${ingreso.id_antecedente_ingreso}`} className="text-xs cursor-pointer">Orden tribunal</Label>
-                      </div>
-                      <div>
-                        <Label className="text-xs">Tribunal</Label>
-                        <Input className="mt-1" value={editForm.tribunal} onChange={(e) => setEditForm((prev) => ({ ...prev, tribunal: e.target.value }))} />
-                      </div>
-                      <div>
-                        <Label className="text-xs">Fecha causa</Label>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <Button variant="outline" size="sm" className={cn("w-full justify-start text-left font-normal mt-1", !editFechaCausa && "text-muted-foreground")}>
-                              <CalendarIcon />
-                              {editFechaCausa ? editFechaCausa.toLocaleDateString("es-CL") : "Seleccionar"}
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar mode="single" selected={editFechaCausa} onSelect={setEditFechaCausa} />
-                          </PopoverContent>
-                        </Popover>
-                      </div>
-                      <div>
-                        <Label className="text-xs">Materia</Label>
-                        <Input className="mt-1" value={editForm.materia} onChange={(e) => setEditForm((prev) => ({ ...prev, materia: e.target.value }))} />
-                      </div>
-                      <div>
-                        <Label className="text-xs">RIT</Label>
-                        <Input className="mt-1" value={editForm.codigo_rit} onChange={(e) => setEditForm((prev) => ({ ...prev, codigo_rit: e.target.value }))} />
-                      </div>
-                      <div>
-                        <Label className="text-xs">RUC</Label>
-                        <Input className="mt-1" value={editForm.codigo_ruc} onChange={(e) => setEditForm((prev) => ({ ...prev, codigo_ruc: e.target.value }))} />
-                      </div>
-                    </div>
-                    {editError && <p className="text-destructive text-sm">{editError}</p>}
-                    <div className="flex gap-2">
-                      <Button type="submit" size="sm" disabled={editSaving}>{editSaving ? "Guardando..." : "Guardar"}</Button>
-                      <Button type="button" variant="outline" size="sm" onClick={() => setEditingId(null)}>Cancelar</Button>
-                    </div>
-                  </form>
-                ) : (
-                  <>
-                    <div className="flex items-start justify-between">
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-1 text-sm">
-                        <div><span className="text-xs text-muted-foreground">Fecha ingreso: </span>{formatDate(ingreso.fecha_ingreso_residencia)}</div>
-                        <div><span className="text-xs text-muted-foreground">Solicitante: </span>{getSolicitanteNombre(solicitantes, ingreso.id_solicitante_ingreso)}</div>
-                        <div><span className="text-xs text-muted-foreground">Orden tribunal: </span>{ingreso.orden_tribunal ? <Badge variant="secondary">Sí</Badge> : "No"}</div>
-                        <div><span className="text-xs text-muted-foreground">Tribunal: </span>{ingreso.tribunal || "—"}</div>
-                        <div><span className="text-xs text-muted-foreground">Materia: </span>{ingreso.materia || "—"}</div>
-                        <div><span className="text-xs text-muted-foreground">Fecha causa: </span>{formatDate(ingreso.fecha_causa)}</div>
-                        <div><span className="text-xs text-muted-foreground">RIT: </span>{ingreso.codigo_rit || "—"}{ingreso.codigo_rit && detectTipoCausa(ingreso.codigo_rit) && <Badge variant="secondary" className="ml-1 text-xs">{detectTipoCausa(ingreso.codigo_rit)}</Badge>}</div>
-                        <div><span className="text-xs text-muted-foreground">RUC: </span>{ingreso.codigo_ruc || "—"}</div>
-                      </div>
-                      <Button variant="ghost" size="icon" onClick={() => startEdit(ingreso)}>
-                        <PencilIcon className="size-4" />
-                      </Button>
-                    </div>
-
-                    {/* Causales & Derechos */}
-                    <div className="mt-3 border-t pt-3 space-y-4">
-                      <div>
-                        <h4 className="text-xs font-semibold text-muted-foreground mb-2">Causales de Ingreso</h4>
-                        {(causalesMap[ingreso.id_antecedente_ingreso] || []).length === 0 ? (
-                          <p className="text-xs text-muted-foreground">Sin causales registradas.</p>
-                        ) : (
-                          <ul className="space-y-1 mb-2">
-                            {(causalesMap[ingreso.id_antecedente_ingreso] || []).map((c) => (
-                              <li key={c.id_registro_causales} className="text-sm flex items-center gap-2">
-                                <span>{c.nombre_causal || "—"}</span>
-                                <Badge variant="outline" className="text-xs">{c.estado || "—"}</Badge>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                        <div className="flex items-center gap-2 mt-2">
-                          <Select value={causalForm.nombre_causal || "none"} onValueChange={(v) => setCausalForm((prev) => ({ ...prev, nombre_causal: v === "none" ? "" : v }))}>
-                            <SelectTrigger className="h-7 text-xs w-44">
-                              <SelectValue placeholder="Nombre causal" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="none">Ninguna</SelectItem>
-                              {CATALOGO_CAUSALES.map((causal) => (
-                                <SelectItem key={causal} value={causal}>{causal}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <Select value={causalForm.estado} onValueChange={(v) => setCausalForm((prev) => ({ ...prev, estado: v }))}>
-                            <SelectTrigger className="h-7 text-xs w-28">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Activo">Activo</SelectItem>
-                              <SelectItem value="Inactivo">Inactivo</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <Button size="sm" className="h-7 text-xs" onClick={() => createCausal(ingreso.id_antecedente_ingreso)} disabled={causalSaving}>+</Button>
-                        </div>
-                      </div>
-
-                      <div>
-                        <h4 className="text-xs font-semibold text-muted-foreground mb-2">Derechos Vulnerados</h4>
-                        {(derechosMap[ingreso.id_antecedente_ingreso] || []).length === 0 ? (
-                          <p className="text-xs text-muted-foreground">Sin derechos registrados.</p>
-                        ) : (
-                          <ul className="space-y-1 mb-2">
-                            {(derechosMap[ingreso.id_antecedente_ingreso] || []).map((d) => (
-                              <li key={d.id_registro_derecho_vulnerado} className="text-sm flex items-center gap-2">
-                                <span>{d.nombre_derecho || "—"}</span>
-                                <Badge variant="outline" className="text-xs">{d.estado || "—"}</Badge>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                        <div className="flex items-center gap-2 mt-2">
-                          <Select value={derechoForm.nombre_derecho || "none"} onValueChange={(v) => setDerechoForm((prev) => ({ ...prev, nombre_derecho: v === "none" ? "" : v }))}>
-                            <SelectTrigger className="h-7 text-xs w-44">
-                              <SelectValue placeholder="Nombre derecho" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="none">Ninguno</SelectItem>
-                              {CATALOGO_DERECHOS.map((derecho) => (
-                                <SelectItem key={derecho} value={derecho}>{derecho}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <Select value={derechoForm.estado} onValueChange={(v) => setDerechoForm((prev) => ({ ...prev, estado: v }))}>
-                            <SelectTrigger className="h-7 text-xs w-28">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Activo">Activo</SelectItem>
-                              <SelectItem value="Inactivo">Inactivo</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <Button size="sm" className="h-7 text-xs" onClick={() => createDerecho(ingreso.id_antecedente_ingreso)} disabled={derechoSaving}>+</Button>
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </CardContent>
-            </Card>
+            <IngresoCard
+              key={ingreso.id_antecedente_ingreso}
+              ingreso={ingreso}
+              solicitantes={solicitantes}
+              onUpdate={handleUpdate}
+            />
           ))}
         </div>
       )}
