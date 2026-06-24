@@ -25,6 +25,7 @@ from app.schemas.ingreso import (
     DocumentacionIngresoUpdate,
 )
 from app.services import (
+    create_diagnostico_informe,
     create_ingreso_child,
     create_nna_child,
     get_nna_child,
@@ -47,7 +48,10 @@ async def list_ingresos(id_nna: uuid.UUID, db: AsyncSession = Depends(get_db)):
 async def create_ingreso(
     id_nna: uuid.UUID, data: AntecedenteIngresoCreate, db: AsyncSession = Depends(get_db)
 ):
-    return await create_nna_child(db, AntecedenteIngreso, id_nna, data.model_dump())
+    ingreso = await create_nna_child(db, AntecedenteIngreso, id_nna, data.model_dump())
+    if ingreso.fecha_ingreso_residencia:
+        await create_diagnostico_informe(db, id_nna, ingreso.fecha_ingreso_residencia)
+    return ingreso
 
 
 ingreso_item_router = APIRouter(prefix="/api/antecedente-ingreso", tags=["AntecedenteIngreso"])

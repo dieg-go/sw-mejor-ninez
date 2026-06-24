@@ -3,10 +3,9 @@
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowLeftIcon, CalendarIcon, PlusIcon, PencilIcon } from "lucide-react";
-import { api, type NNA, type InformeTribunal } from "@/lib/api";
+import { api, type NNA, type InformeTribunal, type TipoInforme } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
@@ -130,7 +129,15 @@ export default function InformesPage({ params }: { params: Promise<{ id: string 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label className="text-xs">Tipo informe</Label>
-                  <Input className="mt-1" value={form.tipo_informe} onChange={(e) => setForm((p) => ({ ...p, tipo_informe: e.target.value }))} placeholder="Tipo de informe" />
+                  <Select value={form.tipo_informe} onValueChange={(v) => setForm((p) => ({ ...p, tipo_informe: v as TipoInforme }))}>
+                    <SelectTrigger className="mt-1 w-full"><SelectValue placeholder="Seleccionar" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="Diagnóstico">Diagnóstico</SelectItem>
+                        <SelectItem value="Seguimiento">Seguimiento</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label className="text-xs">Estado</Label>
@@ -186,7 +193,13 @@ export default function InformesPage({ params }: { params: Promise<{ id: string 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <Label className="text-xs">Tipo informe</Label>
-                        <Input className="mt-1" value={editForm.tipo_informe} onChange={(e) => setEditForm((p) => ({ ...p, tipo_informe: e.target.value }))} />
+                        <Select value={editForm.tipo_informe} onValueChange={(v) => setEditForm((p) => ({ ...p, tipo_informe: v as TipoInforme }))}>
+                          <SelectTrigger className="mt-1 w-full"><SelectValue placeholder="Seleccionar" /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Diagnóstico">Diagnóstico</SelectItem>
+                            <SelectItem value="Seguimiento">Seguimiento</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                       <div>
                         <Label className="text-xs">Estado</Label>

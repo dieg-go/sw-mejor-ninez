@@ -229,16 +229,24 @@ export interface NotificacionFamiliar {
 
 export type NotificacionFamiliarUpdate = Partial<Omit<NotificacionFamiliar, "id_notificacion" | "id_despeje" | "id_familiar">>;
 
+export type TipoInforme = "Diagnóstico" | "Seguimiento";
+export type EstadoInforme = "Pendiente" | "Enviado" | "Vencido";
+
 export interface InformeTribunal {
   id_informe: string;
   id_nna: string;
-  tipo_informe: string | null;
+  tipo_informe: TipoInforme | null;
   fecha_vencimiento: string | null;
   fecha_envio_real: string | null;
-  estado: string | null;
+  estado: EstadoInforme | null;
 }
 
 export type InformeTribunalUpdate = Partial<Omit<InformeTribunal, "id_informe" | "id_nna">>;
+
+export interface InformeAlerta extends InformeTribunal {
+  nombre_nna: string | null;
+  dias_restantes: number | null;
+}
 
 export interface E2PEvaluacion {
   id_e2p: string;
@@ -553,6 +561,9 @@ export const api = {
     get: (id: string) => request<InformeTribunal>(`/informe-tribunal/${id}`),
     update: (id: string, data: InformeTribunalUpdate) =>
       request<InformeTribunal>(`/informe-tribunal/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+    atrasados: () => request<InformeAlerta[]>("/informes/atrasados"),
+    proximosAVencer: (dias?: number) =>
+      request<InformeAlerta[]>(`/informes/proximos-a-vencer${dias ? `?dias=${dias}` : ""}`),
   },
 
   // ── Instrumentos ───────────────────────────────────────────────────────────

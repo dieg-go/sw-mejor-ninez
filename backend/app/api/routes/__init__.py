@@ -22,6 +22,7 @@ from app.api.routes.ingreso import (
     ingresos_router,
 )
 from app.api.routes.historial import (
+    alerta_router,
     informe_item_router,
     informe_router,
     red_item_router,
@@ -98,6 +99,7 @@ routers = [
     notificacion_item_router,
     informe_router,
     informe_item_router,
+    alerta_router,
     e2p_router,
     e2p_item_router,
     pmf_router,

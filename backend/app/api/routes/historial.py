@@ -1,19 +1,30 @@
 import uuid
+from datetime import date
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import select
 
 from app.core.database import get_db
-from app.models import HistorialRedProteccional, InformeTribunal
+from app.models import HistorialRedProteccional, InformeTribunal, NNA
+from app.models.enums import EstadoInforme
 from app.schemas.historial import (
     HistorialRedProteccionalCreate,
     HistorialRedProteccionalRead,
     HistorialRedProteccionalUpdate,
+    InformeAlertaRead,
     InformeTribunalCreate,
     InformeTribunalRead,
     InformeTribunalUpdate,
 )
-from app.services import create_nna_child, get_nna_child, list_nna_children, update_child
+from app.services import (
+    chain_next_informe,
+    create_nna_child,
+    get_nna_child,
+    list_nna_children,
+    update_child,
+)
 
 # ── Historial Red Proteccional ───────────────────────────────────────────────
 
@@ -88,4 +99,83 @@ async def update_informe(
     obj = await get_nna_child(db, InformeTribunal, InformeTribunal.id_informe, id_informe)
     if not obj:
         raise HTTPException(status_code=404, detail="Informe no encontrado")
-    return await update_child(db, obj, data.model_dump(exclude_unset=True))
+
+    was_enviado = obj.estado == EstadoInforme.ENVIADO
+    updated = await update_child(db, obj, data.model_dump(exclude_unset=True))
+
+    if not was_enviado and updated.estado == EstadoInforme.ENVIADO:
+        await chain_next_informe(db, updated.id_nna, updated)
+
+    return updated
+
+
+alerta_router = APIRouter(prefix="/api/informes", tags=["Alertas"])
+
+
+@alerta_router.get("/atrasados", response_model=list[InformeAlertaRead])
+async def informes_atrasados(db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(
+            InformeTribunal.id_informe,
+            InformeTribunal.id_nna,
+            InformeTribunal.tipo_informe,
+            InformeTribunal.fecha_vencimiento,
+            InformeTribunal.estado,
+            NNA.nombre.label("nombre_nna"),
+            (InformeTribunal.fecha_vencimiento - func.current_date()).label("dias_restantes"),
+        )
+        .join(NNA, InformeTribunal.id_nna == NNA.id_nna)
+        .where(
+            InformeTribunal.estado == EstadoInforme.PENDIENTE,
+            InformeTribunal.fecha_vencimiento < func.current_date(),
+        )
+        .order_by(InformeTribunal.fecha_vencimiento.asc())
+    )
+    return [
+        InformeAlertaRead(
+            id_informe=row.id_informe,
+            id_nna=row.id_nna,
+            tipo_informe=row.tipo_informe,
+            fecha_vencimiento=row.fecha_vencimiento,
+            estado=row.estado,
+            nombre_nna=row.nombre_nna,
+            dias_restantes=row.dias_restantes,
+        )
+        for row in result
+    ]
+
+
+@alerta_router.get("/proximos-a-vencer", response_model=list[InformeAlertaRead])
+async def informes_proximos(
+    dias: int = Query(10, ge=1, le=365), db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(
+        select(
+            InformeTribunal.id_informe,
+            InformeTribunal.id_nna,
+            InformeTribunal.tipo_informe,
+            InformeTribunal.fecha_vencimiento,
+            InformeTribunal.estado,
+            NNA.nombre.label("nombre_nna"),
+            (InformeTribunal.fecha_vencimiento - func.current_date()).label("dias_restantes"),
+        )
+        .join(NNA, InformeTribunal.id_nna == NNA.id_nna)
+        .where(
+            InformeTribunal.estado == EstadoInforme.PENDIENTE,
+            InformeTribunal.fecha_vencimiento >= func.current_date(),
+            InformeTribunal.fecha_vencimiento - func.current_date() <= dias,
+        )
+        .order_by(InformeTribunal.fecha_vencimiento.asc())
+    )
+    return [
+        InformeAlertaRead(
+            id_informe=row.id_informe,
+            id_nna=row.id_nna,
+            tipo_informe=row.tipo_informe,
+            fecha_vencimiento=row.fecha_vencimiento,
+            estado=row.estado,
+            nombre_nna=row.nombre_nna,
+            dias_restantes=row.dias_restantes,
+        )
+        for row in result
+    ]
