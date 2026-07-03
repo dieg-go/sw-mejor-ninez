@@ -1,6 +1,9 @@
 # ── Build stage ──
 FROM node:22-alpine AS builder
 
+ARG API_BACKEND_URL=http://backend:8000
+ARG NEXT_PUBLIC_API_URL=/api
+
 WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@latest --activate
 

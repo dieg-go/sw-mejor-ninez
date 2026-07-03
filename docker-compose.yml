@@ -40,9 +40,13 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        - API_BACKEND_URL=http://backend:8000
+        - NEXT_PUBLIC_API_URL=/api
     container_name: sw-mejor-ninez-frontend
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8000/api
+      - NEXT_PUBLIC_API_URL=/api
+      - API_BACKEND_URL=http://backend:8000
     ports:
       - "3000:3000"
     depends_on:
