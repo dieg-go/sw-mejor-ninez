@@ -1,38 +1,16 @@
-# Dependencies
-node_modules/
-frontend/.next/
-
-# Python
-__pycache__/
-*.py[cod]
-*.egg-info/
-.venv/
-venv/
-
-# Environment
-.env
-.env.local
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# OS
+node_modules
 .DS_Store
-Thumbs.db
+dist
+dist-ssr
+*.local
+.env
+.nitro
+.tanstack
+.wrangler
+.output
+.vinxi
+__unconfig*
+todos.json
 
-# Docker
-pgdata/
-
-# Build
-dist/
-build/
-opencode.json
-
-# Vibes
-AGENTS.md
-
-#Uploads
-backend/uploads/
+# Legacy reference clone (migration source only, not part of new app)
+legacy-source/
