@@ -6,7 +6,7 @@ from pydantic import BaseModel, ConfigDict
 
 
 class AntecedenteIngresoBase(BaseModel):
-    id_solicitante_ingreso: Optional[uuid.UUID] = None
+    id_solicitante_ingreso: uuid.UUID
     fecha_ingreso_residencia: Optional[date] = None
     orden_tribunal: bool = False
     fecha_causa: Optional[date] = None

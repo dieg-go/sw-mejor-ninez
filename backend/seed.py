@@ -383,7 +383,7 @@ async def seed():
 
         session.add(InformeTribunal(
             id_nna=ana.id_nna,
-            tipo_informe="Seguimiento",
+            tipo_informe="Avance",
             fecha_vencimiento=fecha_hace(-15),
             fecha_envio_real=fecha_hace(20),
             estado="Enviado",

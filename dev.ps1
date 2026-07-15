@@ -30,11 +30,24 @@ if (-not $NoBackend) {
   Write-Host "[backend] starting locally..." -ForegroundColor Cyan
   $venvActivate = Join-Path $backendDir ".venv\Scripts\activate"
   if (-not (Test-Path $venvActivate)) {
-    Write-Host "[backend] ERROR: .venv not found at $venvActivate. Create it first." -ForegroundColor Red
-  } else {
-    Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$backendDir'; .venv\Scripts\activate; uvicorn main:app --reload --port 8000" -WindowStyle Normal
-    Write-Host "[backend] uvicorn starting on http://localhost:8000" -ForegroundColor Green
+    Write-Host "[backend] .venv not found. Creating virtual environment..." -ForegroundColor Yellow
+    try {
+      & python -m venv "$backendDir\.venv"
+      Write-Host "[backend] .venv created" -ForegroundColor Green
+    } catch {
+      Write-Host "[backend] ERROR: Could not create .venv. Is Python installed?" -ForegroundColor Red
+      return
+    }
+    Write-Host "[backend] installing dependencies..." -ForegroundColor Yellow
+    & "$backendDir\.venv\Scripts\python.exe" -m pip install -r "$backendDir\requirements.txt"
+    if ($LASTEXITCODE -ne 0) {
+      Write-Host "[backend] ERROR: pip install failed." -ForegroundColor Red
+      return
+    }
+    Write-Host "[backend] dependencies installed" -ForegroundColor Green
   }
+  Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$backendDir'; .venv\Scripts\activate; uvicorn main:app --reload --port 8000" -WindowStyle Normal
+  Write-Host "[backend] uvicorn starting on http://localhost:8000" -ForegroundColor Green
 }
 
 if (-not $NoFrontend) {

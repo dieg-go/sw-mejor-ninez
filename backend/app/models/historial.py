@@ -38,5 +38,6 @@ class InformeTribunal(SQLModel, table=True):
     fecha_vencimiento: Optional[date] = None
     fecha_envio_real: Optional[date] = None
     estado: Optional[EstadoInforme] = Field(default=None, sa_type=String)
+    url_documento: Optional[str] = None
 
     nna: "NNA" = Relationship(back_populates="informes_tribunal")

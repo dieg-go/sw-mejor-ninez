@@ -17,8 +17,8 @@ class AntecedenteIngreso(SQLModel, table=True):
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
     )
     id_nna: uuid.UUID = Field(foreign_key="NNA.id_nna", sa_type=UUID(as_uuid=True))
-    id_solicitante_ingreso: Optional[uuid.UUID] = Field(
-        default=None, foreign_key="SolicitanteIngreso.id_solicitante_ingreso", sa_type=UUID(as_uuid=True)
+    id_solicitante_ingreso: uuid.UUID = Field(
+        foreign_key="SolicitanteIngreso.id_solicitante_ingreso", sa_type=UUID(as_uuid=True)
     )
     fecha_ingreso_residencia: Optional[date] = None
     orden_tribunal: bool = False

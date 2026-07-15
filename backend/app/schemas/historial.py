@@ -38,6 +38,7 @@ class InformeTribunalBase(BaseModel):
     fecha_vencimiento: Optional[date] = None
     fecha_envio_real: Optional[date] = None
     estado: Optional[EstadoInforme] = None
+    url_documento: Optional[str] = None
 
 
 class InformeTribunalCreate(InformeTribunalBase):
@@ -49,6 +50,7 @@ class InformeTribunalUpdate(BaseModel):
     fecha_vencimiento: Optional[date] = None
     fecha_envio_real: Optional[date] = None
     estado: Optional[EstadoInforme] = None
+    url_documento: Optional[str] = None
 
 
 class InformeTribunalRead(InformeTribunalBase):

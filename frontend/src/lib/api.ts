@@ -229,7 +229,7 @@ export interface NotificacionFamiliar {
 
 export type NotificacionFamiliarUpdate = Partial<Omit<NotificacionFamiliar, "id_notificacion" | "id_despeje" | "id_familiar">>;
 
-export type TipoInforme = "Diagnóstico" | "Seguimiento";
+export type TipoInforme = "Diagnóstico" | "Avance";
 export type EstadoInforme = "Pendiente" | "Enviado" | "Vencido";
 
 export interface InformeTribunal {
@@ -239,6 +239,7 @@ export interface InformeTribunal {
   fecha_vencimiento: string | null;
   fecha_envio_real: string | null;
   estado: EstadoInforme | null;
+  url_documento: string | null;
 }
 
 export type InformeTribunalUpdate = Partial<Omit<InformeTribunal, "id_informe" | "id_nna">>;

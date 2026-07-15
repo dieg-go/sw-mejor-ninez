@@ -274,7 +274,7 @@ async def chain_next_informe(
         if not fecha_ingreso:
             return None
         next_vencimiento = fecha_ingreso + timedelta(days=90)
-    elif current.tipo_informe == TipoInforme.SEGUIMIENTO:
+    elif current.tipo_informe == TipoInforme.AVANCE:
         if not current.fecha_vencimiento:
             return None
         next_vencimiento = _add_months(current.fecha_vencimiento, 3)
@@ -283,7 +283,7 @@ async def chain_next_informe(
 
     obj = InformeTribunal(
         id_nna=id_nna,
-        tipo_informe=TipoInforme.SEGUIMIENTO,
+        tipo_informe=TipoInforme.AVANCE,
         fecha_vencimiento=next_vencimiento,
         estado=EstadoInforme.PENDIENTE,
     )

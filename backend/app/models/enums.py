@@ -3,7 +3,7 @@ from enum import StrEnum
 
 class TipoInforme(StrEnum):
     DIAGNOSTICO = "Diagnóstico"
-    SEGUIMIENTO = "Seguimiento"
+    AVANCE = "Avance"
 
 
 class EstadoInforme(StrEnum):

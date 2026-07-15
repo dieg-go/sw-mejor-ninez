@@ -2,6 +2,7 @@ import uuid
 from datetime import date
 from typing import TYPE_CHECKING, Optional
 
+from sqlalchemy import CheckConstraint, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlmodel import Field, Relationship, SQLModel
 
@@ -12,6 +13,16 @@ if TYPE_CHECKING:
 
 class E2P(SQLModel, table=True):
     __tablename__ = "E2P"
+    __table_args__ = (
+        CheckConstraint(
+            "rango_etario IN ('0-3_meses','4-10_meses','11-18_meses','19-36_meses','3-5_anos','6-7_anos','8-12_anos','13-17_anos')",
+            name="chk_edad_dentro_de_rango",
+        ),
+        CheckConstraint(
+            "perfil_resultado_global IN ('Riesgo','Monitoreo','Optimo')",
+            name="chk_perfil_resultado",
+        ),
+    )
 
     id_e2p: uuid.UUID = Field(
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
@@ -20,7 +31,7 @@ class E2P(SQLModel, table=True):
     id_familiar: uuid.UUID = Field(
         foreign_key="Familiar.id_familiar", sa_type=UUID(as_uuid=True)
     )
-    fecha_evaluacion: Optional[date] = None
+    fecha_evaluacion: date = Field()
     edad_meses_evaluacion: int = Field()
     rango_etario: str = Field()
     perfil_resultado_global: Optional[str] = None
@@ -40,6 +51,17 @@ class E2P(SQLModel, table=True):
 
 class PreguntaE2P(SQLModel, table=True):
     __tablename__ = "PreguntaE2P"
+    __table_args__ = (
+        UniqueConstraint("rango_etario", "numero_item"),
+        CheckConstraint(
+            "rango_etario IN ('0-3_meses','4-10_meses','11-18_meses','19-36_meses','3-5_anos','6-7_anos','8-12_anos','13-17_anos')",
+            name="chk_edad_dentro_de_rango",
+        ),
+        CheckConstraint(
+            "dimension IN ('Vinculares','Formativas','Protectoras','Reflexivas')",
+            name="chk_dimension",
+        ),
+    )
 
     id_pregunta_e2p: uuid.UUID = Field(
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
@@ -55,6 +77,11 @@ class PreguntaE2P(SQLModel, table=True):
 
 class RespuestaE2P(SQLModel, table=True):
     __tablename__ = "RespuestaE2P"
+    __table_args__ = (
+        UniqueConstraint("id_e2p", "id_pregunta_e2p"),
+        CheckConstraint("valor_seleccionado BETWEEN 0 AND 4"),
+        CheckConstraint("puntaje_calculado BETWEEN 0 AND 4"),
+    )
 
     id_respuesta_e2p: uuid.UUID = Field(
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
@@ -74,6 +101,18 @@ class RespuestaE2P(SQLModel, table=True):
 
 class BaremoE2P(SQLModel, table=True):
     __tablename__ = "BaremoE2P"
+    __table_args__ = (
+        CheckConstraint(
+            "rango_etario IN ('0-3_meses','4-10_meses','11-18_meses','19-36_meses','3-5_anos','6-7_anos','8-12_anos','13-17_anos')"
+        ),
+        CheckConstraint(
+            "dimension IN ('Vinculares','Formativas','Protectoras','Reflexivas','Total')"
+        ),
+        CheckConstraint("decil BETWEEN 1 AND 10"),
+        CheckConstraint(
+            "zona IN ('Baja frecuencia','Frecuencia intermedia','Alta frecuencia')"
+        ),
+    )
 
     id_baremo_e2p: uuid.UUID = Field(
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
@@ -88,6 +127,15 @@ class BaremoE2P(SQLModel, table=True):
 
 class PuntajeE2P(SQLModel, table=True):
     __tablename__ = "PuntajeE2P"
+    __table_args__ = (
+        UniqueConstraint("id_e2p", "dimension"),
+        CheckConstraint(
+            "dimension IN ('Vinculares','Formativas','Protectoras','Reflexivas','Total')"
+        ),
+        CheckConstraint(
+            "zona IN ('Baja frecuencia','Frecuencia intermedia','Alta frecuencia')"
+        ),
+    )
 
     id_puntaje_e2p: uuid.UUID = Field(
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)

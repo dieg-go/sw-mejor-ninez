@@ -25,7 +25,7 @@ class NNA(SQLModel, table=True):
     )
     id_sis: Optional[str] = Field(default=None, unique=True)
     nombre: Optional[str] = None
-    run: Optional[str] = None
+    run: Optional[str] = Field(default=None, unique=True)
     fecha_nacimiento: Optional[date] = None
     sexo: Optional[str] = None
     etnia_declarada: Optional[str] = None
