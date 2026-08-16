@@ -1,6 +1,7 @@
 import json
 import uuid
 from pathlib import Path
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -95,8 +96,12 @@ pmf_router = APIRouter(prefix="/api/nna/{id_nna}/pmf", tags=["PMF"])
 
 
 @pmf_router.get("", response_model=list[PMFRead])
-async def list_pmf(id_nna: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    items = await list_nna_children(db, PMF, id_nna)
+async def list_pmf(
+    id_nna: uuid.UUID,
+    id_caso: Optional[uuid.UUID] = None,
+    db: AsyncSession = Depends(get_db),
+):
+    items = await list_nna_children(db, PMF, id_nna, id_caso)
     result = []
     for e in items:
         r = PMFRead.model_validate(e)

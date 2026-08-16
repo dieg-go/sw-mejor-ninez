@@ -1,4 +1,5 @@
 from app.api.routes.nna import router as nna_router
+from app.api.routes.casos import casos_router, nna_casos_router
 from app.api.routes.familiares import router as familiares_router, familiar_penal_router
 from app.api.routes.children import (
     consumo_nna_router,
@@ -72,6 +73,8 @@ from app.api.routes.vinculo_nna import vinculo_nna_router, vinculo_nna_item_rout
 
 routers = [
     nna_router,
+    nna_casos_router,
+    casos_router,
     familiares_router,
     familiar_penal_router,
     consumo_nna_router,

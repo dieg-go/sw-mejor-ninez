@@ -1,4 +1,5 @@
 from app.schemas.nna import NNARead, NNACreate, NNAUpdate
+from app.schemas.caso import CasoRead, CasoCreate, CasoUpdate
 from app.schemas.familiar import (
     FamiliarRead,
     FamiliarCreate,
@@ -115,6 +116,9 @@ __all__ = [
     "NNARead",
     "NNACreate",
     "NNAUpdate",
+    "CasoRead",
+    "CasoCreate",
+    "CasoUpdate",
     "FamiliarRead",
     "FamiliarCreate",
     "FamiliarUpdate",

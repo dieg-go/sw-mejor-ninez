@@ -34,6 +34,9 @@ class InformeTribunal(SQLModel, table=True):
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
     )
     id_nna: uuid.UUID = Field(foreign_key="NNA.id_nna", sa_type=UUID(as_uuid=True))
+    id_caso: Optional[uuid.UUID] = Field(
+        default=None, foreign_key="Caso.id_caso", sa_type=UUID(as_uuid=True)
+    )
     tipo_informe: Optional[TipoInforme] = Field(default=None, sa_type=String)
     fecha_vencimiento: Optional[date] = None
     fecha_envio_real: Optional[date] = None

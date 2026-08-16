@@ -1,6 +1,7 @@
 import json
 import uuid
 from pathlib import Path
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -139,8 +140,12 @@ ncfas_router = APIRouter(prefix="/api/nna/{id_nna}/ncfas", tags=["NCFAS"])
 
 
 @ncfas_router.get("", response_model=list[NCFASRead])
-async def list_ncfas(id_nna: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    items = await list_nna_children(db, NCFAS, id_nna)
+async def list_ncfas(
+    id_nna: uuid.UUID,
+    id_caso: Optional[uuid.UUID] = None,
+    db: AsyncSession = Depends(get_db),
+):
+    items = await list_nna_children(db, NCFAS, id_nna, id_caso)
     result = []
     for e in items:
         r = NCFASRead.model_validate(e)

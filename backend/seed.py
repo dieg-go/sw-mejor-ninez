@@ -9,6 +9,7 @@ from sqlmodel import select
 from app.core.database import async_session
 from app.models import (
     Familiar,
+    Caso,
     AntecedenteEscolar,
     AntecedenteFamiliar,
     AntecedenteIngreso,
@@ -709,6 +710,36 @@ async def seed():
             inscrito_en_centro_salud=True,
             prevision="Fonasa",
         ))
+
+        # ═══ Casos: one active folder per seeded NNA + stamp grouped records ══
+        existing_casos = {
+            c.id_nna
+            for c in (await session.execute(select(Caso))).scalars().all()
+        }
+        for nna_obj in (await session.execute(select(NNA))).scalars().all():
+            if nna_obj.id_nna not in existing_casos:
+                session.add(Caso(id_nna=nna_obj.id_nna))
+        await session.flush()
+
+        caso_by_nna = {
+            c.id_nna: c.id_caso
+            for c in (await session.execute(select(Caso))).scalars().all()
+        }
+        for model in [
+            E2P,
+            PMF,
+            NCFAS,
+            AntecedenteIngreso,
+            DocumentacionIngreso,
+            AntecedenteSalud,
+            AntecedenteEscolar,
+            AntecedenteFamiliar,
+            InformeTribunal,
+            ProcesoDespejeFamiliar,
+        ]:
+            for row in (await session.execute(select(model))).scalars().all():
+                if row.id_nna in caso_by_nna:
+                    row.id_caso = caso_by_nna[row.id_nna]
 
         await session.commit()
         print("Seed data created: 3 NNA, 5 familiares, 3 despejes, 6 notificaciones, ~40 child records, catalogs.")

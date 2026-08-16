@@ -1,4 +1,5 @@
 import uuid
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func
@@ -244,8 +245,12 @@ e2p_router = APIRouter(prefix="/api/nna/{id_nna}/e2p", tags=["E2P"])
 
 
 @e2p_router.get("", response_model=list[E2PRead])
-async def list_e2p(id_nna: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    items = await list_nna_children(db, E2P, id_nna)
+async def list_e2p(
+    id_nna: uuid.UUID,
+    id_caso: Optional[uuid.UUID] = None,
+    db: AsyncSession = Depends(get_db),
+):
+    items = await list_nna_children(db, E2P, id_nna, id_caso)
     result = []
     for e in items:
         r = E2PRead.model_validate(e)

@@ -20,6 +20,9 @@ class PMF(SQLModel, table=True):
     id_familiar: uuid.UUID = Field(
         foreign_key="Familiar.id_familiar", sa_type=UUID(as_uuid=True)
     )
+    id_caso: Optional[uuid.UUID] = Field(
+        default=None, foreign_key="Caso.id_caso", sa_type=UUID(as_uuid=True)
+    )
     fecha_evaluacion: Optional[date] = None
     fecha_proxima_evaluacion: Optional[date] = None
     resultado: Optional[str] = None

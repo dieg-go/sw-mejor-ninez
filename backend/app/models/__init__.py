@@ -1,4 +1,5 @@
 from app.models.nna import NNA
+from app.models.caso import Caso
 from app.models.familiar import Familiar, AntecedentesPenales
 from app.models.consumo import HistorialConsumoNNA, HistorialConsumoAdulto
 from app.models.discapacidad import DiscapacidadNNA, DiscapacidadAdulto
@@ -33,6 +34,7 @@ from app.models.vinculo_nna import VinculoNNA
 
 __all__ = [
     "NNA",
+    "Caso",
     "Familiar",
     "AntecedentesPenales",
     "HistorialConsumoNNA",

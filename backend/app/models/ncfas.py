@@ -37,6 +37,9 @@ class NCFAS(SQLModel, table=True):
     id_familiar: uuid.UUID = Field(
         foreign_key="Familiar.id_familiar", sa_type=UUID(as_uuid=True)
     )
+    id_caso: Optional[uuid.UUID] = Field(
+        default=None, foreign_key="Caso.id_caso", sa_type=UUID(as_uuid=True)
+    )
     es_reunificacion: bool = Field(default=False)
     fecha_apertura: Optional[date] = None
     fecha_cierre: Optional[date] = None

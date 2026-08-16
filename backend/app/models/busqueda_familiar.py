@@ -19,6 +19,9 @@ class ProcesoDespejeFamiliar(SQLModel, table=True):
     id_nna: uuid.UUID = Field(
         foreign_key="NNA.id_nna", unique=True, sa_type=UUID(as_uuid=True)
     )
+    id_caso: Optional[uuid.UUID] = Field(
+        default=None, foreign_key="Caso.id_caso", sa_type=UUID(as_uuid=True)
+    )
     fecha_solicitud_informe: Optional[date] = None
     fecha_recepcion_informe: Optional[date] = None
     estado: Optional[str] = None

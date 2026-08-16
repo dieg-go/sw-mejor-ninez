@@ -1,5 +1,6 @@
 import uuid
 from datetime import date
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import func
@@ -70,8 +71,12 @@ informe_router = APIRouter(prefix="/api/nna/{id_nna}/informes-tribunal", tags=["
 
 
 @informe_router.get("", response_model=list[InformeTribunalRead])
-async def list_informes(id_nna: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    return await list_nna_children(db, InformeTribunal, id_nna)
+async def list_informes(
+    id_nna: uuid.UUID,
+    id_caso: Optional[uuid.UUID] = None,
+    db: AsyncSession = Depends(get_db),
+):
+    return await list_nna_children(db, InformeTribunal, id_nna, id_caso)
 
 
 @informe_router.post("", response_model=InformeTribunalRead, status_code=201)

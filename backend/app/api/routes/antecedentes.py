@@ -1,4 +1,5 @@
 import uuid
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -34,8 +35,12 @@ salud_router = APIRouter(prefix="/api/nna/{id_nna}/antecedentes-salud", tags=["A
 
 
 @salud_router.get("", response_model=list[AntecedenteSaludRead])
-async def list_salud(id_nna: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    return await list_nna_children(db, AntecedenteSalud, id_nna)
+async def list_salud(
+    id_nna: uuid.UUID,
+    id_caso: Optional[uuid.UUID] = None,
+    db: AsyncSession = Depends(get_db),
+):
+    return await list_nna_children(db, AntecedenteSalud, id_nna, id_caso)
 
 
 @salud_router.post("", response_model=AntecedenteSaludRead, status_code=201)
@@ -72,8 +77,12 @@ escolar_router = APIRouter(prefix="/api/nna/{id_nna}/antecedentes-escolares", ta
 
 
 @escolar_router.get("", response_model=list[AntecedenteEscolarRead])
-async def list_escolar(id_nna: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    return await list_nna_children(db, AntecedenteEscolar, id_nna)
+async def list_escolar(
+    id_nna: uuid.UUID,
+    id_caso: Optional[uuid.UUID] = None,
+    db: AsyncSession = Depends(get_db),
+):
+    return await list_nna_children(db, AntecedenteEscolar, id_nna, id_caso)
 
 
 @escolar_router.post("", response_model=AntecedenteEscolarRead, status_code=201)
@@ -110,8 +119,12 @@ familiar_router = APIRouter(prefix="/api/nna/{id_nna}/antecedentes-familiares", 
 
 
 @familiar_router.get("", response_model=list[AntecedenteFamiliarRead])
-async def list_familiar(id_nna: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    return await list_nna_children(db, AntecedenteFamiliar, id_nna)
+async def list_familiar(
+    id_nna: uuid.UUID,
+    id_caso: Optional[uuid.UUID] = None,
+    db: AsyncSession = Depends(get_db),
+):
+    return await list_nna_children(db, AntecedenteFamiliar, id_nna, id_caso)
 
 
 @familiar_router.post("", response_model=AntecedenteFamiliarRead, status_code=201)

@@ -28,6 +28,7 @@ class AntecedenteSaludRead(AntecedenteSaludBase):
 
     id_antecedente_salud: uuid.UUID
     id_nna: uuid.UUID
+    id_caso: Optional[uuid.UUID] = None
 
 
 class AntecedenteEscolarBase(BaseModel):
@@ -53,6 +54,7 @@ class AntecedenteEscolarRead(AntecedenteEscolarBase):
 
     id_antecedente_escolar: uuid.UUID
     id_nna: uuid.UUID
+    id_caso: Optional[uuid.UUID] = None
 
 
 class AntecedenteFamiliarBase(BaseModel):
@@ -78,6 +80,7 @@ class AntecedenteFamiliarRead(AntecedenteFamiliarBase):
 
     id_antecedente_familiar: uuid.UUID
     id_nna: uuid.UUID
+    id_caso: Optional[uuid.UUID] = None
 
 
 class VinculoFamiliarBase(BaseModel):

@@ -22,6 +22,16 @@ docker compose up -d --build    # http://localhost:3000
 | Create migration | `python -m alembic revision --autogenerate -m "desc"` | `backend/` |
 | Apply migrations | `python -m alembic upgrade head` | `backend/` |
 
+## Roadmap (production priorities, in order)
+
+Context: real institution will use this app. Solo developer. Hosted on a self-controlled server.
+
+1. **Backups** — non-negotiable (data is children in the protective system; Ley 19.628). `pg_dump` on a schedule. Do this before anything else on this list.
+2. **Deployment** — run it on the institution's server behind HTTPS. The app currently assumes `localhost` everywhere (CORS is hardcoded to `http://localhost:3000` only) — needs a real domain/origin + TLS + non-hardcoded CORS.
+3. **Multi-user + audit trail** — roles beyond the single admin, and a record of who changed what case and when (institution will ask; protects us too).
+
+Deferred intentionally: tests and CI (solo dev; not needed for the first live version). Revisit when changing old code risks breaking the E2P/PMF/NCFAS scoring, or when a second person joins.
+
 ## Tech Stack
 
 - **Frontend**: Next.js 16.2 (App Router, `use(params)` for async route params), React 19, Tailwind CSS v4, shadcn/ui (radix-nova), next-themes, pnpm. All data pages are client components (`useEffect` + `useState`).
@@ -77,6 +87,11 @@ frontend/
 - `.env` lives in `backend/`, not repo root. Run `uvicorn` from `backend/` so pydantic-settings finds it. Docker Compose sets env vars directly (DB_HOST=db, etc.) which override `.env`.
 - All PKs are UUID (`default_factory=uuid.uuid4`). Omit when creating.
 - `tiene_antecedentes_penales` on Familiar is **denormalized** — must update when adding/removing `AntecedentesPenales`.
+
+### Known DB drift (deferred)
+- **`Caso` grouping is phase 1 (partial)** — `Caso` model exists (one active per NNA via partial unique index `uq_caso_activo_por_nna`). Grouped tables (E2P, PMF, NCFAS, AntecedenteIngreso, DocumentacionIngreso, AntecedenteSalud/Escolar/Familiar, InformeTribunal, ProcesoDespejeFamiliar) carry nullable `id_caso`, auto-stamped by `create_nna_child` (fallback: auto-creates the active Caso). Not yet: frontend case switcher, read-only closed casos, NOT NULL + composite FK `(id_nna, id_caso)` hardening.
+- **`AntecedentePenal` vs `AntecedentesPenales`** — DBML says singular, real table is plural (`app/models/familiar.py`). Fix (rename table + migration) deferred.
+- **E2P missing cascade** — `RespuestaE2P`/`PuntajeE2P` lack `ondelete="CASCADE"` (`app/models/e2p.py`) while PMF/NCFAS children have it; deleting an E2P row fails on FK. Add `ondelete` + migration before building E2P delete.
 
 ### Rollback procedure (git + DB sync)
 When resetting code to an earlier commit, downgrade the DB to match:

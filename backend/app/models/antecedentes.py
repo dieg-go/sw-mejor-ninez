@@ -19,6 +19,9 @@ class AntecedenteSalud(SQLModel, table=True):
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
     )
     id_nna: uuid.UUID = Field(foreign_key="NNA.id_nna", sa_type=UUID(as_uuid=True))
+    id_caso: Optional[uuid.UUID] = Field(
+        default=None, foreign_key="Caso.id_caso", sa_type=UUID(as_uuid=True)
+    )
     id_centro_salud: Optional[uuid.UUID] = Field(
         default=None, foreign_key="CentroSalud.id_centro_salud", sa_type=UUID(as_uuid=True)
     )
@@ -37,6 +40,9 @@ class AntecedenteEscolar(SQLModel, table=True):
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
     )
     id_nna: uuid.UUID = Field(foreign_key="NNA.id_nna", sa_type=UUID(as_uuid=True))
+    id_caso: Optional[uuid.UUID] = Field(
+        default=None, foreign_key="Caso.id_caso", sa_type=UUID(as_uuid=True)
+    )
     id_establecimiento_educacional: Optional[uuid.UUID] = Field(
         default=None,
         foreign_key="EstablecimientoEducacional.id_establecimiento_educacional",
@@ -57,6 +63,9 @@ class AntecedenteFamiliar(SQLModel, table=True):
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
     )
     id_nna: uuid.UUID = Field(foreign_key="NNA.id_nna", sa_type=UUID(as_uuid=True))
+    id_caso: Optional[uuid.UUID] = Field(
+        default=None, foreign_key="Caso.id_caso", sa_type=UUID(as_uuid=True)
+    )
     id_adulto_responsable: Optional[uuid.UUID] = Field(
         default=None,
         foreign_key="Familiar.id_familiar",

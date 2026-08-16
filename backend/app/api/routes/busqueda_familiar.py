@@ -6,6 +6,7 @@ from sqlmodel import select
 
 from app.core.database import get_db
 from app.models.busqueda_familiar import NotificacionFamiliar, ProcesoDespejeFamiliar
+from app.services import get_active_caso
 from app.schemas.busqueda_familiar import (
     NotificacionFamiliarCreate,
     NotificacionFamiliarRead,
@@ -41,7 +42,10 @@ async def create_despeje(
     )
     if existing.scalar_one_or_none():
         raise HTTPException(status_code=409, detail="Ya existe un despeje para este NNA")
-    obj = ProcesoDespejeFamiliar(id_nna=id_nna, **data.model_dump())
+    caso = await get_active_caso(db, id_nna)
+    obj = ProcesoDespejeFamiliar(
+        id_nna=id_nna, id_caso=caso.id_caso if caso else None, **data.model_dump()
+    )
     db.add(obj)
     await db.commit()
     await db.refresh(obj)

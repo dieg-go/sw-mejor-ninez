@@ -29,6 +29,7 @@ class PMFRead(BaseModel):
     id_pmf: uuid.UUID
     id_nna: uuid.UUID
     id_familiar: Optional[uuid.UUID] = None
+    id_caso: Optional[uuid.UUID] = None
     fecha_evaluacion: Optional[date] = None
     fecha_proxima_evaluacion: Optional[date] = None
     respuestas: Optional[dict[str, Any]] = None

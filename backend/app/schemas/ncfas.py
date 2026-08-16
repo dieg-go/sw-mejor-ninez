@@ -69,6 +69,7 @@ class NCFASRead(BaseModel):
     id_ncfas: uuid.UUID
     id_nna: uuid.UUID
     id_familiar: Optional[uuid.UUID] = None
+    id_caso: Optional[uuid.UUID] = None
     es_reunificacion: bool
     fecha_apertura: Optional[date] = None
     fecha_cierre: Optional[date] = None

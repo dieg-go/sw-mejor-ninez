@@ -58,6 +58,7 @@ class InformeTribunalRead(InformeTribunalBase):
 
     id_informe: uuid.UUID
     id_nna: uuid.UUID
+    id_caso: Optional[uuid.UUID] = None
 
 
 class InformeAlertaRead(BaseModel):

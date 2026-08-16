@@ -1,4 +1,5 @@
 import uuid
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -40,8 +41,12 @@ ingresos_router = APIRouter(prefix="/api/nna/{id_nna}/antecedentes-ingreso", tag
 
 
 @ingresos_router.get("", response_model=list[AntecedenteIngresoRead])
-async def list_ingresos(id_nna: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    return await list_nna_children(db, AntecedenteIngreso, id_nna)
+async def list_ingresos(
+    id_nna: uuid.UUID,
+    id_caso: Optional[uuid.UUID] = None,
+    db: AsyncSession = Depends(get_db),
+):
+    return await list_nna_children(db, AntecedenteIngreso, id_nna, id_caso)
 
 
 @ingresos_router.post("", response_model=AntecedenteIngresoRead, status_code=201)
@@ -161,8 +166,12 @@ doc_ingreso_router = APIRouter(prefix="/api/nna/{id_nna}/documentacion-ingreso",
 
 
 @doc_ingreso_router.get("", response_model=list[DocumentacionIngresoRead])
-async def list_documentacion(id_nna: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    return await list_nna_children(db, DocumentacionIngreso, id_nna)
+async def list_documentacion(
+    id_nna: uuid.UUID,
+    id_caso: Optional[uuid.UUID] = None,
+    db: AsyncSession = Depends(get_db),
+):
+    return await list_nna_children(db, DocumentacionIngreso, id_nna, id_caso)
 
 
 @doc_ingreso_router.post("", response_model=DocumentacionIngresoRead, status_code=201)

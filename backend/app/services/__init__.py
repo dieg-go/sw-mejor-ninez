@@ -9,6 +9,7 @@ from sqlmodel import select
 
 from app.models import (
     NNA,
+    Caso,
     Familiar,
     AntecedenteEscolar,
     AntecedenteFamiliar,
@@ -80,6 +81,8 @@ class NNAService:
     async def create(self, data: dict[str, Any]) -> NNA:
         nna = NNA(**data)
         self.session.add(nna)
+        await self.session.flush()
+        self.session.add(Caso(id_nna=nna.id_nna))
         await self.session.commit()
         await self.session.refresh(nna)
         return nna
@@ -95,16 +98,31 @@ class NNAService:
 
 # ── NNA children ─────────────────────────────────────────────────────────────
 
-async def list_nna_children(
-    session: AsyncSession, model: Any, id_nna: uuid.UUID
-) -> list[Any]:
+async def get_active_caso(session: AsyncSession, id_nna: uuid.UUID) -> Optional[Caso]:
     result = await session.execute(
-        select(model).where(model.id_nna == id_nna)
+        select(Caso).where(Caso.id_nna == id_nna, Caso.estado == "En Progreso")
     )
+    return result.scalar_one_or_none()
+
+
+async def list_nna_children(
+    session: AsyncSession, model: Any, id_nna: uuid.UUID, id_caso: Optional[uuid.UUID] = None
+) -> list[Any]:
+    stmt = select(model).where(model.id_nna == id_nna)
+    if id_caso and hasattr(model, "id_caso"):
+        stmt = stmt.where(model.id_caso == id_caso)
+    result = await session.execute(stmt)
     return list(result.scalars().all())
 
 
 async def create_nna_child(session: AsyncSession, model: Any, id_nna: uuid.UUID, data: dict[str, Any]) -> Any:
+    if hasattr(model, "id_caso") and "id_caso" not in data:
+        caso = await get_active_caso(session, id_nna)
+        if not caso:
+            caso = Caso(id_nna=id_nna)
+            session.add(caso)
+            await session.flush()
+        data = {**data, "id_caso": caso.id_caso}
     obj = model(id_nna=id_nna, **data)
     session.add(obj)
     await session.commit()

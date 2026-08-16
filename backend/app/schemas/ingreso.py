@@ -36,6 +36,7 @@ class AntecedenteIngresoRead(AntecedenteIngresoBase):
 
     id_antecedente_ingreso: uuid.UUID
     id_nna: uuid.UUID
+    id_caso: Optional[uuid.UUID] = None
 
 
 class DocumentacionIngresoBase(BaseModel):
@@ -63,6 +64,7 @@ class DocumentacionIngresoRead(DocumentacionIngresoBase):
 
     id_documentacion: uuid.UUID
     id_nna: uuid.UUID
+    id_caso: Optional[uuid.UUID] = None
 
 
 class CausalIngresoBase(BaseModel):

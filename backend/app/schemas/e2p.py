@@ -29,6 +29,7 @@ class E2PRead(BaseModel):
     id_e2p: uuid.UUID
     id_nna: uuid.UUID
     id_familiar: uuid.UUID
+    id_caso: Optional[uuid.UUID] = None
     fecha_evaluacion: date
     edad_meses_evaluacion: int
     rango_etario: str

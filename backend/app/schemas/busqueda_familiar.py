@@ -28,6 +28,7 @@ class ProcesoDespejeFamiliarRead(ProcesoDespejeFamiliarBase):
 
     id_despeje: uuid.UUID
     id_nna: uuid.UUID
+    id_caso: Optional[uuid.UUID] = None
 
 
 class NotificacionFamiliarBase(BaseModel):
