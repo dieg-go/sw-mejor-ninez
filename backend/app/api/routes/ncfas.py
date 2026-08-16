@@ -25,7 +25,7 @@ from app.schemas.ncfas import (
     NCFASUpdate,
 )
 from app.services import (
-    create_familiar_child,
+    _assert_caso_abierto,
     create_nna_child,
     get_nna_child,
     list_familiar_children,
@@ -224,20 +224,6 @@ async def list_ncfas_familiar(
     return result
 
 
-@ncfas_familiar_router.post("", response_model=NCFASRead, status_code=201)
-async def create_ncfas_familiar(
-    id_familiar: uuid.UUID, data: NCFASCreate, db: AsyncSession = Depends(get_db)
-):
-    respuestas = data.respuestas
-    payload = data.model_dump(exclude={"respuestas"}, exclude_none=True)
-    obj = await create_familiar_child(db, NCFAS, id_familiar, payload)
-    if respuestas:
-        await _sync_respuestas(db, obj.id_ncfas, respuestas)
-    result = NCFASRead.model_validate(obj)
-    result.respuestas = await _build_respuestas_dict(db, obj.id_ncfas)
-    return result
-
-
 # ── Items / Dimensions ───────────────────────────────────────────────────────
 
 ncfas_items_router = APIRouter(prefix="/api/ncfas/items", tags=["NCFAS"])
@@ -318,6 +304,11 @@ async def upsert_comentario(
     data: ComentarioUpsert,
     db: AsyncSession = Depends(get_db),
 ):
+    ncfas = await get_nna_child(db, NCFAS, NCFAS.id_ncfas, id_ncfas)
+    if not ncfas:
+        raise HTTPException(status_code=404, detail="NCFAS no encontrado")
+    await _assert_caso_abierto(db, ncfas)
+
     existing = (
         await db.execute(
             select(ComentarioDimensionNCFAS).where(

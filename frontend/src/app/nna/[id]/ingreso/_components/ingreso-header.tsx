@@ -6,13 +6,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 interface IngresoHeaderProps {
   nnaId: string;
   nnaName: string | null;
+  idCaso?: string;
 }
 
-export function IngresoHeader({ nnaId, nnaName }: IngresoHeaderProps) {
+export function IngresoHeader({ nnaId, nnaName, idCaso }: IngresoHeaderProps) {
   return (
     <>
       <Button variant="ghost" asChild className="-ml-2 mb-4">
-        <Link href={`/nna/${nnaId}`}>
+        <Link href={`/nna/${nnaId}${idCaso ? `?id_caso=${idCaso}` : ""}`}>
           <ArrowLeftIcon /> Volver al resumen
         </Link>
       </Button>

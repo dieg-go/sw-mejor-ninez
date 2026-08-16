@@ -17,7 +17,6 @@ from app.schemas.e2p import (
     PuntajeE2PRead,
 )
 from app.services import (
-    create_familiar_child,
     create_nna_child,
     get_nna_child,
     list_familiar_children,
@@ -382,21 +381,6 @@ async def list_e2p_familiar(
         r = E2PRead.model_validate(e)
         r.respuestas = await _build_respuestas_dict(db, e.id_e2p)
         result.append(r)
-    return result
-
-
-@e2p_familiar_router.post("", response_model=E2PRead, status_code=201)
-async def create_e2p_familiar(
-    id_familiar: uuid.UUID, data: E2PCreate, db: AsyncSession = Depends(get_db)
-):
-    respuestas = data.respuestas
-    payload = data.model_dump(exclude={"respuestas"})
-    obj = await create_familiar_child(db, E2P, id_familiar, payload)
-    if respuestas and data.rango_etario:
-        await _sync_respuestas(db, obj.id_e2p, data.rango_etario, respuestas)
-        await _calcular_puntajes(db, obj.id_e2p, data.rango_etario)
-    result = E2PRead.model_validate(obj)
-    result.respuestas = await _build_respuestas_dict(db, obj.id_e2p)
     return result
 
 

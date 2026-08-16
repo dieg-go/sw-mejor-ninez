@@ -6,7 +6,7 @@ import { api, type DocumentacionIngreso } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { SectionCard } from "./section-card";
 
-export function DocumentacionSummaryCard({ idNna }: { idNna: string }) {
+export function DocumentacionSummaryCard({ idNna, idCaso }: { idNna: string; idCaso?: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [items, setItems] = useState<DocumentacionIngreso[]>([]);
@@ -15,7 +15,7 @@ export function DocumentacionSummaryCard({ idNna }: { idNna: string }) {
   useEffect(() => {
     (async () => {
       try {
-        const data = await api.documentacionIngreso.list(idNna);
+        const data = await api.documentacionIngreso.list(idNna, idCaso);
         setItems(data);
         const last = data[data.length - 1];
         setSnippet(last ? `${last.tipo_documento || "—"} · ${last.estado_recepcion ? "Recibido" : "Pendiente"}` : null);
@@ -25,11 +25,11 @@ export function DocumentacionSummaryCard({ idNna }: { idNna: string }) {
         setLoading(false);
       }
     })();
-  }, [idNna]);
+  }, [idNna, idCaso]);
 
   return (
     <SectionCard
-      href={`/nna/${idNna}/documentacion`}
+      href={`/nna/${idNna}/documentacion${idCaso ? `?id_caso=${idCaso}` : ""}`}
       icon={FileTextIcon}
       label="Documentación"
       loading={loading}

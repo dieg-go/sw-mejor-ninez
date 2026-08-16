@@ -22,13 +22,22 @@ function formatDate(iso: string | null) {
   return new Date(iso + "T00:00:00").toLocaleDateString("es-CL");
 }
 
-export default function PMFPage({ params }: { params: Promise<{ id: string }> }) {
+export default function PMFPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   const { id } = use(params);
+  const sp = use(searchParams);
+  const idCaso = typeof sp.id_caso === "string" ? sp.id_caso : undefined;
   const [nna, setNna] = useState<NNA | null>(null);
   const [familiares, setFamiliares] = useState<Familiar[]>([]);
   const [items, setItems] = useState<PMFEvaluacion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isClosed, setIsClosed] = useState(false);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogMode, setDialogMode] = useState<"create" | "edit">("create");
@@ -51,7 +60,7 @@ export default function PMFPage({ params }: { params: Promise<{ id: string }> })
 
   const loadItems = async () => {
     setLoading(true);
-    try { setItems(await api.pmf.listByNna(id)); }
+    try { setItems(await api.pmf.listByNna(id, idCaso)); }
     catch { setItems([]); }
     finally { setLoading(false); }
   };
@@ -65,6 +74,7 @@ export default function PMFPage({ params }: { params: Promise<{ id: string }> })
         setNna(nnaData);
         setFamiliares(famList);
         await loadItems();
+        if (idCaso) setIsClosed((await api.casos.get(idCaso)).estado === "Cerrado");
       } catch (e: unknown) {
         if (!cancelled) {
           setError(e instanceof Error ? e.message : "Error inesperado");
@@ -73,7 +83,7 @@ export default function PMFPage({ params }: { params: Promise<{ id: string }> })
       }
     })();
     return () => { cancelled = true; };
-  }, [id]);
+  }, [id, idCaso]);
 
   const openDialog = (mode: "create" | "edit", item?: PMFEvaluacion) => {
     setFormError(null);
@@ -157,14 +167,14 @@ export default function PMFPage({ params }: { params: Promise<{ id: string }> })
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <Button variant="ghost" asChild className="-ml-2 mb-4"><Link href={`/nna/${id}`}><ArrowLeftIcon /> Volver al resumen</Link></Button>
+      <Button variant="ghost" asChild className="-ml-2 mb-4"><Link href={`/nna/${id}${idCaso ? `?id_caso=${idCaso}` : ""}`}><ArrowLeftIcon /> Volver al resumen</Link></Button>
       <Card className="mb-4"><CardHeader className="pb-2"><CardTitle className="text-sm font-medium">{nna.nombre}</CardTitle></CardHeader></Card>
 
       <h2 className="text-lg font-semibold mb-3">PMF</h2>
 
       <div className="flex items-center justify-between mb-4">
         <span className="text-sm text-muted-foreground">{items.length} registro{items.length !== 1 ? "s" : ""}</span>
-        {vinculados.length > 0 ? (
+        {isClosed ? null : vinculados.length > 0 ? (
           <Button size="sm" onClick={() => openDialog("create")}><PlusIcon /> Nuevo PMF</Button>
         ) : (
           <span className="text-xs text-muted-foreground">Vincula un familiar al NNA para crear PMF</span>
@@ -191,7 +201,7 @@ export default function PMFPage({ params }: { params: Promise<{ id: string }> })
                     )}
                     {item.observacion && <div className="col-span-2"><span className="text-xs text-muted-foreground">Obs: </span>{item.observacion}</div>}
                   </div>
-                  <Button variant="ghost" size="icon" onClick={() => openDialog("edit", item)}><PencilIcon className="size-4" /></Button>
+                  {!isClosed && <Button variant="ghost" size="icon" onClick={() => openDialog("edit", item)}><PencilIcon className="size-4" /></Button>}
                 </div>
               </CardContent>
             </Card>

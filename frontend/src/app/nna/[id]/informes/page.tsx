@@ -61,12 +61,21 @@ function isOverdue(item: InformeTribunal): boolean {
 
 const ESTADOS: EstadoInforme[] = ["Pendiente", "Enviado", "Vencido"];
 
-export default function InformesPage({ params }: { params: Promise<{ id: string }> }) {
+export default function InformesPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   const { id } = use(params);
+  const sp = use(searchParams);
+  const idCaso = typeof sp.id_caso === "string" ? sp.id_caso : undefined;
   const [nna, setNna] = useState<NNA | null>(null);
   const [items, setItems] = useState<InformeTribunal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isClosed, setIsClosed] = useState(false);
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editEstado, setEditEstado] = useState<EstadoInforme | "">("");
@@ -78,16 +87,17 @@ export default function InformesPage({ params }: { params: Promise<{ id: string 
   useEffect(() => {
     (async () => {
       try {
-        const [nnaData, list] = await Promise.all([api.nna.get(id), api.informeTribunal.list(id)]);
+        const [nnaData, list] = await Promise.all([api.nna.get(id), api.informeTribunal.list(id, idCaso)]);
         setNna(nnaData);
         setItems(list);
+        if (idCaso) setIsClosed((await api.casos.get(idCaso)).estado === "Cerrado");
       } catch (e: any) {
         setError(e.message);
       } finally {
         setLoading(false);
       }
     })();
-  }, [id]);
+  }, [id, idCaso]);
 
   const sorted = useMemo(
     () =>
@@ -133,7 +143,7 @@ export default function InformesPage({ params }: { params: Promise<{ id: string 
       else payload.url_documento = null;
       await api.informeTribunal.update(editingId, payload);
       // Re-fetch: marcar "Enviado" puede encadenar el siguiente informe de Avance.
-      const refreshed = await api.informeTribunal.list(id);
+      const refreshed = await api.informeTribunal.list(id, idCaso);
       setItems(refreshed);
       setEditingId(null);
     } catch (e: any) {
@@ -159,7 +169,7 @@ export default function InformesPage({ params }: { params: Promise<{ id: string 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <Button variant="ghost" asChild className="-ml-2 mb-4">
-        <Link href={`/nna/${id}`}>
+        <Link href={`/nna/${id}${idCaso ? `?id_caso=${idCaso}` : ""}`}>
           <ArrowLeftIcon /> Volver al resumen
         </Link>
       </Button>
@@ -376,9 +386,11 @@ export default function InformesPage({ params }: { params: Promise<{ id: string 
                           </a>
                         )}
                       </div>
-                      <Button variant="ghost" size="icon" onClick={() => startEdit(item)}>
-                        <PencilIcon className="size-4" />
-                      </Button>
+                      {!isClosed && (
+                        <Button variant="ghost" size="icon" onClick={() => startEdit(item)}>
+                          <PencilIcon className="size-4" />
+                        </Button>
+                      )}
                     </div>
                   )}
                 </CardContent>

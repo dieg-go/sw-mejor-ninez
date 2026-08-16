@@ -11,7 +11,6 @@ from app.core.database import get_db
 from app.models.pmf import PMF, PreguntaPMF, RespuestaPMF
 from app.schemas.pmf import PMFCreate, PMFRead, PMFUpdate, PreguntaPMFRead
 from app.services import (
-    create_familiar_child,
     create_nna_child,
     get_nna_child,
     list_familiar_children,
@@ -173,20 +172,6 @@ async def list_pmf_familiar(id_familiar: uuid.UUID, db: AsyncSession = Depends(g
         r = PMFRead.model_validate(e)
         r.respuestas = await _build_respuestas_dict(db, e.id_pmf)
         result.append(r)
-    return result
-
-
-@pmf_familiar_router.post("", response_model=PMFRead, status_code=201)
-async def create_pmf_familiar(
-    id_familiar: uuid.UUID, data: PMFCreate, db: AsyncSession = Depends(get_db)
-):
-    respuestas = data.respuestas
-    payload = data.model_dump(exclude={"respuestas"}, exclude_none=True)
-    obj = await create_familiar_child(db, PMF, id_familiar, payload)
-    if respuestas:
-        await _sync_respuestas(db, obj.id_pmf, respuestas)
-    result = PMFRead.model_validate(obj)
-    result.respuestas = await _build_respuestas_dict(db, obj.id_pmf)
     return result
 
 

@@ -6,7 +6,7 @@ import { api, type AntecedenteIngreso, type SolicitanteIngreso } from "@/lib/api
 import { Badge } from "@/components/ui/badge";
 import { SectionCard } from "./section-card";
 
-export function IngresoSummaryCard({ idNna }: { idNna: string }) {
+export function IngresoSummaryCard({ idNna, idCaso }: { idNna: string; idCaso?: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [items, setItems] = useState<AntecedenteIngreso[]>([]);
@@ -16,7 +16,7 @@ export function IngresoSummaryCard({ idNna }: { idNna: string }) {
     (async () => {
       try {
         const [ingresos, sols] = await Promise.all([
-          api.antecedenteIngreso.list(idNna),
+          api.antecedenteIngreso.list(idNna, idCaso),
           api.solicitanteIngreso.list().catch(() => [] as SolicitanteIngreso[]),
         ]);
         setItems(ingresos);
@@ -58,11 +58,11 @@ export function IngresoSummaryCard({ idNna }: { idNna: string }) {
         setLoading(false);
       }
     })();
-  }, [idNna]);
+  }, [idNna, idCaso]);
 
   return (
     <SectionCard
-      href={`/nna/${idNna}/ingreso`}
+      href={`/nna/${idNna}/ingreso${idCaso ? `?id_caso=${idCaso}` : ""}`}
       icon={DoorOpenIcon}
       label="Ingreso"
       loading={loading}

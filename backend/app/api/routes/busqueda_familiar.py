@@ -1,4 +1,5 @@
 import uuid
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -6,7 +7,7 @@ from sqlmodel import select
 
 from app.core.database import get_db
 from app.models.busqueda_familiar import NotificacionFamiliar, ProcesoDespejeFamiliar
-from app.services import get_active_caso
+from app.services import _assert_caso_abierto, get_active_caso
 from app.schemas.busqueda_familiar import (
     NotificacionFamiliarCreate,
     NotificacionFamiliarRead,
@@ -23,11 +24,20 @@ despeje_router = APIRouter(prefix="/api/nna/{id_nna}/despeje", tags=["ProcesoDes
 
 
 @despeje_router.get("", response_model=ProcesoDespejeFamiliarRead)
-async def get_despeje(id_nna: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(
-        select(ProcesoDespejeFamiliar).where(ProcesoDespejeFamiliar.id_nna == id_nna)
-    )
-    obj = result.scalar_one_or_none()
+async def get_despeje(
+    id_nna: uuid.UUID,
+    id_caso: Optional[uuid.UUID] = None,
+    db: AsyncSession = Depends(get_db),
+):
+    stmt = select(ProcesoDespejeFamiliar).where(ProcesoDespejeFamiliar.id_nna == id_nna)
+    if id_caso:
+        stmt = stmt.where(ProcesoDespejeFamiliar.id_caso == id_caso)
+    else:
+        caso = await get_active_caso(db, id_nna)
+        if caso:
+            stmt = stmt.where(ProcesoDespejeFamiliar.id_caso == caso.id_caso)
+    result = await db.execute(stmt)
+    obj = result.scalars().first()
     if not obj:
         raise HTTPException(status_code=404, detail="Despeje no encontrado para este NNA")
     return obj
@@ -37,15 +47,18 @@ async def get_despeje(id_nna: uuid.UUID, db: AsyncSession = Depends(get_db)):
 async def create_despeje(
     id_nna: uuid.UUID, data: ProcesoDespejeFamiliarCreate, db: AsyncSession = Depends(get_db)
 ):
+    caso = await get_active_caso(db, id_nna)
+    if not caso:
+        raise HTTPException(status_code=409, detail="No hay un caso activo para este NNA")
     existing = await db.execute(
-        select(ProcesoDespejeFamiliar).where(ProcesoDespejeFamiliar.id_nna == id_nna)
+        select(ProcesoDespejeFamiliar).where(
+            ProcesoDespejeFamiliar.id_nna == id_nna,
+            ProcesoDespejeFamiliar.id_caso == caso.id_caso,
+        )
     )
     if existing.scalar_one_or_none():
-        raise HTTPException(status_code=409, detail="Ya existe un despeje para este NNA")
-    caso = await get_active_caso(db, id_nna)
-    obj = ProcesoDespejeFamiliar(
-        id_nna=id_nna, id_caso=caso.id_caso if caso else None, **data.model_dump()
-    )
+        raise HTTPException(status_code=409, detail="Ya existe un despeje para este caso")
+    obj = ProcesoDespejeFamiliar(id_nna=id_nna, id_caso=caso.id_caso, **data.model_dump())
     db.add(obj)
     await db.commit()
     await db.refresh(obj)
@@ -65,6 +78,7 @@ async def update_despeje(
     obj = result.scalar_one_or_none()
     if not obj:
         raise HTTPException(status_code=404, detail="Despeje no encontrado")
+    await _assert_caso_abierto(db, obj)
     for key, val in data.model_dump(exclude_unset=True).items():
         setattr(obj, key, val)
     db.add(obj)
@@ -74,6 +88,16 @@ async def update_despeje(
 
 
 # ── Notificaciones (detalle por familiar) ───────────────────────────────────
+
+async def _get_despeje_or_404(db: AsyncSession, id_despeje: uuid.UUID) -> ProcesoDespejeFamiliar:
+    result = await db.execute(
+        select(ProcesoDespejeFamiliar).where(ProcesoDespejeFamiliar.id_despeje == id_despeje)
+    )
+    obj = result.scalar_one_or_none()
+    if not obj:
+        raise HTTPException(status_code=404, detail="Despeje no encontrado")
+    return obj
+
 
 notificacion_router = APIRouter(
     prefix="/api/despeje/{id_despeje}/notificaciones", tags=["NotificacionFamiliar"]
@@ -92,6 +116,8 @@ async def list_notificaciones(id_despeje: uuid.UUID, db: AsyncSession = Depends(
 async def create_notificacion(
     id_despeje: uuid.UUID, data: NotificacionFamiliarCreate, db: AsyncSession = Depends(get_db)
 ):
+    despeje = await _get_despeje_or_404(db, id_despeje)
+    await _assert_caso_abierto(db, despeje)
     obj = NotificacionFamiliar(id_despeje=id_despeje, **data.model_dump())
     db.add(obj)
     await db.commit()
@@ -125,6 +151,8 @@ async def update_notificacion(
     obj = result.scalar_one_or_none()
     if not obj:
         raise HTTPException(status_code=404, detail="Notificación no encontrada")
+    despeje = await _get_despeje_or_404(db, obj.id_despeje)
+    await _assert_caso_abierto(db, despeje)
     for key, val in data.model_dump(exclude_unset=True).items():
         setattr(obj, key, val)
     db.add(obj)

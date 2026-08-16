@@ -3,6 +3,7 @@ import uuid
 from datetime import date, timedelta
 from typing import Any, Optional
 
+from fastapi import HTTPException
 from sqlalchemy import and_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
@@ -136,12 +137,24 @@ async def get_nna_child(session: AsyncSession, model: Any, pk_col: Any, pk_val: 
 
 
 async def update_child(session: AsyncSession, obj: Any, data: dict[str, Any]) -> Any:
+    await _assert_caso_abierto(session, obj)
     for key, val in data.items():
         setattr(obj, key, val)
     session.add(obj)
     await session.commit()
     await session.refresh(obj)
     return obj
+
+
+async def _assert_caso_abierto(session: AsyncSession, obj: Any) -> None:
+    id_caso = getattr(obj, "id_caso", None)
+    if not id_caso:
+        return
+    caso = await session.get(Caso, id_caso)
+    if caso and caso.estado == "Cerrado":
+        raise HTTPException(
+            status_code=409, detail="El caso está cerrado: no se pueden modificar sus registros"
+        )
 
 
 # ── Familiar children ────────────────────────────────────────────────────────

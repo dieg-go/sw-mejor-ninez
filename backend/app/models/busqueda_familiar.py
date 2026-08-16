@@ -2,6 +2,7 @@ import uuid
 from datetime import date
 from typing import TYPE_CHECKING, Optional
 
+from sqlalchemy import ForeignKeyConstraint, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlmodel import Field, Relationship, SQLModel
 
@@ -12,12 +13,20 @@ if TYPE_CHECKING:
 
 class ProcesoDespejeFamiliar(SQLModel, table=True):
     __tablename__ = "ProcesoDespejeFamiliar"
+    __table_args__ = (
+        UniqueConstraint("id_nna", "id_caso", name="uq_despeje_nna_caso"),
+        ForeignKeyConstraint(
+            ["id_nna", "id_caso"],
+            ["Caso.id_nna", "Caso.id_caso"],
+            name="fk_ProcesoDespejeFamiliar_nna_caso",
+        ),
+    )
 
     id_despeje: uuid.UUID = Field(
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
     )
     id_nna: uuid.UUID = Field(
-        foreign_key="NNA.id_nna", unique=True, sa_type=UUID(as_uuid=True)
+        foreign_key="NNA.id_nna", sa_type=UUID(as_uuid=True)
     )
     id_caso: Optional[uuid.UUID] = Field(
         default=None, foreign_key="Caso.id_caso", sa_type=UUID(as_uuid=True)
@@ -27,7 +36,7 @@ class ProcesoDespejeFamiliar(SQLModel, table=True):
     estado: Optional[str] = None
     url_informe_hijo: Optional[str] = None
 
-    nna: "NNA" = Relationship(back_populates="despeje")
+    nna: "NNA" = Relationship(back_populates="despejes")
     notificaciones: list["NotificacionFamiliar"] = Relationship(back_populates="despeje")
 
 

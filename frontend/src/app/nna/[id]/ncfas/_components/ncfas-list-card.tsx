@@ -11,6 +11,7 @@ interface NcfasListCardProps {
   item: NCFASEvaluacion;
   familiares: Familiar[];
   onEdit: (item: NCFASEvaluacion) => void;
+  readOnly?: boolean;
 }
 
 function getFamiliarName(idFamiliar: string | null, familiares: Familiar[]) {
@@ -19,7 +20,7 @@ function getFamiliarName(idFamiliar: string | null, familiares: Familiar[]) {
   return f?.nombre || idFamiliar.slice(0, 8);
 }
 
-export function NcfasListCard({ item, familiares, onEdit }: NcfasListCardProps) {
+export function NcfasListCard({ item, familiares, onEdit, readOnly }: NcfasListCardProps) {
   return (
     <Card>
       <CardContent className="pt-4">
@@ -49,9 +50,11 @@ export function NcfasListCard({ item, familiares, onEdit }: NcfasListCardProps) 
               </div>
             )}
           </div>
-          <Button variant="ghost" size="icon" onClick={() => onEdit(item)}>
-            <PencilIcon className="size-4" />
-          </Button>
+          {!readOnly && (
+            <Button variant="ghost" size="icon" onClick={() => onEdit(item)}>
+              <PencilIcon className="size-4" />
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>

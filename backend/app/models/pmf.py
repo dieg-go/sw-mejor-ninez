@@ -2,6 +2,7 @@ import uuid
 from datetime import date
 from typing import TYPE_CHECKING, Optional
 
+from sqlalchemy import ForeignKeyConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlmodel import Field, Relationship, SQLModel
 
@@ -12,6 +13,11 @@ if TYPE_CHECKING:
 
 class PMF(SQLModel, table=True):
     __tablename__ = "PMF"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["id_nna", "id_caso"], ["Caso.id_nna", "Caso.id_caso"], name="fk_PMF_nna_caso"
+        ),
+    )
 
     id_pmf: uuid.UUID = Field(
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)

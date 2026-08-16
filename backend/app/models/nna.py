@@ -41,10 +41,7 @@ class NNA(SQLModel, table=True):
     antecedentes_ingreso: list["AntecedenteIngreso"] = Relationship(back_populates="nna")
     documentacion_ingreso: list["DocumentacionIngreso"] = Relationship(back_populates="nna")
     historial_red_proteccional: list["HistorialRedProteccional"] = Relationship(back_populates="nna")
-    despeje: Optional["ProcesoDespejeFamiliar"] = Relationship(
-        back_populates="nna",
-        sa_relationship_kwargs={"uselist": False},
-    )
+    despejes: list["ProcesoDespejeFamiliar"] = Relationship(back_populates="nna")
     informes_tribunal: list["InformeTribunal"] = Relationship(back_populates="nna")
     evaluaciones_e2p: list["E2P"] = Relationship(
         back_populates="nna",

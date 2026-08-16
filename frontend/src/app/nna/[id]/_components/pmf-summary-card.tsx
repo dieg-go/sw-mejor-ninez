@@ -6,7 +6,7 @@ import { api, type PMFEvaluacion } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { SectionCard } from "./section-card";
 
-export function PMFSummaryCard({ idNna }: { idNna: string }) {
+export function PMFSummaryCard({ idNna, idCaso }: { idNna: string; idCaso?: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [items, setItems] = useState<PMFEvaluacion[]>([]);
@@ -14,7 +14,7 @@ export function PMFSummaryCard({ idNna }: { idNna: string }) {
   useEffect(() => {
     (async () => {
       try {
-        const data = await api.pmf.listByNna(idNna);
+        const data = await api.pmf.listByNna(idNna, idCaso);
         setItems(data);
       } catch (e: any) {
         setError(e.message);
@@ -22,11 +22,11 @@ export function PMFSummaryCard({ idNna }: { idNna: string }) {
         setLoading(false);
       }
     })();
-  }, [idNna]);
+  }, [idNna, idCaso]);
 
   return (
     <SectionCard
-      href={`/nna/${idNna}/pmf`}
+      href={`/nna/${idNna}/pmf${idCaso ? `?id_caso=${idCaso}` : ""}`}
       icon={ClipboardListIcon}
       label="PMF"
       loading={loading}

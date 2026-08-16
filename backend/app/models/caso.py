@@ -2,7 +2,7 @@ import uuid
 from datetime import date
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import CheckConstraint, Index, text
+from sqlalchemy import CheckConstraint, Index, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlmodel import Field, Relationship, SQLModel
 
@@ -23,6 +23,7 @@ class Caso(SQLModel, table=True):
             unique=True,
             postgresql_where=text("estado = 'En Progreso'"),
         ),
+        UniqueConstraint("id_nna", "id_caso", name="uq_caso_nna_caso"),
     )
 
     id_caso: uuid.UUID = Field(

@@ -8,6 +8,10 @@ Table Caso {
   Checks {
     `"estado" IN ('En Progreso', 'Cerrado')` [name: 'chk_estado_caso']
   }
+  Indexes {
+    (id_nna) [ unique, name: 'uq_caso_activo_por_nna', predicate: `estado = 'En Progreso'` ]
+    (id_nna, id_caso) [ unique, name: 'uq_caso_nna_caso' ]
+  }
 }
 
 Table NNA  {
@@ -58,7 +62,7 @@ Table AntecedenteIngreso  {
 	id_antecedente_ingreso uuid [ pk, default: `gen_random_uuid()` ]
 	id_nna uuid [ not null ]
 	id_solicitante_ingreso uuid [ not null ]
-	id_caso uuid [ ref: > Caso.id_caso ]
+	id_caso uuid [ not null, ref: > Caso.id_caso ]
 	fecha_ingreso_residencia date
 	orden_tribunal boolean [ not null, default: false ]
 	fecha_causa date
@@ -71,7 +75,7 @@ Table AntecedenteIngreso  {
 Table DocumentacionIngreso  {
 	id_documentacion uuid [ pk, default: `gen_random_uuid()` ]
 	id_nna uuid [ not null ]
-	id_caso uuid [ ref: > Caso.id_caso ]
+	id_caso uuid [ not null, ref: > Caso.id_caso ]
 	tipo_documento text
 	estado_recepcion boolean [ not null, default: false ]
 	fecha_recepcion date
@@ -88,16 +92,21 @@ Table HistorialRedProteccional  {
 	motivo_egreso text
 }
 
-// 1. CABECERA DEL PROCESO DE DESPEJE POR NNA
+// 1. CABECERA DEL PROCESO DE DESPEJE POR CASO
 // Registra el estado macro de la búsqueda del informe de hijo y el resultado general
+// Un despeje por caso (unique id_nna + id_caso); el NNA puede tener varios casos en el tiempo
 Table ProcesoDespejeFamiliar {
   id_despeje uuid [ pk, default: `gen_random_uuid()` ]
-  id_nna uuid [ not null, unique, note: 'Un proceso de despeje único por NNA' ]
-  id_caso uuid [ ref: > Caso.id_caso ]
+  id_nna uuid [ not null ]
+  id_caso uuid [ not null, ref: > Caso.id_caso ]
   fecha_solicitud_informe date [ note: 'Fecha en que el tribunal ordena el informe de hijo al Registro Civil' ]
   fecha_recepcion_informe date [ note: 'Fecha en que llega el árbol genealógico de 3 generaciones' ]
   estado text [ note: 'Ej: Pendiente Informe, En Notificación, Evaluando, Cerrado Sin Red, Cerrado Con Red' ]
   url_informe_hijo text [ note: 'Ruta al documento PDF del árbol genealógico' ]
+
+  Indexes {
+    (id_nna, id_caso) [ unique, name: 'uq_despeje_nna_caso' ]
+  }
 }
 
 // 2. DETALLE DE NOTIFICACIONES POR FAMILIAR
@@ -128,7 +137,7 @@ Table NotificacionFamiliar {
 Table InformeTribunal  {
 	id_informe uuid [ pk, default: `gen_random_uuid()` ]
 	id_nna uuid [ not null ]
-	id_caso uuid [ ref: > Caso.id_caso ]
+	id_caso uuid [ not null, ref: > Caso.id_caso ]
 	tipo_informe text
 	fecha_vencimiento date
 	fecha_envio_real date
@@ -139,7 +148,7 @@ Table InformeTribunal  {
 Table AntecedenteSalud  {
 	id_antecedente_salud uuid [ pk, default: `gen_random_uuid()` ]
 	id_nna uuid [ not null ]
-	id_caso uuid [ ref: > Caso.id_caso ]
+	id_caso uuid [ not null, ref: > Caso.id_caso ]
 	id_centro_salud uuid
 	fecha_antecedente_salud date
 	prevision text [ note: 'Debe ser lista: FONASA, ISAPRE, Particular, Ninguna' ]
@@ -149,7 +158,7 @@ Table AntecedenteSalud  {
 Table AntecedenteEscolar  {
 	id_antecedente_escolar uuid [ pk, default: `gen_random_uuid()` ]
 	id_nna uuid [ not null ]
-	id_caso uuid [ ref: > Caso.id_caso ]
+	id_caso uuid [ not null, ref: > Caso.id_caso ]
 	id_establecimiento_educacional uuid
 	fecha_antecedente_escolar date
 	ultimo_ano_cursado integer
@@ -159,7 +168,7 @@ Table AntecedenteEscolar  {
 Table AntecedenteFamiliar  {
 	id_antecedente_familiar uuid [ pk, default: `gen_random_uuid()` ]
 	id_nna uuid [ not null ]
-	id_caso uuid [ ref: > Caso.id_caso ]
+	id_caso uuid [ not null, ref: > Caso.id_caso ]
 	id_adulto_responsable uuid
 	fecha_antecedente_familiar date
 	con_quien_vive text [ note: 'Ej: Ambos padres, madre con pareja nueva, no parientes con vinculo afectivo, ... ,  otro.' ]
@@ -217,7 +226,7 @@ Table PMF  {
 	id_pmf uuid [ pk, default: `gen_random_uuid()` ]
 	id_nna uuid [ not null ]
 	id_familiar uuid [ not null ]
-	id_caso uuid [ ref: > Caso.id_caso ]
+	id_caso uuid [ not null, ref: > Caso.id_caso ]
 	fecha_evaluacion date
 	fecha_proxima_evaluacion date
 	resultado text
@@ -244,7 +253,7 @@ Table NCFAS  {
 	id_ncfas uuid [ pk, default: `gen_random_uuid()` ]
 	id_nna uuid [ not null ]
 	id_familiar uuid [ not null, note: 'Cuidador principal evaluado junto al NNA' ]
-  id_caso uuid [ ref: > Caso.id_caso ]
+  id_caso uuid [ not null, ref: > Caso.id_caso ]
   "es_reunificacion" boolean [not null, default: false]
 
 	fecha_apertura date [ note: 'Fecha en que se realiza la evaluación de Ingreso' ]
@@ -307,7 +316,7 @@ Table E2P {
   id_e2p uuid [ pk, default: `gen_random_uuid()` ]
   id_nna uuid [ not null ]
   id_familiar uuid [ not null ]
-  id_caso uuid [ ref: > Caso.id_caso ]
+  id_caso uuid [ not null, ref: > Caso.id_caso ]
   fecha_evaluacion date [ not null ]
   edad_meses_evaluacion integer [ not null, note: 'Edad del NNA en meses al momento de ser evaluado' ]
   rango_etario text [ not null, note: 'Rango etario de la versión aplicada: 0-3_meses, 4-10_meses, etc.' ]

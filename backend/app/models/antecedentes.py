@@ -2,6 +2,7 @@ import uuid
 from datetime import date
 from typing import TYPE_CHECKING, Optional
 
+from sqlalchemy import ForeignKeyConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlmodel import Field, Relationship, SQLModel
 
@@ -14,6 +15,13 @@ if TYPE_CHECKING:
 
 class AntecedenteSalud(SQLModel, table=True):
     __tablename__ = "AntecedenteSalud"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["id_nna", "id_caso"],
+            ["Caso.id_nna", "Caso.id_caso"],
+            name="fk_AntecedenteSalud_nna_caso",
+        ),
+    )
 
     id_antecedente_salud: uuid.UUID = Field(
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
@@ -35,6 +43,13 @@ class AntecedenteSalud(SQLModel, table=True):
 
 class AntecedenteEscolar(SQLModel, table=True):
     __tablename__ = "AntecedenteEscolar"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["id_nna", "id_caso"],
+            ["Caso.id_nna", "Caso.id_caso"],
+            name="fk_AntecedenteEscolar_nna_caso",
+        ),
+    )
 
     id_antecedente_escolar: uuid.UUID = Field(
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
@@ -58,6 +73,13 @@ class AntecedenteEscolar(SQLModel, table=True):
 
 class AntecedenteFamiliar(SQLModel, table=True):
     __tablename__ = "AntecedenteFamiliar"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["id_nna", "id_caso"],
+            ["Caso.id_nna", "Caso.id_caso"],
+            name="fk_AntecedenteFamiliar_nna_caso",
+        ),
+    )
 
     id_antecedente_familiar: uuid.UUID = Field(
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)

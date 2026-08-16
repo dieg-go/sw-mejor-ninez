@@ -39,12 +39,21 @@ const DEFAULT = {
   url_documentacion_ingreso: "",
 };
 
-export default function DocumentacionPage({ params }: { params: Promise<{ id: string }> }) {
+export default function DocumentacionPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   const { id } = use(params);
+  const sp = use(searchParams);
+  const idCaso = typeof sp.id_caso === "string" ? sp.id_caso : undefined;
   const [nna, setNna] = useState<NNA | null>(null);
   const [items, setItems] = useState<DocumentacionIngreso[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isClosed, setIsClosed] = useState(false);
 
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(DEFAULT);
@@ -61,13 +70,14 @@ export default function DocumentacionPage({ params }: { params: Promise<{ id: st
   useEffect(() => {
     (async () => {
       try {
-        const [nnaData, list] = await Promise.all([api.nna.get(id), api.documentacionIngreso.list(id)]);
+        const [nnaData, list] = await Promise.all([api.nna.get(id), api.documentacionIngreso.list(id, idCaso)]);
         setNna(nnaData);
         setItems(list);
+        if (idCaso) setIsClosed((await api.casos.get(idCaso)).estado === "Cerrado");
       } catch (e: any) { setError(e.message); }
       finally { setLoading(false); }
     })();
-  }, [id]);
+  }, [id, idCaso]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -123,12 +133,12 @@ export default function DocumentacionPage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <Button variant="ghost" asChild className="-ml-2 mb-4"><Link href={`/nna/${id}`}><ArrowLeftIcon /> Volver al resumen</Link></Button>
+      <Button variant="ghost" asChild className="-ml-2 mb-4"><Link href={`/nna/${id}${idCaso ? `?id_caso=${idCaso}` : ""}`}><ArrowLeftIcon /> Volver al resumen</Link></Button>
       <Card className="mb-4"><CardHeader className="pb-2"><CardTitle className="text-sm font-medium">{nna.nombre}</CardTitle></CardHeader></Card>
 
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold">Documentación de Ingreso</h2>
-        {!showForm && <Button size="sm" onClick={() => setShowForm(true)}><PlusIcon /> Nuevo documento</Button>}
+        {!showForm && !isClosed && <Button size="sm" onClick={() => setShowForm(true)}><PlusIcon /> Nuevo documento</Button>}
       </div>
 
       {showForm && (
@@ -252,7 +262,7 @@ export default function DocumentacionPage({ params }: { params: Promise<{ id: st
                       {item.observacion && <div className="col-span-2"><span className="text-xs text-muted-foreground">Obs: </span>{item.observacion}</div>}
                       {item.url_documentacion_ingreso && <div className="col-span-3"><span className="text-xs text-muted-foreground">URL: </span><a href={item.url_documentacion_ingreso} target="_blank" rel="noopener noreferrer" className="text-primary underline text-xs">{item.url_documentacion_ingreso}</a></div>}
                     </div>
-                    <Button variant="ghost" size="icon" onClick={() => startEdit(item)}><PencilIcon className="size-4" /></Button>
+                    {!isClosed && <Button variant="ghost" size="icon" onClick={() => startEdit(item)}><PencilIcon className="size-4" /></Button>}
                   </div>
                 )}
               </CardContent>

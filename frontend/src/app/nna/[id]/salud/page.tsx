@@ -23,12 +23,21 @@ function formatDate(iso: string | null) {
 
 const DEFAULT = { fecha_antecedente_salud: "", inscrito_en_centro_salud: false, id_centro_salud: "", prevision: "" };
 
-export default function SaludPage({ params }: { params: Promise<{ id: string }> }) {
+export default function SaludPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   const { id } = use(params);
+  const sp = use(searchParams);
+  const idCaso = typeof sp.id_caso === "string" ? sp.id_caso : undefined;
   const [nna, setNna] = useState<NNA | null>(null);
   const [items, setItems] = useState<AntecedenteSalud[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isClosed, setIsClosed] = useState(false);
 
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(DEFAULT);
@@ -45,12 +54,13 @@ export default function SaludPage({ params }: { params: Promise<{ id: string }> 
   useEffect(() => {
     (async () => {
       try {
-        const [nnaData, list] = await Promise.all([api.nna.get(id), api.antecedenteSalud.list(id)]);
+        const [nnaData, list] = await Promise.all([api.nna.get(id), api.antecedenteSalud.list(id, idCaso)]);
         setNna(nnaData); setItems(list);
+        if (idCaso) setIsClosed((await api.casos.get(idCaso)).estado === "Cerrado");
       } catch (e: any) { setError(e.message); }
       finally { setLoading(false); }
     })();
-  }, [id]);
+  }, [id, idCaso]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,12 +113,12 @@ export default function SaludPage({ params }: { params: Promise<{ id: string }> 
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <Button variant="ghost" asChild className="-ml-2 mb-4"><Link href={`/nna/${id}`}><ArrowLeftIcon /> Volver al resumen</Link></Button>
+      <Button variant="ghost" asChild className="-ml-2 mb-4"><Link href={`/nna/${id}${idCaso ? `?id_caso=${idCaso}` : ""}`}><ArrowLeftIcon /> Volver al resumen</Link></Button>
       <Card className="mb-4"><CardHeader className="pb-2"><CardTitle className="text-sm font-medium">{nna.nombre}</CardTitle></CardHeader></Card>
 
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold">Antecedentes Salud</h2>
-        {!showForm && <Button size="sm" onClick={() => setShowForm(true)}><PlusIcon /> Nuevo antecedente</Button>}
+        {!showForm && !isClosed && <Button size="sm" onClick={() => setShowForm(true)}><PlusIcon /> Nuevo antecedente</Button>}
       </div>
 
       {showForm && (
@@ -194,7 +204,7 @@ export default function SaludPage({ params }: { params: Promise<{ id: string }> 
                       <div><span className="text-xs text-muted-foreground">Centro de salud: </span>{item.inscrito_en_centro_salud ? <Badge variant="secondary">Sí</Badge> : "No"}</div>
                       <div><span className="text-xs text-muted-foreground">Previsión: </span>{item.prevision || "—"}</div>
                     </div>
-                    <Button variant="ghost" size="icon" onClick={() => startEdit(item)}><PencilIcon className="size-4" /></Button>
+                    {!isClosed && <Button variant="ghost" size="icon" onClick={() => startEdit(item)}><PencilIcon className="size-4" /></Button>}
                   </div>
                 )}
               </CardContent>

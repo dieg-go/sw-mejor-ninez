@@ -2,6 +2,7 @@ import uuid
 from datetime import date
 from typing import TYPE_CHECKING, Optional
 
+from sqlalchemy import ForeignKeyConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlmodel import Field, Relationship, SQLModel
 
@@ -12,6 +13,13 @@ if TYPE_CHECKING:
 
 class AntecedenteIngreso(SQLModel, table=True):
     __tablename__ = "AntecedenteIngreso"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["id_nna", "id_caso"],
+            ["Caso.id_nna", "Caso.id_caso"],
+            name="fk_AntecedenteIngreso_nna_caso",
+        ),
+    )
 
     id_antecedente_ingreso: uuid.UUID = Field(
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
@@ -39,6 +47,13 @@ class AntecedenteIngreso(SQLModel, table=True):
 
 class DocumentacionIngreso(SQLModel, table=True):
     __tablename__ = "DocumentacionIngreso"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["id_nna", "id_caso"],
+            ["Caso.id_nna", "Caso.id_caso"],
+            name="fk_DocumentacionIngreso_nna_caso",
+        ),
+    )
 
     id_documentacion: uuid.UUID = Field(
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)

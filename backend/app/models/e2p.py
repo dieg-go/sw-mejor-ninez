@@ -2,7 +2,7 @@ import uuid
 from datetime import date
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import CheckConstraint, UniqueConstraint
+from sqlalchemy import CheckConstraint, ForeignKeyConstraint, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlmodel import Field, Relationship, SQLModel
 
@@ -21,6 +21,9 @@ class E2P(SQLModel, table=True):
         CheckConstraint(
             "perfil_resultado_global IN ('Riesgo','Monitoreo','Optimo')",
             name="chk_perfil_resultado",
+        ),
+        ForeignKeyConstraint(
+            ["id_nna", "id_caso"], ["Caso.id_nna", "Caso.id_caso"], name="fk_E2P_nna_caso"
         ),
     )
 

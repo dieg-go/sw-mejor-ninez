@@ -6,7 +6,7 @@ import { api, type NCFASEvaluacion } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { SectionCard } from "./section-card";
 
-export function NCFASSummaryCard({ idNna }: { idNna: string }) {
+export function NCFASSummaryCard({ idNna, idCaso }: { idNna: string; idCaso?: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [items, setItems] = useState<NCFASEvaluacion[]>([]);
@@ -14,7 +14,7 @@ export function NCFASSummaryCard({ idNna }: { idNna: string }) {
   useEffect(() => {
     (async () => {
       try {
-        const data = await api.ncfas.listByNna(idNna);
+        const data = await api.ncfas.listByNna(idNna, idCaso);
         setItems(data);
       } catch (e: any) {
         setError(e.message);
@@ -22,11 +22,11 @@ export function NCFASSummaryCard({ idNna }: { idNna: string }) {
         setLoading(false);
       }
     })();
-  }, [idNna]);
+  }, [idNna, idCaso]);
 
   return (
     <SectionCard
-      href={`/nna/${idNna}/ncfas`}
+      href={`/nna/${idNna}/ncfas${idCaso ? `?id_caso=${idCaso}` : ""}`}
       icon={BarChart3Icon}
       label="NCFAS"
       loading={loading}

@@ -22,13 +22,22 @@ const DEFAULT_INGRESO: IngresoFormData = {
   codigo_ruc: "",
 };
 
-export default function IngresoPage({ params }: { params: Promise<{ id: string }> }) {
+export default function IngresoPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   const { id } = use(params);
+  const sp = use(searchParams);
+  const idCaso = typeof sp.id_caso === "string" ? sp.id_caso : undefined;
   const [nna, setNna] = useState<NNA | null>(null);
   const [ingresos, setIngresos] = useState<AntecedenteIngreso[]>([]);
   const [solicitantes, setSolicitantes] = useState<SolicitanteIngreso[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isClosed, setIsClosed] = useState(false);
 
   const [createOpen, setCreateOpen] = useState(false);
   const [form, setForm] = useState<IngresoFormData>(DEFAULT_INGRESO);
@@ -42,19 +51,20 @@ export default function IngresoPage({ params }: { params: Promise<{ id: string }
       try {
         const [nnaData, list, sols] = await Promise.all([
           api.nna.get(id),
-          api.antecedenteIngreso.list(id),
+          api.antecedenteIngreso.list(id, idCaso),
           api.solicitanteIngreso.list().catch(() => [] as SolicitanteIngreso[]),
         ]);
         setNna(nnaData);
         setIngresos(list);
         setSolicitantes(sols);
+        if (idCaso) setIsClosed((await api.casos.get(idCaso)).estado === "Cerrado");
       } catch (e: any) {
         setError(e.message);
       } finally {
         setLoading(false);
       }
     })();
-  }, [id]);
+  }, [id, idCaso]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,11 +115,11 @@ export default function IngresoPage({ params }: { params: Promise<{ id: string }
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <IngresoHeader nnaId={id} nnaName={nna.nombre} />
+      <IngresoHeader nnaId={id} nnaName={nna.nombre} idCaso={idCaso} />
 
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold">Antecedentes de Ingreso</h2>
-        {!createOpen && (
+        {!createOpen && !isClosed && (
           <Button size="sm" onClick={() => setCreateOpen(true)}>
             <PlusIcon /> Nuevo ingreso
           </Button>

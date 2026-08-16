@@ -66,6 +66,25 @@ export interface NNACreate {
 
 export type NNAUpdate = Partial<NNACreate>;
 
+export interface Caso {
+  id_caso: string;
+  id_nna: string;
+  fecha_inicio: string | null;
+  fecha_termino: string | null;
+  estado: "En Progreso" | "Cerrado";
+}
+
+export interface CasoCreate {
+  fecha_inicio?: string | null;
+  fecha_termino?: string | null;
+}
+
+export type CasoUpdate = Partial<{
+  fecha_inicio: string | null;
+  fecha_termino: string | null;
+  estado: "En Progreso" | "Cerrado";
+}>;
+
 export interface Familiar {
   id_familiar: string;
   nombre: string | null;
@@ -430,6 +449,17 @@ export const api = {
       request<NNA>(`/nna/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   },
 
+  // ── Caso ───────────────────────────────────────────────────────────────────
+
+  casos: {
+    list: (idNna: string) => request<Caso[]>(`/nna/${idNna}/casos`),
+    get: (idCaso: string) => request<Caso>(`/casos/${idCaso}`),
+    create: (idNna: string, data: CasoCreate = {}) =>
+      request<Caso>(`/nna/${idNna}/casos`, { method: "POST", body: JSON.stringify(data) }),
+    update: (idCaso: string, data: CasoUpdate) =>
+      request<Caso>(`/casos/${idCaso}`, { method: "PUT", body: JSON.stringify(data) }),
+  },
+
   // ── Familiar ────────────────────────────────────────────────────────────────
 
   familiares: {
@@ -492,7 +522,8 @@ export const api = {
   // ── Ingreso ────────────────────────────────────────────────────────────────
 
   antecedenteIngreso: {
-    list: (idNna: string) => request<AntecedenteIngreso[]>(`/nna/${idNna}/antecedentes-ingreso`),
+    list: (idNna: string, idCaso?: string) =>
+      request<AntecedenteIngreso[]>(`/nna/${idNna}/antecedentes-ingreso${idCaso ? `?id_caso=${idCaso}` : ""}`),
     create: (idNna: string, data: Omit<AntecedenteIngreso, "id_antecedente_ingreso" | "id_nna">) =>
       request<AntecedenteIngreso>(`/nna/${idNna}/antecedentes-ingreso`, { method: "POST", body: JSON.stringify(data) }),
     get: (id: string) => request<AntecedenteIngreso>(`/antecedente-ingreso/${id}`),
@@ -501,7 +532,8 @@ export const api = {
   },
 
   documentacionIngreso: {
-    list: (idNna: string) => request<DocumentacionIngreso[]>(`/nna/${idNna}/documentacion-ingreso`),
+    list: (idNna: string, idCaso?: string) =>
+      request<DocumentacionIngreso[]>(`/nna/${idNna}/documentacion-ingreso${idCaso ? `?id_caso=${idCaso}` : ""}`),
     create: (idNna: string, data: Omit<DocumentacionIngreso, "id_documentacion" | "id_nna">) =>
       request<DocumentacionIngreso>(`/nna/${idNna}/documentacion-ingreso`, { method: "POST", body: JSON.stringify(data) }),
     get: (id: string) => request<DocumentacionIngreso>(`/documentacion-ingreso/${id}`),
@@ -539,7 +571,8 @@ export const api = {
   },
 
   despeje: {
-    getByNna: (idNna: string) => request<ProcesoDespejeFamiliar>(`/nna/${idNna}/despeje`),
+    getByNna: (idNna: string, idCaso?: string) =>
+      request<ProcesoDespejeFamiliar>(`/nna/${idNna}/despeje${idCaso ? `?id_caso=${idCaso}` : ""}`),
     create: (idNna: string, data: Omit<ProcesoDespejeFamiliar, "id_despeje" | "id_nna">) =>
       request<ProcesoDespejeFamiliar>(`/nna/${idNna}/despeje`, { method: "POST", body: JSON.stringify(data) }),
     update: (id: string, data: ProcesoDespejeFamiliarUpdate) =>
@@ -556,7 +589,8 @@ export const api = {
   },
 
   informeTribunal: {
-    list: (idNna: string) => request<InformeTribunal[]>(`/nna/${idNna}/informes-tribunal`),
+    list: (idNna: string, idCaso?: string) =>
+      request<InformeTribunal[]>(`/nna/${idNna}/informes-tribunal${idCaso ? `?id_caso=${idCaso}` : ""}`),
     create: (idNna: string, data: Omit<InformeTribunal, "id_informe" | "id_nna">) =>
       request<InformeTribunal>(`/nna/${idNna}/informes-tribunal`, { method: "POST", body: JSON.stringify(data) }),
     get: (id: string) => request<InformeTribunal>(`/informe-tribunal/${id}`),
@@ -571,12 +605,11 @@ export const api = {
 
   e2p: {
     getQuestions: (rango: string) => request<E2PQuestions>(`/e2p/versions/${rango}`),
-    listByNna: (idNna: string) => request<E2PEvaluacion[]>(`/nna/${idNna}/e2p`),
+    listByNna: (idNna: string, idCaso?: string) =>
+      request<E2PEvaluacion[]>(`/nna/${idNna}/e2p${idCaso ? `?id_caso=${idCaso}` : ""}`),
     listByFamiliar: (idFamiliar: string) => request<E2PEvaluacion[]>(`/familiares/${idFamiliar}/e2p`),
     createByNna: (idNna: string, data: E2PCreate) =>
       request<E2PEvaluacion>(`/nna/${idNna}/e2p`, { method: "POST", body: JSON.stringify(data) }),
-    createByFamiliar: (idFamiliar: string, data: E2PCreate) =>
-      request<E2PEvaluacion>(`/familiares/${idFamiliar}/e2p`, { method: "POST", body: JSON.stringify(data) }),
     get: (id: string) => request<E2PEvaluacion>(`/e2p/${id}`),
     getPuntaje: (id: string) => request<E2PPuntaje>(`/e2p/${id}/puntaje`),
     update: (id: string, data: E2PUpdate) =>
@@ -585,24 +618,22 @@ export const api = {
 
   pmf: {
     getQuestions: () => request<PMFQuestions[]>(`/pmf/preguntas`),
-    listByNna: (idNna: string) => request<PMFEvaluacion[]>(`/nna/${idNna}/pmf`),
+    listByNna: (idNna: string, idCaso?: string) =>
+      request<PMFEvaluacion[]>(`/nna/${idNna}/pmf${idCaso ? `?id_caso=${idCaso}` : ""}`),
     listByFamiliar: (idFamiliar: string) => request<PMFEvaluacion[]>(`/familiares/${idFamiliar}/pmf`),
     createByNna: (idNna: string, data: PMFCreate) =>
       request<PMFEvaluacion>(`/nna/${idNna}/pmf`, { method: "POST", body: JSON.stringify(data) }),
-    createByFamiliar: (idFamiliar: string, data: PMFCreate) =>
-      request<PMFEvaluacion>(`/familiares/${idFamiliar}/pmf`, { method: "POST", body: JSON.stringify(data) }),
     get: (id: string) => request<PMFEvaluacion>(`/pmf/${id}`),
     update: (id: string, data: PMFUpdate) =>
       request<PMFEvaluacion>(`/pmf/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   },
 
   ncfas: {
-    listByNna: (idNna: string) => request<NCFASEvaluacion[]>(`/nna/${idNna}/ncfas`),
+    listByNna: (idNna: string, idCaso?: string) =>
+      request<NCFASEvaluacion[]>(`/nna/${idNna}/ncfas${idCaso ? `?id_caso=${idCaso}` : ""}`),
     listByFamiliar: (idFamiliar: string) => request<NCFASEvaluacion[]>(`/familiares/${idFamiliar}/ncfas`),
     createByNna: (idNna: string, data: NCFASCreate) =>
       request<NCFASEvaluacion>(`/nna/${idNna}/ncfas`, { method: "POST", body: JSON.stringify(data) }),
-    createByFamiliar: (idFamiliar: string, data: NCFASCreate) =>
-      request<NCFASEvaluacion>(`/familiares/${idFamiliar}/ncfas`, { method: "POST", body: JSON.stringify(data) }),
     get: (id: string) => request<NCFASEvaluacion>(`/ncfas/${id}`),
     update: (id: string, data: NCFASUpdate) =>
       request<NCFASEvaluacion>(`/ncfas/${id}`, { method: "PUT", body: JSON.stringify(data) }),
@@ -618,7 +649,8 @@ export const api = {
   // ── Antecedentes ───────────────────────────────────────────────────────────
 
   antecedenteSalud: {
-    list: (idNna: string) => request<AntecedenteSalud[]>(`/nna/${idNna}/antecedentes-salud`),
+    list: (idNna: string, idCaso?: string) =>
+      request<AntecedenteSalud[]>(`/nna/${idNna}/antecedentes-salud${idCaso ? `?id_caso=${idCaso}` : ""}`),
     create: (idNna: string, data: Omit<AntecedenteSalud, "id_antecedente_salud" | "id_nna">) =>
       request<AntecedenteSalud>(`/nna/${idNna}/antecedentes-salud`, { method: "POST", body: JSON.stringify(data) }),
     get: (id: string) => request<AntecedenteSalud>(`/antecedente-salud/${id}`),
@@ -627,7 +659,8 @@ export const api = {
   },
 
   antecedenteEscolar: {
-    list: (idNna: string) => request<AntecedenteEscolar[]>(`/nna/${idNna}/antecedentes-escolares`),
+    list: (idNna: string, idCaso?: string) =>
+      request<AntecedenteEscolar[]>(`/nna/${idNna}/antecedentes-escolares${idCaso ? `?id_caso=${idCaso}` : ""}`),
     create: (idNna: string, data: Omit<AntecedenteEscolar, "id_antecedente_escolar" | "id_nna">) =>
       request<AntecedenteEscolar>(`/nna/${idNna}/antecedentes-escolares`, { method: "POST", body: JSON.stringify(data) }),
     get: (id: string) => request<AntecedenteEscolar>(`/antecedente-escolar/${id}`),
@@ -636,7 +669,8 @@ export const api = {
   },
 
   antecedenteFamiliar: {
-    list: (idNna: string) => request<AntecedenteFamiliar[]>(`/nna/${idNna}/antecedentes-familiares`),
+    list: (idNna: string, idCaso?: string) =>
+      request<AntecedenteFamiliar[]>(`/nna/${idNna}/antecedentes-familiares${idCaso ? `?id_caso=${idCaso}` : ""}`),
     create: (idNna: string, data: Omit<AntecedenteFamiliar, "id_antecedente_familiar" | "id_nna">) =>
       request<AntecedenteFamiliar>(`/nna/${idNna}/antecedentes-familiares`, { method: "POST", body: JSON.stringify(data) }),
     get: (id: string) => request<AntecedenteFamiliar>(`/antecedente-familiar/${id}`),

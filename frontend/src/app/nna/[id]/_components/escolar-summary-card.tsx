@@ -6,7 +6,7 @@ import { api, type AntecedenteEscolar } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { SectionCard } from "./section-card";
 
-export function EscolarSummaryCard({ idNna }: { idNna: string }) {
+export function EscolarSummaryCard({ idNna, idCaso }: { idNna: string; idCaso?: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [items, setItems] = useState<AntecedenteEscolar[]>([]);
@@ -15,7 +15,7 @@ export function EscolarSummaryCard({ idNna }: { idNna: string }) {
   useEffect(() => {
     (async () => {
       try {
-        const data = await api.antecedenteEscolar.list(idNna);
+        const data = await api.antecedenteEscolar.list(idNna, idCaso);
         setItems(data);
         const last = data[data.length - 1];
         setSnippet(last ? (last.escolarizado ? "Escolarizado" : "No escolarizado") : null);
@@ -25,11 +25,11 @@ export function EscolarSummaryCard({ idNna }: { idNna: string }) {
         setLoading(false);
       }
     })();
-  }, [idNna]);
+  }, [idNna, idCaso]);
 
   return (
     <SectionCard
-      href={`/nna/${idNna}/escolar`}
+      href={`/nna/${idNna}/escolar${idCaso ? `?id_caso=${idCaso}` : ""}`}
       icon={GraduationCapIcon}
       label="Escolar"
       loading={loading}

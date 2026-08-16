@@ -11,13 +11,14 @@ interface E2PHeaderProps {
   itemCount: number;
   canCreate: boolean;
   onNew: () => void;
+  idCaso?: string;
 }
 
-export function E2PHeader({ nnaId, nnaName, itemCount, canCreate, onNew }: E2PHeaderProps) {
+export function E2PHeader({ nnaId, nnaName, itemCount, canCreate, onNew, idCaso }: E2PHeaderProps) {
   return (
     <>
       <Button variant="ghost" asChild className="-ml-2 mb-4">
-        <Link href={`/nna/${nnaId}`}><ArrowLeftIcon /> Volver al resumen</Link>
+        <Link href={`/nna/${nnaId}${idCaso ? `?id_caso=${idCaso}` : ""}`}><ArrowLeftIcon /> Volver al resumen</Link>
       </Button>
       <Card className="mb-4">
         <CardHeader className="pb-2">

@@ -22,7 +22,7 @@ function getFamiliarName(
   return names[idFamiliar] || idFamiliar.slice(0, 8);
 }
 
-export function E2PSummaryCard({ idNna }: { idNna: string }) {
+export function E2PSummaryCard({ idNna, idCaso }: { idNna: string; idCaso?: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [items, setItems] = useState<E2PEvaluacion[]>([]);
@@ -32,7 +32,7 @@ export function E2PSummaryCard({ idNna }: { idNna: string }) {
   useEffect(() => {
     (async () => {
       try {
-        const data = await api.e2p.listByNna(idNna);
+        const data = await api.e2p.listByNna(idNna, idCaso);
         setItems(data);
 
         const ids = [...new Set(data.map((e) => e.id_familiar).filter(Boolean) as string[])];
@@ -54,11 +54,11 @@ export function E2PSummaryCard({ idNna }: { idNna: string }) {
         setLoading(false);
       }
     })();
-  }, [idNna]);
+  }, [idNna, idCaso]);
 
   return (
     <SectionCard
-      href={`/nna/${idNna}/e2p`}
+      href={`/nna/${idNna}/e2p${idCaso ? `?id_caso=${idCaso}` : ""}`}
       icon={ClipboardCheckIcon}
       label="E2P"
       loading={loading}

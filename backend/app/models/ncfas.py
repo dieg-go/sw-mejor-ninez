@@ -2,7 +2,7 @@ import uuid
 from datetime import date
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import CheckConstraint, JSON, UniqueConstraint
+from sqlalchemy import CheckConstraint, ForeignKeyConstraint, JSON, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlmodel import Field, Relationship, SQLModel
 
@@ -29,6 +29,11 @@ class ItemNCFAS(SQLModel, table=True):
 
 class NCFAS(SQLModel, table=True):
     __tablename__ = "NCFAS"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["id_nna", "id_caso"], ["Caso.id_nna", "Caso.id_caso"], name="fk_NCFAS_nna_caso"
+        ),
+    )
 
     id_ncfas: uuid.UUID = Field(
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)

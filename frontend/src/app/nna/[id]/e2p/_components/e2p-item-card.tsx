@@ -12,6 +12,7 @@ interface E2PItemCardProps {
   puntaje: E2PPuntaje | null;
   familiares: Familiar[];
   onEdit: () => void;
+  readOnly?: boolean;
 }
 
 function getFamiliarName(idFamiliar: string | null, familiares: Familiar[]) {
@@ -20,7 +21,7 @@ function getFamiliarName(idFamiliar: string | null, familiares: Familiar[]) {
   return f?.nombre || idFamiliar.slice(0, 8);
 }
 
-export function E2PItemCard({ item, puntaje, familiares, onEdit }: E2PItemCardProps) {
+export function E2PItemCard({ item, puntaje, familiares, onEdit, readOnly }: E2PItemCardProps) {
   return (
     <Card>
       <CardContent className="pt-4">
@@ -56,7 +57,7 @@ export function E2PItemCard({ item, puntaje, familiares, onEdit }: E2PItemCardPr
               </div>
             )}
           </div>
-          <Button variant="ghost" size="icon" onClick={onEdit}><PencilIcon className="size-4" /></Button>
+          {!readOnly && <Button variant="ghost" size="icon" onClick={onEdit}><PencilIcon className="size-4" /></Button>}
         </div>
       </CardContent>
     </Card>

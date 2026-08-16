@@ -11,14 +11,23 @@ import { Step1Informe } from "./_components/step-1-informe";
 import { Step2Identificar } from "./_components/step-2-identificar";
 import { Step3Cartas } from "./_components/step-3-cartas";
 
-export default function BusquedaFamiliarPage({ params }: { params: Promise<{ id: string }> }) {
+export default function BusquedaFamiliarPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   const { id } = use(params);
+  const sp = use(searchParams);
+  const idCaso = typeof sp.id_caso === "string" ? sp.id_caso : undefined;
   const [nna, setNna] = useState<NNA | null>(null);
   const [despeje, setDespeje] = useState<ProcesoDespejeFamiliar | null>(null);
   const [notificaciones, setNotificaciones] = useState<NotificacionFamiliar[]>([]);
   const [familiares, setFamiliares] = useState<Familiar[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isClosed, setIsClosed] = useState(false);
 
   const [activeStep, setActiveStep] = useState<1 | 2 | 3>(1);
   const [actionSaving, setActionSaving] = useState(false);
@@ -34,7 +43,7 @@ export default function BusquedaFamiliarPage({ params }: { params: Promise<{ id:
       setFamiliares(famList);
 
       try {
-        const des = await api.despeje.getByNna(id);
+        const des = await api.despeje.getByNna(id, idCaso);
         setDespeje(des);
 
         if (des.fecha_recepcion_informe) {
@@ -51,6 +60,7 @@ export default function BusquedaFamiliarPage({ params }: { params: Promise<{ id:
       } catch {
         setActiveStep(1);
       }
+    if (idCaso) setIsClosed((await api.casos.get(idCaso)).estado === "Cerrado");
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -60,7 +70,7 @@ export default function BusquedaFamiliarPage({ params }: { params: Promise<{ id:
 
   useEffect(() => {
     fetchData();
-  }, [id]);
+  }, [id, idCaso]);
 
   const getFamiliarNombre = (idFamiliar: string) => {
     const f = familiares.find((x) => x.id_familiar === idFamiliar);
@@ -68,6 +78,7 @@ export default function BusquedaFamiliarPage({ params }: { params: Promise<{ id:
   };
 
   const handleRegistrarSolicitud = async (fecha: string) => {
+    if (isClosed) return;
     setActionSaving(true);
     setActionError(null);
     try {
@@ -84,7 +95,7 @@ export default function BusquedaFamiliarPage({ params }: { params: Promise<{ id:
   };
 
   const handleRegistrarRecepcion = async (fecha: string, url: string) => {
-    if (!despeje) return;
+    if (isClosed || !despeje) return;
     setActionSaving(true);
     setActionError(null);
     try {
@@ -103,7 +114,7 @@ export default function BusquedaFamiliarPage({ params }: { params: Promise<{ id:
   };
 
   const handleAsociarFamiliarExistente = async (familiarId: string) => {
-    if (!despeje) return;
+    if (isClosed || !despeje) return;
     setActionSaving(true);
     try {
       const created = await api.notificacion.create(despeje.id_despeje, {
@@ -118,7 +129,7 @@ export default function BusquedaFamiliarPage({ params }: { params: Promise<{ id:
   };
 
   const handleCrearYAsociarFamiliar = async (familiar: Familiar, parentesco: string) => {
-    if (!despeje) return;
+    if (isClosed || !despeje) return;
     setActionSaving(true);
     try {
       const created = await api.notificacion.create(despeje.id_despeje, {
@@ -150,6 +161,7 @@ export default function BusquedaFamiliarPage({ params }: { params: Promise<{ id:
     idNotif: string,
     payload: Partial<NotificacionFamiliar>
   ) => {
+    if (isClosed) return;
     try {
       const updated = await api.notificacion.update(idNotif, payload as any);
       setNotificaciones((prev) => prev.map((x) => x.id_notificacion === idNotif ? updated : x));
@@ -168,7 +180,7 @@ export default function BusquedaFamiliarPage({ params }: { params: Promise<{ id:
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
       <Button variant="ghost" asChild className="-ml-2">
-        <Link href={`/nna/${id}`} className="gap-2 text-muted-foreground hover:text-foreground">
+        <Link href={`/nna/${id}${idCaso ? `?id_caso=${idCaso}` : ""}`} className="gap-2 text-muted-foreground hover:text-foreground">
           <ArrowLeftIcon className="size-4" /> Volver al resumen del niño
         </Link>
       </Button>

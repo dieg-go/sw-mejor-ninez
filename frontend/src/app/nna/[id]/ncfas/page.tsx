@@ -12,13 +12,22 @@ import { NcfasListCard } from "./_components/ncfas-list-card";
 import { NcfasFormDialog } from "./_components/ncfas-form-dialog";
 import { useVinculados } from "@/hooks/use-vinculados";
 
-export default function NCFASPage({ params }: { params: Promise<{ id: string }> }) {
+export default function NCFASPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   const { id } = use(params);
+  const sp = use(searchParams);
+  const idCaso = typeof sp.id_caso === "string" ? sp.id_caso : undefined;
   const [nna, setNna] = useState<NNA | null>(null);
   const [familiares, setFamiliares] = useState<Familiar[]>([]);
   const [evaluations, setEvaluations] = useState<NCFASEvaluacion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isClosed, setIsClosed] = useState(false);
 
   const { vinculados } = useVinculados(id, familiares);
 
@@ -29,7 +38,7 @@ export default function NCFASPage({ params }: { params: Promise<{ id: string }> 
 
   const loadEvaluations = async () => {
     setLoading(true);
-    try { setEvaluations(await api.ncfas.listByNna(id)); }
+    try { setEvaluations(await api.ncfas.listByNna(id, idCaso)); }
     catch { setEvaluations([]); }
     finally { setLoading(false); }
   };
@@ -46,6 +55,7 @@ export default function NCFASPage({ params }: { params: Promise<{ id: string }> 
         setNna(nnaData);
         setFamiliares(famList);
         await loadEvaluations();
+        if (idCaso) setIsClosed((await api.casos.get(idCaso)).estado === "Cerrado");
       } catch (e: unknown) {
         if (!cancelled) {
           setError(e instanceof Error ? e.message : "Error inesperado");
@@ -54,7 +64,7 @@ export default function NCFASPage({ params }: { params: Promise<{ id: string }> 
       }
     })();
     return () => { cancelled = true; };
-  }, [id]);
+  }, [id, idCaso]);
 
   const openCreate = () => {
     setDialogMode("create");
@@ -89,7 +99,7 @@ export default function NCFASPage({ params }: { params: Promise<{ id: string }> 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <Button variant="ghost" asChild className="-ml-2 mb-4">
-        <Link href={`/nna/${id}`}><ArrowLeftIcon /> Volver al resumen</Link>
+        <Link href={`/nna/${id}${idCaso ? `?id_caso=${idCaso}` : ""}`}><ArrowLeftIcon /> Volver al resumen</Link>
       </Button>
       <Card className="mb-4">
         <CardHeader className="pb-2">
@@ -103,7 +113,7 @@ export default function NCFASPage({ params }: { params: Promise<{ id: string }> 
         <span className="text-sm text-muted-foreground">
           {evaluations.length} registro{evaluations.length !== 1 ? "s" : ""}
         </span>
-        {vinculados.length > 0 ? (
+        {isClosed ? null : vinculados.length > 0 ? (
           <Button size="sm" onClick={openCreate}>
             <PlusIcon /> Nuevo NCFAS
           </Button>
@@ -124,6 +134,7 @@ export default function NCFASPage({ params }: { params: Promise<{ id: string }> 
               item={item}
               familiares={familiares}
               onEdit={openEdit}
+              readOnly={isClosed}
             />
           ))}
         </div>

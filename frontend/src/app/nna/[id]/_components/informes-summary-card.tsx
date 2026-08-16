@@ -6,7 +6,7 @@ import { api, type InformeTribunal } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { SectionCard } from "./section-card";
 
-export function InformesSummaryCard({ idNna }: { idNna: string }) {
+export function InformesSummaryCard({ idNna, idCaso }: { idNna: string; idCaso?: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [items, setItems] = useState<InformeTribunal[]>([]);
@@ -15,7 +15,7 @@ export function InformesSummaryCard({ idNna }: { idNna: string }) {
   useEffect(() => {
     (async () => {
       try {
-        const data = await api.informeTribunal.list(idNna);
+        const data = await api.informeTribunal.list(idNna, idCaso);
         setItems(data);
         const last = data[data.length - 1];
         setSnippet(last ? `${last.tipo_informe || "—"} · ${last.estado || "—"} · Vence: ${last.fecha_vencimiento || "—"}` : null);
@@ -25,11 +25,11 @@ export function InformesSummaryCard({ idNna }: { idNna: string }) {
         setLoading(false);
       }
     })();
-  }, [idNna]);
+  }, [idNna, idCaso]);
 
   return (
     <SectionCard
-      href={`/nna/${idNna}/informes`}
+      href={`/nna/${idNna}/informes${idCaso ? `?id_caso=${idCaso}` : ""}`}
       icon={ScaleIcon}
       label="Informes Tribunal"
       loading={loading}

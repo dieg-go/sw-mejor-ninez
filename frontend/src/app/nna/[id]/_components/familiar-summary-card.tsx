@@ -6,7 +6,7 @@ import { api, type AntecedenteFamiliar } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { SectionCard } from "./section-card";
 
-export function FamiliarSummaryCard({ idNna }: { idNna: string }) {
+export function FamiliarSummaryCard({ idNna, idCaso }: { idNna: string; idCaso?: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [items, setItems] = useState<AntecedenteFamiliar[]>([]);
@@ -15,7 +15,7 @@ export function FamiliarSummaryCard({ idNna }: { idNna: string }) {
   useEffect(() => {
     (async () => {
       try {
-        const data = await api.antecedenteFamiliar.list(idNna);
+        const data = await api.antecedenteFamiliar.list(idNna, idCaso);
         setItems(data);
         const last = data[data.length - 1];
         setSnippet(last ? `Registrado: ${last.fecha_antecedente_familiar || "—"}` : null);
@@ -25,11 +25,11 @@ export function FamiliarSummaryCard({ idNna }: { idNna: string }) {
         setLoading(false);
       }
     })();
-  }, [idNna]);
+  }, [idNna, idCaso]);
 
   return (
     <SectionCard
-      href={`/nna/${idNna}/familiar`}
+      href={`/nna/${idNna}/familiar${idCaso ? `?id_caso=${idCaso}` : ""}`}
       icon={HomeIcon}
       label="Familiar"
       loading={loading}

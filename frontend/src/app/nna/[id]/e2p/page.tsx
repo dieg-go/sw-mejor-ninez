@@ -9,13 +9,22 @@ import { E2PHeader } from "./_components/e2p-header";
 import { E2PFormDialog } from "./_components/e2p-form-dialog";
 import { E2PItemCard } from "./_components/e2p-item-card";
 
-export default function E2PPage({ params }: { params: Promise<{ id: string }> }) {
+export default function E2PPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   const { id } = use(params);
+  const sp = use(searchParams);
+  const idCaso = typeof sp.id_caso === "string" ? sp.id_caso : undefined;
   const [nna, setNna] = useState<NNA | null>(null);
   const [familiares, setFamiliares] = useState<Familiar[]>([]);
   const [items, setItems] = useState<E2PEvaluacion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isClosed, setIsClosed] = useState(false);
   const [puntajes, setPuntajes] = useState<Record<string, E2PPuntaje | null>>({});
 
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -48,13 +57,14 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
         const [nnaData, famList, antList] = await Promise.all([
           api.nna.get(id),
           api.familiares.list(),
-          api.antecedenteFamiliar.list(id).catch(() => [] as AntecedenteFamiliar[]),
+          api.antecedenteFamiliar.list(id, idCaso).catch(() => [] as AntecedenteFamiliar[]),
         ]);
         if (cancelled) return;
         setNna(nnaData);
         setFamiliares(famList);
         setAntecedentes(antList);
-        setItems(await api.e2p.listByNna(id));
+        setItems(await api.e2p.listByNna(id, idCaso));
+        if (idCaso) setIsClosed((await api.casos.get(idCaso)).estado === "Cerrado");
       } catch (e: unknown) {
         if (!cancelled) setError(e instanceof Error ? e.message : "Error inesperado");
       } finally {
@@ -62,7 +72,7 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
       }
     })();
     return () => { cancelled = true; };
-  }, [id]);
+  }, [id, idCaso]);
 
   useEffect(() => {
     let cancelled = false;
@@ -134,7 +144,7 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <E2PHeader nnaId={id} nnaName={nna.nombre} itemCount={items.length} canCreate={vinculados.length > 0} onNew={openCreate} />
+      <E2PHeader nnaId={id} nnaName={nna.nombre} itemCount={items.length} canCreate={vinculados.length > 0 && !isClosed} onNew={openCreate} idCaso={idCaso} />
 
       <E2PFormDialog
         key={dialogKey}
@@ -162,6 +172,7 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
               puntaje={puntajes[item.id_e2p] ?? null}
               familiares={familiares}
               onEdit={() => openEdit(item)}
+              readOnly={isClosed}
             />
           ))}
         </div>
