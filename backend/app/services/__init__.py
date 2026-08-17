@@ -258,26 +258,27 @@ def _add_months(d: date, months: int) -> date:
 
 
 async def get_latest_fecha_ingreso(
-    session: AsyncSession, id_nna: uuid.UUID
+    session: AsyncSession, id_nna: uuid.UUID, id_caso: Optional[uuid.UUID] = None
 ) -> Optional[date]:
+    stmt = select(AntecedenteIngreso.fecha_ingreso_residencia).where(
+        AntecedenteIngreso.id_nna == id_nna,
+        AntecedenteIngreso.fecha_ingreso_residencia.isnot(None),
+    )
+    if id_caso:
+        stmt = stmt.where(AntecedenteIngreso.id_caso == id_caso)
     result = await session.execute(
-        select(AntecedenteIngreso.fecha_ingreso_residencia)
-        .where(
-            AntecedenteIngreso.id_nna == id_nna,
-            AntecedenteIngreso.fecha_ingreso_residencia.isnot(None),
-        )
-        .order_by(AntecedenteIngreso.fecha_ingreso_residencia.desc())
-        .limit(1)
+        stmt.order_by(AntecedenteIngreso.fecha_ingreso_residencia.desc()).limit(1)
     )
     return result.scalar_one_or_none()
 
 
 async def create_diagnostico_informe(
-    session: AsyncSession, id_nna: uuid.UUID, fecha_ingreso: date
+    session: AsyncSession, id_nna: uuid.UUID, fecha_ingreso: date, id_caso: uuid.UUID
 ) -> Optional[InformeTribunal]:
     exists = await session.execute(
         select(InformeTribunal).where(
             InformeTribunal.id_nna == id_nna,
+            InformeTribunal.id_caso == id_caso,
             InformeTribunal.tipo_informe == TipoInforme.DIAGNOSTICO,
             InformeTribunal.estado == EstadoInforme.PENDIENTE,
         )
@@ -287,6 +288,7 @@ async def create_diagnostico_informe(
 
     obj = InformeTribunal(
         id_nna=id_nna,
+        id_caso=id_caso,
         tipo_informe=TipoInforme.DIAGNOSTICO,
         fecha_vencimiento=fecha_ingreso + timedelta(days=30),
         estado=EstadoInforme.PENDIENTE,
@@ -301,7 +303,7 @@ async def chain_next_informe(
     session: AsyncSession, id_nna: uuid.UUID, current: InformeTribunal
 ) -> Optional[InformeTribunal]:
     if current.tipo_informe == TipoInforme.DIAGNOSTICO:
-        fecha_ingreso = await get_latest_fecha_ingreso(session, id_nna)
+        fecha_ingreso = await get_latest_fecha_ingreso(session, id_nna, current.id_caso)
         if not fecha_ingreso:
             return None
         next_vencimiento = fecha_ingreso + timedelta(days=90)
@@ -314,6 +316,7 @@ async def chain_next_informe(
 
     obj = InformeTribunal(
         id_nna=id_nna,
+        id_caso=current.id_caso,
         tipo_informe=TipoInforme.AVANCE,
         fecha_vencimiento=next_vencimiento,
         estado=EstadoInforme.PENDIENTE,

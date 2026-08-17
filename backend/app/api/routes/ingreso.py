@@ -55,7 +55,7 @@ async def create_ingreso(
 ):
     ingreso = await create_nna_child(db, AntecedenteIngreso, id_nna, data.model_dump())
     if ingreso.fecha_ingreso_residencia:
-        await create_diagnostico_informe(db, id_nna, ingreso.fecha_ingreso_residencia)
+        await create_diagnostico_informe(db, id_nna, ingreso.fecha_ingreso_residencia, ingreso.id_caso)
     return ingreso
 
 
