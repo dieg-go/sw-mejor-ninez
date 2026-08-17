@@ -31,7 +31,7 @@ async def create_caso(
     active = await get_active_caso(db, id_nna)
     if active:
         raise HTTPException(status_code=409, detail="NNA ya tiene un caso activo")
-    caso = Caso(id_nna=id_nna, **data.model_dump())
+    caso = Caso(id_nna=id_nna, **data.model_dump(exclude_unset=True))
     db.add(caso)
     await db.commit()
     await db.refresh(caso)

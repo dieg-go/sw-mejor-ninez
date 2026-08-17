@@ -30,7 +30,7 @@ class Caso(SQLModel, table=True):
         default_factory=uuid.uuid4, primary_key=True, sa_type=UUID(as_uuid=True)
     )
     id_nna: uuid.UUID = Field(foreign_key="NNA.id_nna", sa_type=UUID(as_uuid=True))
-    fecha_inicio: Optional[date] = None
+    fecha_inicio: Optional[date] = Field(default_factory=date.today)
     fecha_termino: Optional[date] = None
     estado: str = Field(default="En Progreso")
 
