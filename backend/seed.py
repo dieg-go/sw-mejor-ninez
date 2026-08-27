@@ -741,8 +741,56 @@ async def seed():
                 if row.id_nna in caso_by_nna:
                     row.id_caso = caso_by_nna[row.id_nna]
 
+        # ═══ Closed caso (read-only test) ═════════════════════════════════════
+        # Ana's previous case, already closed with records. Switching to it in
+        # the UI shows everything read-only; writes → HTTP 409.
+        caso_cerrado_ana = Caso(
+            id_nna=ana.id_nna,
+            fecha_inicio=fecha_hace(400),
+            fecha_termino=fecha_hace(200),
+            estado="Cerrado",
+        )
+        session.add(caso_cerrado_ana)
+        await session.flush()
+        session.add_all([
+            E2P(
+                id_nna=ana.id_nna,
+                id_caso=caso_cerrado_ana.id_caso,
+                id_familiar=madre_ana.id_familiar,
+                fecha_evaluacion=fecha_hace(350),
+                edad_meses_evaluacion=30,
+                rango_etario="19-36_meses",
+                perfil_resultado_global="Riesgo",
+                observacion="Primera evaluación, caso anterior cerrado.",
+            ),
+            InformeTribunal(
+                id_nna=ana.id_nna,
+                id_caso=caso_cerrado_ana.id_caso,
+                tipo_informe="Diagnóstico",
+                fecha_vencimiento=fecha_hace(250),
+                fecha_envio_real=fecha_hace(240),
+                estado="Enviado",
+            ),
+            AntecedenteSalud(
+                id_nna=ana.id_nna,
+                id_caso=caso_cerrado_ana.id_caso,
+                id_centro_salud=centro_by_name["CESFAM N°5 Santiago"].id_centro_salud,
+                fecha_antecedente_salud=fecha_hace(380),
+                inscrito_en_centro_salud=True,
+                prevision="Fonasa",
+            ),
+            AntecedenteEscolar(
+                id_nna=ana.id_nna,
+                id_caso=caso_cerrado_ana.id_caso,
+                id_establecimiento_educacional=est_by_name["Liceo Comercial Manuel de Salas"].id_establecimiento_educacional,
+                fecha_antecedente_escolar=fecha_hace(380),
+                escolarizado=True,
+                ultimo_ano_cursado=7,
+            ),
+        ])
+
         await session.commit()
-        print("Seed data created: 3 NNA, 5 familiares, 3 despejes, 6 notificaciones, ~40 child records, catalogs.")
+        print("Seed data created: 3 NNA, 5 familiares, 3 despejes, 6 notificaciones, 1 caso cerrado con registros, catalogs.")
 
 
 if __name__ == "__main__":

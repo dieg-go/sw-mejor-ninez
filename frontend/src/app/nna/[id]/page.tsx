@@ -23,6 +23,15 @@ import { SaludSummaryCard } from "./_components/salud-summary-card";
 import { EscolarSummaryCard } from "./_components/escolar-summary-card";
 import { FamiliarSummaryCard } from "./_components/familiar-summary-card";
 
+function SectionHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <h2 className="flex items-center gap-2.5 font-heading text-base font-semibold tracking-tight">
+      <span className="h-4 w-1 rounded-full bg-primary" aria-hidden />
+      {children}
+    </h2>
+  );
+}
+
 export default function NNADetailPage({
   params,
   searchParams,
@@ -131,9 +140,11 @@ export default function NNADetailPage({
         <Link href="/nna"><ArrowLeftIcon /> Volver al listado</Link>
       </Button>
 
-      <NNAHeader nna={nna} />
+      <div className="fade-up">
+        <NNAHeader nna={nna} />
+      </div>
 
-      <div className="mb-4">
+      <div className="fade-up mt-4">
         <CasoSwitcher
           casos={casos}
           selected={effectiveCaso || "no-case"}
@@ -145,21 +156,50 @@ export default function NNADetailPage({
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <IngresoSummaryCard idNna={id} idCaso={effectiveCaso || undefined} />
-        <DocumentacionSummaryCard idNna={id} idCaso={effectiveCaso || undefined} />
-        <ConsumoSummaryCard idNna={id} />
-        <DiscapacidadesSummaryCard idNna={id} />
-        <E2PSummaryCard idNna={id} idCaso={effectiveCaso || undefined} />
-        <PMFSummaryCard idNna={id} idCaso={effectiveCaso || undefined} />
-        <NCFASSummaryCard idNna={id} idCaso={effectiveCaso || undefined} />
-        <HistorialSummaryCard idNna={id} />
-        <BusquedaFamiliarSummaryCard idNna={id} idCaso={effectiveCaso || undefined} />
-        <InformesSummaryCard idNna={id} idCaso={effectiveCaso || undefined} />
-        <SaludSummaryCard idNna={id} idCaso={effectiveCaso || undefined} />
-        <EscolarSummaryCard idNna={id} idCaso={effectiveCaso || undefined} />
-        <FamiliarSummaryCard idNna={id} idCaso={effectiveCaso || undefined} />
-      </div>
+      {(() => {
+        let i = 0;
+        const wrap = (children: React.ReactNode) => (
+          <div className="fade-up h-full" style={{ animationDelay: `${i++ * 45}ms` }}>
+            {children}
+          </div>
+        );
+        const grid = "mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3";
+
+        return (
+          <div className="mt-8 space-y-10">
+            <section>
+              <SectionHeading>Proceso de ingreso</SectionHeading>
+              <div className={grid}>
+                {wrap(<IngresoSummaryCard idNna={id} idCaso={effectiveCaso || undefined} />)}
+                {wrap(<DocumentacionSummaryCard idNna={id} idCaso={effectiveCaso || undefined} />)}
+                {wrap(<BusquedaFamiliarSummaryCard idNna={id} idCaso={effectiveCaso || undefined} />)}
+                {wrap(<InformesSummaryCard idNna={id} idCaso={effectiveCaso || undefined} />)}
+              </div>
+            </section>
+
+            <section>
+              <SectionHeading>Evaluaciones</SectionHeading>
+              <div className={grid}>
+                {wrap(<E2PSummaryCard idNna={id} idCaso={effectiveCaso || undefined} />)}
+                {wrap(<PMFSummaryCard idNna={id} idCaso={effectiveCaso || undefined} />)}
+                {wrap(<NCFASSummaryCard idNna={id} idCaso={effectiveCaso || undefined} />)}
+              </div>
+            </section>
+
+            <section>
+              <SectionHeading>Antecedentes</SectionHeading>
+              <div className={grid}>
+                {wrap(<ConsumoSummaryCard idNna={id} />)}
+                {wrap(<DiscapacidadesSummaryCard idNna={id} />)}
+                {wrap(<SaludSummaryCard idNna={id} idCaso={effectiveCaso || undefined} />)}
+                {wrap(<EscolarSummaryCard idNna={id} idCaso={effectiveCaso || undefined} />)}
+                {wrap(<FamiliarSummaryCard idNna={id} idCaso={effectiveCaso || undefined} />)}
+                {wrap(<HistorialSummaryCard idNna={id} />)}
+              </div>
+            </section>
+          </div>
+        );
+      })()}
     </div>
   );
 }

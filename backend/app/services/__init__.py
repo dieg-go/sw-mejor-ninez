@@ -4,7 +4,7 @@ from datetime import date, timedelta
 from typing import Any, Optional
 
 from fastapi import HTTPException
-from sqlalchemy import and_, func
+from sqlalchemy import and_, case, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
@@ -71,9 +71,19 @@ class NNAService:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def list(self, skip: int = 0, limit: int = 100) -> list[NNA]:
-        result = await self.session.execute(select(NNA).offset(skip).limit(limit))
-        return list(result.scalars().all())
+    async def list(self, skip: int = 0, limit: int = 100) -> list[tuple[NNA, Optional[str]]]:
+        estado_subq = (
+            select(Caso.estado)
+            .where(Caso.id_nna == NNA.id_nna)
+            .order_by(case((Caso.estado == "En Progreso", 0), else_=1), Caso.fecha_inicio.desc())
+            .limit(1)
+            .correlate(NNA)
+            .scalar_subquery()
+        )
+        result = await self.session.execute(
+            select(NNA, estado_subq.label("estado_caso")).offset(skip).limit(limit)
+        )
+        return [(nna, estado) for nna, estado in result.all()]
 
     async def get(self, id_nna: uuid.UUID) -> Optional[NNA]:
         result = await self.session.execute(select(NNA).where(NNA.id_nna == id_nna))

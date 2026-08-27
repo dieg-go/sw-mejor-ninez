@@ -90,6 +90,7 @@ frontend/
 
 ### Known DB drift (deferred)
 - **`Caso` grouping** — `Caso` model (one active per NNA via partial unique index `uq_caso_activo_por_nna`). Grouped tables (E2P, PMF, NCFAS, AntecedenteIngreso, DocumentacionIngreso, AntecedenteSalud/Escolar/Familiar, InformeTribunal, ProcesoDespejeFamiliar) carry `id_caso` **NOT NULL** + composite FK `(id_nna, id_caso) → Caso(id_nna, id_caso)` (migration `bbf68836b0d8`). Auto-stamped by `create_nna_child`. Writes to records of a `Cerrado` caso → `HTTPException(409)` (guard `_assert_caso_abierto`, `update_child` + despeje/notificación/NCFAS-comment routes). `ProcesoDespejeFamiliar` is unique per `(id_nna, id_caso)` — one despeje per caso, not per NNA. API: `GET/POST /api/nna/{id}/casos`, `GET/PUT /api/casos/{id_caso}`, `?id_caso=` filter on grouped list endpoints; despeje GET accepts optional `id_caso` (defaults to active caso). Backend is done; frontend case switcher (summary page, `?id_caso=` URL param) was still in progress at the time of writing.
+- **Caso grouping scope (open product question — ask clients)** — `HistorialConsumoNNA`, `DiscapacidadNNA`, `HistorialRedProteccional` are NNA-level (no `id_caso`), so they stay editable even on a closed caso. They evolve over time and are only edited from inside the case view; ask whether they should be grouped too (read-only on closed casos, one snapshot per caso). Tradeoff: grouped = page shows only the current caso's entries; ungrouped = single merged timeline across casos. `HistorialConsumoAdulto` (familiar-level) and `VinculoFamiliar` (stable relationship graph) should stay ungrouped. If grouped: add `id_caso` + composite FK (copy `antecedentes.py`), extend the seed stamping loop, add `?id_caso=`/read-only to the consumo & discapacidades pages; backend routes work via the generic helpers unchanged.
 - **`AntecedentePenal` vs `AntecedentesPenales`** — DBML says singular, real table is plural (`app/models/familiar.py`). Fix (rename table + migration) deferred.
 - **E2P missing cascade** — `RespuestaE2P`/`PuntajeE2P` lack `ondelete="CASCADE"` (`app/models/e2p.py`) while PMF/NCFAS children have it; deleting an E2P row fails on FK. Add `ondelete` + migration before building E2P delete.
 
@@ -137,6 +138,32 @@ docker exec sw-mejor-ninez-db psql -U postgres -d sw_mejor_ninez \
 - **`opencode.json`** is in `.gitignore` — local-only config, never committed.
 - **Delegation**: `frontend/AGENTS.md` delegates to this root file with `@../AGENTS.md`. Update only this root file.
 - **`dev.ps1`**: convenience script that runs DB via Docker + backend/frontend in separate PowerShell windows. `docker compose up -d --build` (single command, all Docker) is the recommended way.
+
+### Over-engineering audit (deferred, ~-2,500 ln, -4 deps possible)
+
+From a full-repo ponytail audit. Do before writing any new nna/familiar page. Ranked biggest cut first:
+
+1. **Five duplicated page pairs** — `nna/[id]/X` vs `familiar/[id]/X` (consumo, discapacidades, e2p, pmf, ncfas, ~1,400 ln, ~76 ln real difference). Parameterize one page with an api-client group.
+2. **`combobox.tsx` + `input-group.tsx`** (~455 ln) exist only for the solicitante picker; only import of `@base-ui/react`. Replace with existing `ui/select`.
+3. **CRUD scaffold repeated in ~12 sub-pages** — loading/error/header Card, `showForm`/`editingId` state machine, Popover+Calendar date block (4×/page). Extract one list-shell hook + `<DateField>` (~700 ln).
+4. **`backend/app/schemas/__init__.py`** — 202-line re-export aggregator, zero imports anywhere. Delete.
+5. **Dead shadcn components**: `ui/{alert,breadcrumb,skeleton,toggle}.tsx` never imported (258 ln).
+6. **All `Relationship(back_populates=...)`** in backend models (~50 ln) — zero code traverses them; every query is explicit `select`.
+7. **Catalog CRUD triplication** — `solicitante`/`establecimiento`/`centro_salud` routes identical except names; generic helper per entity (optional until a 4th catalog).
+8. **Dead entity `RegistroGrupoFamiliar`** — model + schemas, no route/service/seed.
+9. **`.agents/skills/shadcn/` (13 files) + `skills-lock.json`** — generated agent-tooling bloat.
+10. **JSON fallback loaders** `_load_items_from_json()`/`_load_questions_json()` in ncfas/pmf routes — unreachable (entrypoint seeds first); E2P has no fallback.
+11. **`informes_atrasados` + `informes_proximos`** — near-identical queries; one with a `vencidas` param.
+12. **Dead imports** in `services/__init__.py` (`and_`, `func`, 17 models) + scattered unused imports (~32 ln).
+13. **`date-fns` dep** — zero src imports. **`@base-ui/react`** — see #2.
+14. **Dead auth helpers** `getToken`/`getUser`/`isAuthenticated` — `auth-provider.tsx` re-implements inline; keep one.
+15. **`next.config.ts` rewrites + `API_BACKEND_URL`** — nothing requests relative `/api`/`/uploads`.
+16. **Unused E2P Read schemas** (`BaremoE2PRead`, `PreguntaE2PRead`, `PuntajeE2PRead`, 49 ln) + `UsuarioCreate` + `_parse_item_key()`.
+17. **`formatDate`/`fmt` date helpers duplicated in ~17 files** — one shared helper in `src/lib/utils.ts`.
+18. **Orphan `/faq` page** (52 ln, template filler); **create-next-app boilerplate** (5 public svgs, README.md); **Geist font** (variable never used).
+19. **Re-rolled shared components** in `familiar/[id]/page.tsx` (`InfoRow`, SectionCard, `diasDesde`, `RESULTADO_STYLES` duplicated).
+20. **`requirements.txt`**: `httpx`, `python-dotenv` unused; `pytest`+`pytest-asyncio` optional (tests/ empty).
+21. **Small dead bits**: `theme-provider.tsx` pass-through, alembic.ini `sqlalchemy.url` (env.py overrides), `app/core/__init__.py` re-exports, `EstadoInforme.VENCIDO`, `PreguntaPMF.escala`, `Usuario.updated_at`, duplicate show/hide-password toggles on login, commented-out JSX on home page.
 
 ### Authentication
 - **JWT-based**: email + password login via `POST /api/auth/login` returns `access_token`. All other API routes require `Authorization: Bearer <token>`. Token expiry: 8 hours.

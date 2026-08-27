@@ -43,8 +43,10 @@ export function CasoSwitcher({
   const isClosed = selected !== active?.id_caso;
 
   return (
-    <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-muted/40 px-3 py-2.5">
-      <FolderIcon className="size-4 text-muted-foreground shrink-0" />
+    <div className="flex flex-wrap items-center gap-3 rounded-xl border bg-card px-3 py-2.5 shadow-sm">
+      <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+        <FolderIcon className="size-4" />
+      </div>
       <Select value={selected} onValueChange={onSelect} disabled={casos.length === 0}>
         <SelectTrigger size="sm" className="min-w-56">
           <SelectValue placeholder="Seleccionar caso" />
@@ -64,7 +66,7 @@ export function CasoSwitcher({
         </Badge>
       )}
 
-      <div className="flex items-center gap-2 ml-auto">
+      <div className="ml-auto flex items-center gap-2">
         <Button
           size="sm"
           variant="outline"
@@ -75,7 +77,7 @@ export function CasoSwitcher({
         </Button>
         <Button
           size="sm"
-          variant="outline"
+          variant={active ? "outline" : "default"}
           disabled={!!active || creating}
           onClick={onCreate}
         >

@@ -56,6 +56,12 @@ export function E2PSummaryCard({ idNna, idCaso }: { idNna: string; idCaso?: stri
     })();
   }, [idNna, idCaso]);
 
+  const tone =
+    items.some((i) => i.perfil_resultado_global === "Riesgo") ? "danger"
+    : items.some((i) => i.perfil_resultado_global === "Monitoreo") ? "warn"
+    : items.some((i) => i.perfil_resultado_global === "Optimo") ? "ok"
+    : "neutral";
+
   return (
     <SectionCard
       href={`/nna/${idNna}/e2p${idCaso ? `?id_caso=${idCaso}` : ""}`}
@@ -64,6 +70,7 @@ export function E2PSummaryCard({ idNna, idCaso }: { idNna: string; idCaso?: stri
       loading={loading}
       error={error}
       isEmpty={items.length === 0}
+      tone={tone}
     >
       <ul className="space-y-1">
         {items.map((item) => (

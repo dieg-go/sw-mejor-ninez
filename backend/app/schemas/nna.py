@@ -41,3 +41,4 @@ class NNARead(NNABase):
     model_config = ConfigDict(from_attributes=True)
 
     id_nna: uuid.UUID
+    estado_caso: Optional[str] = None

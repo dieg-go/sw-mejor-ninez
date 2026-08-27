@@ -11,12 +11,21 @@ export function InformesSummaryCard({ idNna, idCaso }: { idNna: string; idCaso?:
   const [error, setError] = useState<string | null>(null);
   const [items, setItems] = useState<InformeTribunal[]>([]);
   const [snippet, setSnippet] = useState<string | null>(null);
+  const [vencido, setVencido] = useState(false);
 
   useEffect(() => {
     (async () => {
       try {
         const data = await api.informeTribunal.list(idNna, idCaso);
         setItems(data);
+        setVencido(
+          data.some(
+            (i) =>
+              i.estado !== "Enviado" &&
+              i.fecha_vencimiento &&
+              new Date(i.fecha_vencimiento + "T00:00:00").getTime() < Date.now()
+          )
+        );
         const last = data[data.length - 1];
         setSnippet(last ? `${last.tipo_informe || "—"} · ${last.estado || "—"} · Vence: ${last.fecha_vencimiento || "—"}` : null);
       } catch (e: any) {
@@ -35,6 +44,7 @@ export function InformesSummaryCard({ idNna, idCaso }: { idNna: string; idCaso?:
       loading={loading}
       error={error}
       isEmpty={!snippet}
+      tone={vencido ? "danger" : "neutral"}
     >
       <div className="flex flex-col gap-2">
         <p className="text-xs text-muted-foreground line-clamp-2">{snippet}</p>

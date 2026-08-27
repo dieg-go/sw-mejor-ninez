@@ -13,7 +13,11 @@ router = APIRouter(prefix="/api/nna", tags=["NNA"])
 @router.get("", response_model=list[NNARead])
 async def list_nna(skip: int = 0, limit: int = 100, db: AsyncSession = Depends(get_db)):
     service = NNAService(db)
-    return await service.list(skip=skip, limit=limit)
+    rows = await service.list(skip=skip, limit=limit)
+    return [
+        NNARead.model_validate(nna).model_copy(update={"estado_caso": estado})
+        for nna, estado in rows
+    ]
 
 
 @router.post("", response_model=NNARead, status_code=201)

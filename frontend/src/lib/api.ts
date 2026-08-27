@@ -49,6 +49,7 @@ export interface NNA {
   poblacion_o_villa: string | null;
   comuna: string | null;
   region: string | null;
+  estado_caso?: string | null;
 }
 
 export interface NNACreate {

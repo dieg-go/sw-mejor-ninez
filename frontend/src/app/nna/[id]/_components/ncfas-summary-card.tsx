@@ -32,6 +32,7 @@ export function NCFASSummaryCard({ idNna, idCaso }: { idNna: string; idCaso?: st
       loading={loading}
       error={error}
       isEmpty={items.length === 0}
+      tone={items.length > 0 ? "accent" : "neutral"}
     >
       <div className="flex flex-col gap-2">
         <p className="text-xs text-muted-foreground line-clamp-2">Evaluaciones: {items.length}</p>

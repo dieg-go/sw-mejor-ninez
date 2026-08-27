@@ -34,6 +34,12 @@ useEffect(() => {
       loading={loading}
       error={error}
       isEmpty={!despeje}
+      tone={
+        alerta === "roja" ? "danger"
+        : alerta === "naranja" ? "warn"
+        : alerta === "verde" ? "ok"
+        : "neutral"
+      }
     >
       <div className="flex flex-col gap-2">
         <p className="text-xs text-muted-foreground line-clamp-2">

@@ -1,67 +1,82 @@
 "use client";
 
 import {
-  UserRoundIcon,
-  IdCardIcon,
   CakeIcon,
-  CalendarIcon,
+  IdCardIcon,
   MapPinIcon,
-  GlobeIcon,
-  FlagIcon,
   Building2Icon,
   HomeIcon,
+  GlobeIcon,
+  FlagIcon,
+  type LucideIcon,
 } from "lucide-react";
 import type { NNA } from "@/lib/api";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { InfoRow } from "./info-row";
-import { calcularEdad } from "./utils";
+import { calcularEdad, iniciales } from "@/lib/utils";
+
+function Chip({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string | null;
+}) {
+  return (
+    <div className="rounded-lg border bg-card/60 px-3 py-2">
+      <span className="flex items-center gap-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+        <Icon className="size-3" />
+        {label}
+      </span>
+      <span className="mt-0.5 block truncate text-sm font-medium">{value || "—"}</span>
+    </div>
+  );
+}
 
 export function NNAHeader({ nna }: { nna: NNA }) {
   const edad = calcularEdad(nna.fecha_nacimiento);
 
   return (
-    <Card className="mb-8 overflow-hidden">
-      <CardHeader className="pb-4">
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-          <div className="flex items-start gap-4">
-            <div className="flex size-14 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-              <UserRoundIcon className="size-7" />
-            </div>
-            <div>
-              <CardTitle className="text-2xl leading-tight">{nna.nombre}</CardTitle>
-              <CardDescription className="flex flex-wrap items-center gap-3 mt-1.5">
-                <span className="inline-flex items-center gap-1">
-                  <IdCardIcon className="size-3.5" />
-                  RUN: {nna.run || "—"}
-                </span>
-                {edad !== null && (
-                  <span className="inline-flex items-center gap-1">
-                    <CakeIcon className="size-3.5" />
-                    {edad} {edad === 1 ? "año" : "años"}
-                  </span>
-                )}
-                {nna.sexo && (
-                  <Badge variant="outline" className="text-xs font-normal">
-                    {nna.sexo}
-                  </Badge>
-                )}
-              </CardDescription>
+    <section className="overflow-hidden rounded-2xl border bg-gradient-to-b from-primary/15 via-primary/5 to-card shadow-sm">
+      <div className="px-5 pb-6 pt-6 sm:px-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+          <div className="flex size-16 shrink-0 items-center justify-center rounded-full bg-primary font-heading text-lg font-semibold text-primary-foreground shadow-sm">
+            {iniciales(nna.nombre)}
+          </div>
+          <div>
+            <h1 className="font-heading text-2xl font-semibold leading-tight sm:text-3xl">
+              {nna.nombre}
+            </h1>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <Badge variant="secondary" className="gap-1 font-normal">
+                <IdCardIcon className="size-3" />
+                RUN: {nna.run || "—"}
+              </Badge>
+              {edad !== null && (
+                <Badge variant="secondary" className="gap-1 font-normal">
+                  <CakeIcon className="size-3" />
+                  {edad} {edad === 1 ? "año" : "años"}
+                </Badge>
+              )}
+              {nna.sexo && (
+                <Badge variant="outline" className="font-normal">
+                  {nna.sexo}
+                </Badge>
+              )}
             </div>
           </div>
         </div>
-      </CardHeader>
-      <CardContent>
-        <dl className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t">
-          <InfoRow label="Fecha nacimiento" value={nna.fecha_nacimiento} icon={CalendarIcon} />
-          <InfoRow label="Nacionalidad" value={nna.nacionalidad} icon={GlobeIcon} />
-          <InfoRow label="Etnia" value={nna.etnia_declarada} icon={FlagIcon} />
-          <InfoRow label="Región" value={nna.region} icon={MapPinIcon} />
-          <InfoRow label="Comuna" value={nna.comuna} icon={Building2Icon} />
-          <InfoRow label="Domicilio" value={nna.domicilio} icon={HomeIcon} />
-          <InfoRow label="Población / Villa" value={nna.poblacion_o_villa} icon={MapPinIcon} />
-        </dl>
-      </CardContent>
-    </Card>
+        <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+          <Chip icon={CakeIcon} label="Nacimiento" value={nna.fecha_nacimiento} />
+          <Chip icon={GlobeIcon} label="Nacionalidad" value={nna.nacionalidad} />
+          <Chip icon={FlagIcon} label="Etnia" value={nna.etnia_declarada} />
+          <Chip icon={MapPinIcon} label="Región" value={nna.region} />
+          <Chip icon={Building2Icon} label="Comuna" value={nna.comuna} />
+          <Chip icon={HomeIcon} label="Domicilio" value={nna.domicilio} />
+          <Chip icon={MapPinIcon} label="Población / Villa" value={nna.poblacion_o_villa} />
+        </div>
+      </div>
+    </section>
   );
 }
