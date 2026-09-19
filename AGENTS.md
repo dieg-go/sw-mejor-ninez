@@ -36,7 +36,7 @@ Deferred intentionally: tests and CI (solo dev; not needed for the first live ve
 
 - **Frontend**: Next.js 16.2 (App Router, `use(params)` for async route params), React 19, Tailwind CSS v4, shadcn/ui (radix-nova), next-themes, pnpm. All data pages are client components (`useEffect` + `useState`).
 - **Backend**: FastAPI 0.115 (async), SQLModel 0.0.22, Pydantic v2, Alembic 1.14. Three-layer: Routes → Services → Models. Schemas separate from models.
-- **DB**: PostgreSQL 17 (Alpine). DB `sw_mejor_ninez`, user/pass `postgres/postgres`, port **5433** (host-mapped from 5432). Inside Docker Compose, containers use `db:5432`. Schema reference: `db-schema-reference.dbml` (DBML format).
+- **DB**: PostgreSQL 17 (Alpine). DB `sw_mejor_ninez`, user/pass `postgres/postgres`, port **5432** (as mapped in `docker-compose.yml`). Inside Docker Compose, containers use `db:5432`. Schema reference: `db-schema-reference.dbml` (DBML format).
 - **Infra**: Docker Compose with three services (db/backend/frontend). Dockerfiles in both `backend/` and `frontend/`.
 - **Development workflow**: `docker compose up -d --build` for the full stack. For faster iteration, use `dev.ps1` (DB in Docker, backend + frontend locally with hot-reload) or `docker compose up -d db backend` + `cd frontend && pnpm dev` for frontend-only work.
 
@@ -53,7 +53,7 @@ backend/
     services/__init__.py   # FamiliarService, NNAService + generic helper functions
     data/                  # JSON files loaded at runtime (E2P, PMF, NCFAS)
     core/                  # config.py (Settings), database.py (async engine), security.py
-  migrations/versions/     # Single initial migration creates all tables via SQLModel.metadata
+  migrations/versions/     # 3 chained migrations (head: bbf68836b0d8)
   seed.py                  # Idempotent (skips if ≥2 NNA exist)
 
 frontend/
@@ -80,16 +80,16 @@ frontend/
 - **Frontend `Instrumento` interface** is reused for all three (E2P/PMF/NCFAS). PMF and NCFAS don't have `version`/`respuestas` — don't send those fields for them.
 
 ### Database
-- Port **5433** locally (Docker maps 5433→5432). Inside Compose, hostname `db` on port 5432.
+- Port **5432** (matches `docker-compose.yml`; `backend/.env` for local runs also uses 5432). Inside Compose, hostname `db` on port 5432.
 - Alembic: use `python -m alembic` (not bare `alembic`). Needs running PostgreSQL. `alembic.ini` has a hardcoded URL, but `env.py` overrides it with `settings.database_url_sync` from config — the `.env` file or Docker env vars control the real connection.
 - **Auto-migration**: `backend/entrypoint.sh` runs `alembic upgrade head` + `python seed.py` before starting uvicorn.
-- There is a single initial migration (`0b733fafb9a6`) that creates all tables from SQLModel metadata. To add tables, update models and generate a new migration.
+- **Migrations (3, chained)**: `0b733fafb9a6` (initial, creates all tables from SQLModel metadata) → `3f2e134a5977` (caso grouping) → `bbf68836b0d8` (caso hardening: NOT NULL + composite FK, head). To add tables, update models and generate a new migration.
 - `.env` lives in `backend/`, not repo root. Run `uvicorn` from `backend/` so pydantic-settings finds it. Docker Compose sets env vars directly (DB_HOST=db, etc.) which override `.env`.
 - All PKs are UUID (`default_factory=uuid.uuid4`). Omit when creating.
 - `tiene_antecedentes_penales` on Familiar is **denormalized** — must update when adding/removing `AntecedentesPenales`.
 
 ### Known DB drift (deferred)
-- **`Caso` grouping** — `Caso` model (one active per NNA via partial unique index `uq_caso_activo_por_nna`). Grouped tables (E2P, PMF, NCFAS, AntecedenteIngreso, DocumentacionIngreso, AntecedenteSalud/Escolar/Familiar, InformeTribunal, ProcesoDespejeFamiliar) carry `id_caso` **NOT NULL** + composite FK `(id_nna, id_caso) → Caso(id_nna, id_caso)` (migration `bbf68836b0d8`). Auto-stamped by `create_nna_child`. Writes to records of a `Cerrado` caso → `HTTPException(409)` (guard `_assert_caso_abierto`, `update_child` + despeje/notificación/NCFAS-comment routes). `ProcesoDespejeFamiliar` is unique per `(id_nna, id_caso)` — one despeje per caso, not per NNA. API: `GET/POST /api/nna/{id}/casos`, `GET/PUT /api/casos/{id_caso}`, `?id_caso=` filter on grouped list endpoints; despeje GET accepts optional `id_caso` (defaults to active caso). Backend is done; frontend case switcher (summary page, `?id_caso=` URL param) was still in progress at the time of writing.
+- **`Caso` grouping** — `Caso` model (one active per NNA via partial unique index `uq_caso_activo_por_nna`). Grouped tables (E2P, PMF, NCFAS, AntecedenteIngreso, DocumentacionIngreso, AntecedenteSalud/Escolar/Familiar, InformeTribunal, ProcesoDespejeFamiliar) carry `id_caso` **NOT NULL** + composite FK `(id_nna, id_caso) → Caso(id_nna, id_caso)` (migration `bbf68836b0d8`). Auto-stamped by `create_nna_child`. Writes to records of a `Cerrado` caso → `HTTPException(409)` (guard `_assert_caso_abierto`, `update_child` + despeje/notificación/NCFAS-comment routes). `ProcesoDespejeFamiliar` is unique per `(id_nna, id_caso)` — one despeje per caso, not per NNA. API: `GET/POST /api/nna/{id}/casos`, `GET/PUT /api/casos/{id_caso}`, `?id_caso=` filter on grouped list endpoints; despeje GET accepts optional `id_caso` (defaults to active caso). Backend is done; frontend case switcher (summary page + `?id_caso=` URL param) is **done** — `CasoSwitcher` is rendered from `nna/[id]/page.tsx`.
 - **Caso grouping scope (open product question — ask clients)** — `HistorialConsumoNNA`, `DiscapacidadNNA`, `HistorialRedProteccional` are NNA-level (no `id_caso`), so they stay editable even on a closed caso. They evolve over time and are only edited from inside the case view; ask whether they should be grouped too (read-only on closed casos, one snapshot per caso). Tradeoff: grouped = page shows only the current caso's entries; ungrouped = single merged timeline across casos. `HistorialConsumoAdulto` (familiar-level) and `VinculoFamiliar` (stable relationship graph) should stay ungrouped. If grouped: add `id_caso` + composite FK (copy `antecedentes.py`), extend the seed stamping loop, add `?id_caso=`/read-only to the consumo & discapacidades pages; backend routes work via the generic helpers unchanged.
 - **`AntecedentePenal` vs `AntecedentesPenales`** — DBML says singular, real table is plural (`app/models/familiar.py`). Fix (rename table + migration) deferred.
 - **E2P missing cascade** — `RespuestaE2P`/`PuntajeE2P` lack `ondelete="CASCADE"` (`app/models/e2p.py`) while PMF/NCFAS children have it; deleting an E2P row fails on FK. Add `ondelete` + migration before building E2P delete.
@@ -133,36 +133,39 @@ docker exec sw-mejor-ninez-db psql -U postgres -d sw_mejor_ninez \
 - **pnpm `--ignore-scripts`** in Docker builds — skips postinstall hooks. If adding a dep needing postinstall, remove the flag.
 - **No tests yet**: `pytest` is configured but `backend/tests/` is empty.
 - **Seed is idempotent**: checks `≥2 NNA` before inserting. Also creates default admin user (`admin@mejorninez.cl` / `admin123`) if none exists.
-- **Empty dirs**: `shared/` (intended for shared types) and `backend/app/instruments/` (stale pycache only). Don't add files without instruction.
+- **Root cleanup done** (2026-08): removed stray root `src/` (empty better-auth dirs), `.env.local` (Sentry/Better Auth placeholders from an unrelated scaffold), `cleanup.bat`. `shared/` and `backend/app/instruments/` no longer exist.
 - **No separate typecheck** command in frontend. `pnpm build` includes TS type-checking as part of the Next.js build.
 - **`opencode.json`** is in `.gitignore` — local-only config, never committed.
 - **Delegation**: `frontend/AGENTS.md` delegates to this root file with `@../AGENTS.md`. Update only this root file.
 - **`dev.ps1`**: convenience script that runs DB via Docker + backend/frontend in separate PowerShell windows. `docker compose up -d --build` (single command, all Docker) is the recommended way.
 
-### Over-engineering audit (deferred, ~-2,500 ln, -4 deps possible)
+### Over-engineering audit (partially applied, ~-1,800 ln remaining)
 
-From a full-repo ponytail audit. Do before writing any new nna/familiar page. Ranked biggest cut first:
+From a full-repo ponytail audit. Do before writing any new nna/familiar page. Ranked biggest cut first.
+
+**DONE** (commit `55abe957`): items 4, 5, 12, 16, 18, and the `date-fns` half of 13 — that commit removes those lines and deps.
+**STILL PENDING**, highest value first: 1, 3, 2, then the rest.
 
 1. **Five duplicated page pairs** — `nna/[id]/X` vs `familiar/[id]/X` (consumo, discapacidades, e2p, pmf, ncfas, ~1,400 ln, ~76 ln real difference). Parameterize one page with an api-client group.
 2. **`combobox.tsx` + `input-group.tsx`** (~455 ln) exist only for the solicitante picker; only import of `@base-ui/react`. Replace with existing `ui/select`.
 3. **CRUD scaffold repeated in ~12 sub-pages** — loading/error/header Card, `showForm`/`editingId` state machine, Popover+Calendar date block (4×/page). Extract one list-shell hook + `<DateField>` (~700 ln).
-4. **`backend/app/schemas/__init__.py`** — 202-line re-export aggregator, zero imports anywhere. Delete.
-5. **Dead shadcn components**: `ui/{alert,breadcrumb,skeleton,toggle}.tsx` never imported (258 ln).
+4. **[DONE `55abe957`]** **`backend/app/schemas/__init__.py`** — 202-line re-export aggregator, zero imports anywhere.
+5. **[DONE `55abe957`]** **Dead shadcn components**: `ui/{alert,breadcrumb,skeleton,toggle}.tsx` never imported (258 ln).
 6. **All `Relationship(back_populates=...)`** in backend models (~50 ln) — zero code traverses them; every query is explicit `select`.
 7. **Catalog CRUD triplication** — `solicitante`/`establecimiento`/`centro_salud` routes identical except names; generic helper per entity (optional until a 4th catalog).
 8. **Dead entity `RegistroGrupoFamiliar`** — model + schemas, no route/service/seed.
 9. **`.agents/skills/shadcn/` (13 files) + `skills-lock.json`** — generated agent-tooling bloat.
 10. **JSON fallback loaders** `_load_items_from_json()`/`_load_questions_json()` in ncfas/pmf routes — unreachable (entrypoint seeds first); E2P has no fallback.
 11. **`informes_atrasados` + `informes_proximos`** — near-identical queries; one with a `vencidas` param.
-12. **Dead imports** in `services/__init__.py` (`and_`, `func`, 17 models) + scattered unused imports (~32 ln).
-13. **`date-fns` dep** — zero src imports. **`@base-ui/react`** — see #2.
+12. **[DONE `55abe957`]** **Dead imports** in `services/__init__.py` (`and_`, `func`, 17 models) + scattered unused imports (~32 ln).
+13. **[DONE half `55abe957`]** **`date-fns` dep** — zero src imports, removed. **`@base-ui/react`** — see #2, still pending.
 14. **Dead auth helpers** `getToken`/`getUser`/`isAuthenticated` — `auth-provider.tsx` re-implements inline; keep one.
 15. **`next.config.ts` rewrites + `API_BACKEND_URL`** — nothing requests relative `/api`/`/uploads`.
-16. **Unused E2P Read schemas** (`BaremoE2PRead`, `PreguntaE2PRead`, `PuntajeE2PRead`, 49 ln) + `UsuarioCreate` + `_parse_item_key()`.
+16. **[DONE `55abe957`]** **Unused E2P Read schemas** (`BaremoE2PRead`, `PreguntaE2PRead`, `PuntajeE2PRead`, 49 ln) + `UsuarioCreate` + `_parse_item_key()`.
 17. **`formatDate`/`fmt` date helpers duplicated in ~17 files** — one shared helper in `src/lib/utils.ts`.
-18. **Orphan `/faq` page** (52 ln, template filler); **create-next-app boilerplate** (5 public svgs, README.md); **Geist font** (variable never used).
+18. **[DONE `55abe957`]** **Orphan `/faq` page** (52 ln, template filler); **create-next-app boilerplate** (5 public svgs, README.md); **Geist font** (variable never used).
 19. **Re-rolled shared components** in `familiar/[id]/page.tsx` (`InfoRow`, SectionCard, `diasDesde`, `RESULTADO_STYLES` duplicated).
-20. **`requirements.txt`**: `httpx`, `python-dotenv` unused; `pytest`+`pytest-asyncio` optional (tests/ empty).
+20. **[DONE half `55abe957`]** **`requirements.txt`**: `httpx` removed; `python-dotenv` still present (zero imports — pydantic-settings reads `.env`); `pytest`+`pytest-asyncio` optional (tests/ empty).
 21. **Small dead bits**: `theme-provider.tsx` pass-through, alembic.ini `sqlalchemy.url` (env.py overrides), `app/core/__init__.py` re-exports, `EstadoInforme.VENCIDO`, `PreguntaPMF.escala`, `Usuario.updated_at`, duplicate show/hide-password toggles on login, commented-out JSX on home page.
 
 ### Authentication
