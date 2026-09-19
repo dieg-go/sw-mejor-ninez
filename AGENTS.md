@@ -7,7 +7,7 @@ Monorepo: Next.js 16 frontend + FastAPI backend + PostgreSQL 17.
 
 ## Where things stand (read this first)
 
-**Checkpoint: tag `v0.1-preproduccion`** (commit `65a1f406`). Working tree clean.
+**Checkpoint: tag `v0.1-preproduccion`** (`git show v0.1-preproduccion` for the exact commit). Working tree clean.
 
 **Done and working**: full case-management app end-to-end — 13 NNA sub-pages, 6 Familiar pages,
 `/nuevo-caso` 6-step wizard, JWT auth, and `Caso` grouping with a case switcher. ~3,989 lines backend,
