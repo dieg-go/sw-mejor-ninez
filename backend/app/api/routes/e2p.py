@@ -8,14 +8,7 @@ from sqlmodel import select
 
 from app.core.database import get_db
 from app.models.e2p import E2P, BaremoE2P, PreguntaE2P, RespuestaE2P, PuntajeE2P
-from app.schemas.e2p import (
-    E2PCreate,
-    E2PRead,
-    E2PUpdate,
-    BaremoE2PRead,
-    PreguntaE2PRead,
-    PuntajeE2PRead,
-)
+from app.schemas.e2p import E2PCreate, E2PRead, E2PUpdate
 from app.services import (
     create_nna_child,
     get_nna_child,

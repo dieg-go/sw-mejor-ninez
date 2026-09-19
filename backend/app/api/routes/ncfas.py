@@ -55,11 +55,6 @@ def _load_items_from_json() -> list[dict]:
     return items
 
 
-def _parse_item_key(key: str) -> tuple[str, int]:
-    letra, num = key.split("_")
-    return letra, int(num)
-
-
 def _make_item_key(letra: str, numero: int) -> str:
     return f"{letra}_{numero}"
 

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter, Sora } from "next/font/google";
+import { Geist_Mono, Inter, Sora } from "next/font/google";
 import { AppHeader } from "@/components/app-header";
 import { AuthProvider } from "@/components/auth-provider";
 import "./globals.css";
@@ -9,11 +9,6 @@ import { ThemeProvider } from "@/components/theme-provider";
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 const sora = Sora({ subsets: ["latin"], variable: "--font-heading" });
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -38,7 +33,6 @@ export default function RootLayout({
         className={cn(
           "h-full",
           "antialiased",
-          geistSans.variable,
           geistMono.variable,
           "font-sans",
           inter.variable,

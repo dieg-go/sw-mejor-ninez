@@ -1,6 +1,7 @@
 # Dependencies
 node_modules/
 frontend/.next/
+.pnpm-store/
 
 # Python
 __pycache__/

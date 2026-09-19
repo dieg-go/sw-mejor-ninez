@@ -4,7 +4,7 @@ from datetime import date, timedelta
 from typing import Any, Optional
 
 from fastapi import HTTPException
-from sqlalchemy import and_, case, func
+from sqlalchemy import case
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
@@ -12,24 +12,8 @@ from app.models import (
     NNA,
     Caso,
     Familiar,
-    AntecedenteEscolar,
-    AntecedenteFamiliar,
     AntecedenteIngreso,
-    AntecedenteSalud,
-    AntecedentesPenales,
-    DiscapacidadAdulto,
-    DiscapacidadNNA,
-    DocumentacionIngreso,
-    E2P,
-    HistorialConsumoAdulto,
-    HistorialConsumoNNA,
-    HistorialRedProteccional,
     InformeTribunal,
-    NCFAS,
-    NotificacionFamiliar,
-    PMF,
-    ProcesoDespejeFamiliar,
-    RegistroCausalIngreso,
     RegistroDerechoVulnerado,
     VinculoFamiliar,
     VinculoNNA,
