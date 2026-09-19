@@ -11,15 +11,21 @@ Monorepo: Next.js 16 frontend + FastAPI backend + PostgreSQL 17.
 
 **Done and working**: full case-management app end-to-end — 13 NNA sub-pages, 6 Familiar pages,
 `/nuevo-caso` 6-step wizard, JWT auth, and `Caso` grouping with a case switcher. ~3,989 lines backend,
-~13,769 frontend. Dead-code cleanup applied (commit `55abe957`).
+~13,794 frontend. Dead-code cleanup applied (commit `55abe957`).
+
+**Verified 2026-09-19** (not assumed): `pnpm build` completes clean (cold build, full TS typecheck);
+all 45 backend modules import (`python -c "import app.main"` inside the built image); `--frozen-lockfile`
+passes. So the checkpoint is a *buildable, importable* baseline.
 
 **Not started — this is the actual remaining roadmap**: backups, deployment, multi-user/audit.
 See Roadmap below; the app is *feature-complete enough* and *not production-operable yet*.
 
-**Self-check before assuming something is broken**: Docker must be running (`docker ps`), and the
-`backend/.venv` is stale (points at a removed Store Python) — use Docker, not a local venv.
-`pnpm build` fails with `spawn EPERM` in sandboxed shells; `pnpm exec tsc --noEmit` with `CI=true`
-is the reliable typecheck.
+**Self-check before assuming something is broken**: Docker must be running (`docker ps`). The
+`backend/.venv` is stale (points at a removed Store Python) — use Docker, not a local venv; there is
+no working local Python. `pnpm build` works; if pnpm refuses to touch `node_modules` in a non-TTY
+shell, prefix with `$env:CI='true'`. When curling the API from Windows, use **`127.0.0.1`, not
+`localhost`** — `localhost` resolves to IPv6 `::1`, which Docker Desktop does not forward, so each
+request stalls ~21s before falling back to IPv4 (in-container calls answer in ~23ms).
 
 ## Quickstart
 
@@ -78,7 +84,9 @@ frontend/
     familiar/[id]/          # Familiar detail (tabs)
     nuevo-caso/            # 6-step wizard
   src/lib/api.ts           # Centralized API client + all TypeScript interfaces
+  src/hooks/               # use-vinculados.ts (single hook)
   src/components/ui/       # shadcn/ui components
+  public/                  # .gitkeep only — MUST exist: Dockerfile does `COPY /app/public`
 ```
 
 ## Key Conventions & Gotchas
@@ -91,7 +99,7 @@ frontend/
 
 ### Instrumentos (E2P, PMF, NCFAS)
 - **Dual FK**: each has `id_nna` → NNA and `id_familiar` → Familiar. Routes for both parents: `/api/nna/{id}/e2p` and `/api/familiares/{id}/e2p`.
-- **E2P specifics**: model has `version: int` (required, 1-8). Responses are **normalized** — stored in `RespuestaE2P` rows, NOT as a JSON column on E2P. The API still accepts `respuestas: dict` (question number → Likert 0-4) in POST/PUT and syncs to normalized rows internally. Questions loaded from `PreguntaE2P` table (fallback to `app/data/e2p_questions.json`). Scoring from `BaremoE2P` table (seeded from `e2p_escala.json`). GET `/api/e2p/versions/{n}` for questions, GET `/api/e2p/{id}/puntaje` for scores.
+- **E2P specifics**: model has `version: int` (required, 1-8). Responses are **normalized** — stored in `RespuestaE2P` rows, NOT as a JSON column on E2P. The API still accepts `respuestas: dict` (question number → Likert 0-4) in POST/PUT and syncs to normalized rows internally. Questions loaded from `PreguntaE2P` table (fallback to `app/data/e2p_questions.json`). Scoring from `BaremoE2P` table (seeded from `e2p_escala.json`). GET `/api/e2p/versions/{rango_etario}` for questions — the param is the **range string** (e.g. `3-5_anos`), NOT a number; `/versions/1` is a 404. GET `/api/e2p/{id}/puntaje` for scores (returns 400 if that E2P has no `PuntajeE2P` rows).
 - **E2P version** is `Optional[int]` in schema but **not optional** at DB level. Frontend auto-detects version from NNA's age, but API calls must include it.
 - **Frontend `Instrumento` interface** is reused for all three (E2P/PMF/NCFAS). PMF and NCFAS don't have `version`/`respuestas` — don't send those fields for them.
 
@@ -108,7 +116,8 @@ frontend/
 - **`Caso` grouping** — `Caso` model (one active per NNA via partial unique index `uq_caso_activo_por_nna`). Grouped tables (E2P, PMF, NCFAS, AntecedenteIngreso, DocumentacionIngreso, AntecedenteSalud/Escolar/Familiar, InformeTribunal, ProcesoDespejeFamiliar) carry `id_caso` **NOT NULL** + composite FK `(id_nna, id_caso) → Caso(id_nna, id_caso)` (migration `bbf68836b0d8`). Auto-stamped by `create_nna_child`. Writes to records of a `Cerrado` caso → `HTTPException(409)` (guard `_assert_caso_abierto`, `update_child` + despeje/notificación/NCFAS-comment routes). `ProcesoDespejeFamiliar` is unique per `(id_nna, id_caso)` — one despeje per caso, not per NNA. API: `GET/POST /api/nna/{id}/casos`, `GET/PUT /api/casos/{id_caso}`, `?id_caso=` filter on grouped list endpoints; despeje GET accepts optional `id_caso` (defaults to active caso). Backend is done; frontend case switcher (summary page + `?id_caso=` URL param) is **done** — `CasoSwitcher` is rendered from `nna/[id]/page.tsx`.
 - **Caso grouping scope (open product question — ask clients)** — `HistorialConsumoNNA`, `DiscapacidadNNA`, `HistorialRedProteccional` are NNA-level (no `id_caso`), so they stay editable even on a closed caso. They evolve over time and are only edited from inside the case view; ask whether they should be grouped too (read-only on closed casos, one snapshot per caso). Tradeoff: grouped = page shows only the current caso's entries; ungrouped = single merged timeline across casos. `HistorialConsumoAdulto` (familiar-level) and `VinculoFamiliar` (stable relationship graph) should stay ungrouped. If grouped: add `id_caso` + composite FK (copy `antecedentes.py`), extend the seed stamping loop, add `?id_caso=`/read-only to the consumo & discapacidades pages; backend routes work via the generic helpers unchanged.
 - **`AntecedentePenal` vs `AntecedentesPenales`** — DBML says singular, real table is plural (`app/models/familiar.py`). Fix (rename table + migration) deferred.
-- **E2P missing cascade** — `RespuestaE2P`/`PuntajeE2P` lack `ondelete="CASCADE"` (`app/models/e2p.py`) while PMF/NCFAS children have it; deleting an E2P row fails on FK. Add `ondelete` + migration before building E2P delete.
+- **E2P missing cascade** — `RespuestaE2P`/`PuntajeE2P` lack `ondelete="CASCADE"` (`app/models/e2p.py`) while PMF/NCFAS children have it. There is also **no DELETE endpoint** for E2P at all (`DELETE /api/e2p/{id}` → 405), so the FK failure is latent, not yet reachable via the API. Add `ondelete` + migration before building E2P delete.
+- **Seed has no instrument answers** — `RespuestaE2P`, `PuntajeE2P` and their PMF/NCFAS equivalents are empty after seeding, so the scoring endpoints return empty/400 until a user fills an instrument. Seed data covers records, not filled instruments.
 
 ### Rollback procedure (git + DB sync)
 When resetting code to an earlier commit, downgrade the DB to match:
@@ -149,7 +158,7 @@ docker exec sw-mejor-ninez-db psql -U postgres -d sw_mejor_ninez \
 - **pnpm `--ignore-scripts`** in Docker builds — skips postinstall hooks. If adding a dep needing postinstall, remove the flag.
 - **No tests yet**: `pytest` is configured but `backend/tests/` is empty.
 - **Seed is idempotent**: checks `≥2 NNA` before inserting. Also creates default admin user (`admin@mejorninez.cl` / `admin123`) if none exists.
-- **Root cleanup done** (2026-08): removed stray root `src/` (empty better-auth dirs), `.env.local` (Sentry/Better Auth placeholders from an unrelated scaffold), `cleanup.bat`. `shared/` and `backend/app/instruments/` no longer exist.
+- **Root cleanup done** (2026-09): removed stray root `src/` (empty better-auth dirs), `.env.local` (Sentry/Better Auth placeholders from an unrelated scaffold), `cleanup.bat`. `shared/` and `backend/app/instruments/` no longer exist.
 - **No separate typecheck** command in frontend. `pnpm build` includes TS type-checking as part of the Next.js build.
 - **`opencode.json`** is in `.gitignore` — local-only config, never committed.
 - **Delegation**: `frontend/AGENTS.md` delegates to this root file with `@../AGENTS.md`. Update only this root file.

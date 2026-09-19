@@ -1,0 +1,2 @@
+# Placeholder: git does not track empty directories, and frontend/Dockerfile
+# copies /app/public in the run stage. Removing this file breaks the image build.
