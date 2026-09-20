@@ -7,7 +7,7 @@ lógica pura del frontend.
 | Capa | Runner | Pruebas | Estado |
 |------|--------|---------|--------|
 | Backend | `pytest` dentro de Docker | 818 | verde |
-| Frontend | `vitest` | 201 (2 `expected fail`) | verde |
+| Frontend | `vitest` | 206 (1 `expected fail`) | verde |
 
 Ninguna prueba toca la base de datos de desarrollo.
 
@@ -171,7 +171,7 @@ recrean en cada corrida.
 | `auth.test.ts` | 18 | `getToken`/`getUser`/`isAuthenticated`, `login` (token + `/me`), `logout` |
 | `api.test.ts` | 61 | Bearer, manejo de 401/403, y tabla dirigida por datos con la ruta y el método HTTP de 45 grupos de métodos del cliente |
 | `nna-resumen-utils.test.ts` | 24 | `diasDesde` y `getAlertaResumen` (verde/rojo/naranja y su precedencia) |
-| `e2p-utils.test.ts` | 37 | `ageToRangoEtario` en los 16 bordes de mes, cobertura de 0 a 204 meses, etiquetas |
+| `e2p-utils.test.ts` | 42 | `ageToRangoEtario` y `edadEnMeses`: los 16 bordes de mes, cobertura de 0 a 204 meses, fechas inválidas, etiquetas |
 | `ncfas-utils.test.ts` | 18 | `isDimensionVisible`, `makeItemKey`, `buildEmptyRespuestas` |
 | `busqueda-familiar-utils.test.ts` | 8 | `formatDate`, `diasDesde`, catálogo de resultados de contacto |
 
@@ -431,16 +431,40 @@ con `"—"`. El arreglo sería usar `nombre.trim()` en la guarda.
 
 **Prueba.** `tests/utils.test.ts` → `it.fails("DEFECTO: un nombre de solo espacios deberia devolver el placeholder")`.
 
-### F2 — `ageToRangoEtario` con fecha inválida devuelve el cuestionario de 13-17
+### F2 — RESUELTO: `ageToRangoEtario` con fecha inválida devolvía el cuestionario de 13-17
 
-Con una fecha de nacimiento inválida los meses calculados son `NaN`; `NaN` no
-entra en ningún rango y tampoco es `< 0`, así que la función devuelve el
-**último** elemento de `RANGOS_ETARIOS`, es decir `13-17_anos`. Es el peor
-fallback posible: a un NNA con la fecha mal ingresada se le aplica el
-instrumento de un adolescente, sin aviso. `calcularEdad` en `src/lib/utils.ts`
-sí protege con `isNaN`; esta función no.
+Con una fecha de nacimiento inválida los meses calculados eran `NaN`; `NaN` no
+entra en ningún rango y tampoco es `< 0`, así que la función devolvía el
+**último** elemento de `RANGOS_ETARIOS`: `13-17_anos`. Era el peor fallback
+posible —a un NNA con la fecha mal ingresada se le aplicaba el instrumento de un
+adolescente, sin aviso—, y en un sistema de apoyo a decisiones sobre niños eso no
+es cosmético: el tramo etario determina qué cuestionario se aplica y contra qué
+baremos se puntúa.
 
-**Prueba.** `tests/e2p-utils.test.ts` → `it.fails("DEFECTO: una fecha invalida deberia devolver null...")`.
+**Arreglo aplicado.** Se extrajo `edadEnMeses(fechaNacimiento, evalDate)` en
+`e2p-utils.ts`, que devuelve `null` si **cualquiera** de las dos fechas es
+inválida (guarda `isNaN(fecha.getTime())`, el mismo patrón que `calcularEdad` en
+`src/lib/utils.ts`). `ageToRangoEtario` la usa y propaga el `null`.
+
+**Segunda instancia del mismo error, en el mismo formulario.** `buildPayload` de
+`e2p-form-dialog.tsx` repetía la aritmética de meses sin guarda alguna:
+`p.edad_meses_evaluacion = NaN`, que `JSON.stringify` convierte en `null`, y el
+backend responde **422** porque `E2PCreate.edad_meses_evaluacion` es un `int`
+obligatorio (verificado contra la API: 422 y ninguna fila creada). El usuario
+veía un error de validación incomprensible. Ahora usa el mismo helper y sólo
+envía la edad cuando es un número.
+
+**Efecto en la UI.** Sin rango etario fiable no se carga ningún cuestionario y el
+diálogo muestra un aviso explícito con la fecha problemática y la consecuencia,
+en vez de aplicar el instrumento equivocado o fallar al guardar con un mensaje
+vago.
+
+**Pruebas.** `tests/e2p-utils.test.ts`: `ageToRangoEtario` → `"con una fecha de
+nacimiento invalida devuelve null"` y `"con una fecha de evaluacion invalida
+devuelve null"`; `edadEnMeses` (5 casos, incluido el negativo). Las pruebas del
+defecto se convirtieron en aserciones normales. **Nota**: el aviso del diálogo no
+tiene prueba automática —el proyecto no tiene tests de componente—, así que esa
+parte está verificada por typecheck y lectura, no por test.
 
 ### F3 — `isAuthenticated()` da `true` con un token de cadena vacía
 

@@ -36,10 +36,35 @@ export const RESULTADO_STYLES: Record<string, string> = {
   Optimo: "bg-green-100 text-green-800 border-green-300 dark:bg-green-950 dark:text-green-300 dark:border-green-800",
 };
 
-export function ageToRangoEtario(fechaNacimiento: string | null, evalDate: Date): string | null {
+/**
+ * Meses cumplidos entre el nacimiento y la evaluacion, o `null` si alguna de
+ * las dos fechas no es valida.
+ *
+ * La guarda `isNaN` es el punto entero de esta funcion: sin ella una fecha mal
+ * ingresada produce `NaN`, que no entra en ningun rango y tampoco es `< 0`, asi
+ * que se colaba hasta el fallback y entregaba el instrumento equivocado en
+ * silencio (defecto F2). Sigue el mismo patron que `calcularEdad` en
+ * `src/lib/utils.ts`.
+ */
+export function edadEnMeses(
+  fechaNacimiento: string | null,
+  evalDate: Date,
+): number | null {
   if (!fechaNacimiento) return null;
   const birth = new Date(fechaNacimiento + "T00:00:00");
-  const months = (evalDate.getFullYear() - birth.getFullYear()) * 12 + (evalDate.getMonth() - birth.getMonth());
+  if (isNaN(birth.getTime())) return null;
+  if (isNaN(evalDate.getTime())) return null;
+  return (
+    (evalDate.getFullYear() - birth.getFullYear()) * 12 +
+    (evalDate.getMonth() - birth.getMonth())
+  );
+}
+
+export function ageToRangoEtario(fechaNacimiento: string | null, evalDate: Date): string | null {
+  const months = edadEnMeses(fechaNacimiento, evalDate);
+  // Sin edad fiable no se elige instrumento: quien llama debe avisar al usuario
+  // en vez de aplicar el cuestionario de otro tramo etario.
+  if (months === null) return null;
   for (const r of RANGOS_ETARIOS) {
     if (months >= r.minMeses && months <= r.maxMeses) return r.rango;
   }

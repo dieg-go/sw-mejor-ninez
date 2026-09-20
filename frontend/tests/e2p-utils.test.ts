@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   ageToRangoEtario,
   CATEGORY_COLORS,
+  edadEnMeses,
   formatDate,
   formatRangoEtario,
   getLikertLabel,
@@ -51,26 +52,20 @@ describe("ageToRangoEtario", () => {
     expect(ageToRangoEtario(null, new Date("2025-01-01T00:00:00"))).toBeNull();
   });
 
-  it("con una fecha invalida cae al ultimo rango", () => {
-    // `NaN` no entra en ningun rango y tampoco es `< 0`, asi que la funcion
-    // devuelve el ultimo elemento de RANGOS_ETARIOS. Ver el `it.fails`.
-    expect(ageToRangoEtario("no-es-fecha", new Date("2025-01-01T00:00:00"))).toBe(
-      "13-17_anos",
-    );
-    expect(ageToRangoEtario("2024-13-45", new Date("2025-01-01T00:00:00"))).toBe(
-      "13-17_anos",
-    );
+  it("con una fecha de nacimiento invalida devuelve null", () => {
+    // Antes caia al ultimo rango (`13-17_anos`): `NaN` no entra en ningun rango
+    // y tampoco es `< 0`, asi que llegaba al fallback. Era el peor fallback
+    // posible — a un NNA con la fecha mal ingresada se le aplicaba el
+    // instrumento de un adolescente, sin aviso (defecto F2).
+    expect(ageToRangoEtario("no-es-fecha", new Date("2025-01-01T00:00:00"))).toBeNull();
+    expect(ageToRangoEtario("2024-13-45", new Date("2025-01-01T00:00:00"))).toBeNull();
+    expect(ageToRangoEtario("", new Date("2025-01-01T00:00:00"))).toBeNull();
   });
 
-  it.fails(
-    "DEFECTO: una fecha invalida deberia devolver null, no el cuestionario de 13-17",
-    () => {
-      // `calcularEdad` en src/lib/utils.ts si protege con isNaN; esta funcion
-      // no. El efecto en la UI es que un NNA con fecha mal ingresada recibe la
-      // version equivocada del instrumento, sin aviso.
-      expect(ageToRangoEtario("no-es-fecha", new Date("2025-01-01T00:00:00"))).toBeNull();
-    },
-  );
+  it("con una fecha de evaluacion invalida devuelve null", () => {
+    // Misma causa raiz por el otro lado del calculo.
+    expect(ageToRangoEtario("2024-01-15", new Date("no-es-fecha"))).toBeNull();
+  });
 
   describe("bordes de cada rango (nacimiento 2024-01-15)", () => {
     const casos: [string, string][] = [
@@ -128,6 +123,39 @@ describe("ageToRangoEtario", () => {
       );
       expect(rango, `mes ${meses}`).not.toBeNull();
     }
+  });
+});
+
+describe("edadEnMeses", () => {
+  it("cuenta los meses entre nacimiento y evaluacion", () => {
+    expect(edadEnMeses("2024-01-15", new Date("2024-01-15T00:00:00"))).toBe(0);
+    expect(edadEnMeses("2024-01-15", new Date("2024-04-15T00:00:00"))).toBe(3);
+    expect(edadEnMeses("2024-01-15", new Date("2026-01-15T00:00:00"))).toBe(24);
+  });
+
+  it("devuelve null sin fecha de nacimiento", () => {
+    expect(edadEnMeses(null, new Date("2025-01-01T00:00:00"))).toBeNull();
+    expect(edadEnMeses("", new Date("2025-01-01T00:00:00"))).toBeNull();
+  });
+
+  it("devuelve null con cualquier fecha invalida", () => {
+    // Es la guarda que impide que un `NaN` llegue al payload como `null`
+    // (el backend responde 422 porque `edad_meses_evaluacion` es `int`).
+    expect(edadEnMeses("no-es-fecha", new Date("2025-01-01T00:00:00"))).toBeNull();
+    expect(edadEnMeses("2024-01-15", new Date("no-es-fecha"))).toBeNull();
+    expect(edadEnMeses("2024-13-45", new Date("2024-01-15T00:00:00"))).toBeNull();
+  });
+
+  it("devuelve negativo si la evaluacion es anterior al nacimiento", () => {
+    expect(edadEnMeses("2025-06-01", new Date("2025-01-01T00:00:00"))).toBe(-5);
+  });
+
+  it("coincide con el rango que elige ageToRangoEtario", () => {
+    // Las dos funciones comparten el calculo: si se separan, el rango y la edad
+    // enviada al backend se contradicen.
+    const meses = edadEnMeses("2024-01-15", new Date("2036-02-15T00:00:00"));
+    expect(meses).toBe(145);
+    expect(rangoPara("2024-01-15", "2036-02-15")).toBe("13-17_anos");
   });
 });
 

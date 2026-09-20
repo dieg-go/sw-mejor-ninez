@@ -12,7 +12,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FamiliarSelect } from "@/components/familiar-select";
-import { ageToRangoEtario, ZONE_COLORS } from "./e2p-utils";
+import { ageToRangoEtario, edadEnMeses, ZONE_COLORS } from "./e2p-utils";
 import { E2PQuestionnaire } from "./e2p-questionnaire";
 
 interface E2PFormDialogProps {
@@ -82,10 +82,13 @@ export function E2PFormDialog({
     if (fechaEval) p.fecha_evaluacion = fechaEval.toISOString().split("T")[0];
     else if (mode === "edit") p.fecha_evaluacion = null;
     if (rangoEtario) p.rango_etario = rangoEtario;
-    if (fechaEval && nna.fecha_nacimiento) {
-      const birth = new Date(nna.fecha_nacimiento + "T00:00:00");
-      const months = (fechaEval.getFullYear() - birth.getFullYear()) * 12 + (fechaEval.getMonth() - birth.getMonth());
-      p.edad_meses_evaluacion = months;
+    if (fechaEval) {
+      // `edadEnMeses` devuelve null si la fecha de nacimiento no es valida. Sin
+      // esa guarda el calculo daba NaN, que JSON serializa como `null`, y el
+      // backend responde 422 porque `edad_meses_evaluacion` es un `int`
+      // obligatorio: el usuario veia un error de validacion incomprensible.
+      const meses = edadEnMeses(nna.fecha_nacimiento, fechaEval);
+      if (meses !== null) p.edad_meses_evaluacion = meses;
     }
     if (mode === "edit") {
       p.respuestas = Object.keys(answers).length > 0 ? answers : null;
@@ -182,6 +185,19 @@ export function E2PFormDialog({
 
           {questionsLoading && (
             <div className="flex items-center justify-center py-4"><Spinner className="size-5" /></div>
+          )}
+
+          {mode === "create" && !initialRango && (
+            // Sin rango etario fiable no se carga ningun cuestionario. Antes
+            // este caso aplicaba el instrumento de 13-17 en silencio (defecto
+            // F2); ahora se explica el motivo y la consecuencia.
+            <p className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              No se pudo determinar el rango etario a partir de la fecha de nacimiento del NNA
+              {nna.fecha_nacimiento ? ` (${nna.fecha_nacimiento})` : " (sin fecha registrada)"}.
+              El instrumento depende del tramo etario, así que hay que corregir esa fecha en la
+              ficha del NNA antes de continuar: aplicarlo con el tramo equivocado invalidaría
+              la evaluación.
+            </p>
           )}
 
           {questions && (

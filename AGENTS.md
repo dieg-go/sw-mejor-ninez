@@ -17,8 +17,8 @@ Monorepo: Next.js 16 frontend + FastAPI backend + PostgreSQL 17.
 all 45 backend modules import (`python -c "import app.main"` inside the built image); `--frozen-lockfile`
 passes. So the checkpoint is a *buildable, importable* baseline.
 
-**Test suite (added after the checkpoint)**: 818 backend tests (pytest in Docker) + 201 frontend tests
-(Vitest), all green. The frontend has 2 deliberately-failing tests that document known defects; the
+**Test suite (added after the checkpoint)**: 818 backend tests (pytest in Docker) + 206 frontend tests
+(Vitest), all green. The frontend has 1 deliberately-failing test that documents a known defect; the
 backend has none today. See `TESTING.md` for the full inventory, the isolation design, and the defect
 list.
 
@@ -196,7 +196,7 @@ docker exec sw-mejor-ninez-db psql -U postgres -d sw_mejor_ninez \
 - **Next.js 16 async params**: dynamic route params are `Promise<{ id: string }>`, consumed with `use(params)`.
 - **CORS**: restricted to `http://localhost:3000` only.
 - **pnpm `--ignore-scripts`** in Docker builds — skips postinstall hooks. If adding a dep needing postinstall, remove the flag.
-- **Tests**: 818 backend (pytest, inside Docker) + 201 frontend (Vitest). See `TESTING.md`. The
+- **Tests**: 818 backend (pytest, inside Docker) + 206 frontend (Vitest). See `TESTING.md`. The
   backend service is `backend-tests` under the Compose profile `test`; the frontend suite is
   `pnpm test`. Test files must not be placed under `frontend/src/app/` (Next's route scanner).
   **The models declare the schema as strictly as the database** (e.g. `id_caso` uses

@@ -5,7 +5,7 @@ hace. Complementa a `TESTING.md` (que explica el *porqué* y el diseño); aquí
 está el *qué* y el *cómo*.
 
 Cifras: **818 casos de backend** (465 funciones; el resto hasta 818 son
-parametrizaciones) y **201 de frontend** (142 bloques: 138 `it`, 2 `it.fails`
+parametrizaciones) y **206 de frontend** (147 bloques: 144 `it`, 1 `it.fails`
 y 2 `it.each` que expanden a 61 casos).
 
 Las cifras de cada tabla son las que reporta el runner, no una estimación:
@@ -894,21 +894,26 @@ completo con valores por defecto, y `iso(haceDias)` para fechas relativas a hoy.
 | `getAlertaResumen > una notificacion sin ninguna carta no alerta` | Sin fechas | `null` |
 | `getAlertaResumen > combina varios familiares sin alerta en null` | Ninguno dispara | Tres notificaciones neutras → `null` |
 
-### 2.6 `e2p-utils.test.ts` — 37 casos
+### 2.6 `e2p-utils.test.ts` — 42 casos
 
 | Prueba | Qué verifica | Cómo |
 |---|---|---|
 | `RANGOS_ETARIOS > cubre los ocho rangos sin huecos ni solapamientos` | Integridad de la tabla | Recorre y comprueba `minMeses === anterior.maxMeses + 1`; extremos 0 y 204 |
 | `RANGOS_ETARIOS > sus nombres coinciden con los que acepta el backend` | No se desincroniza del backend | `toEqual` de los 8 identificadores |
 | `ageToRangoEtario > devuelve null sin fecha de nacimiento` | `null` | — |
-| `ageToRangoEtario > con una fecha invalida cae al ultimo rango` | **Defecto F2**, comportamiento actual | `"no-es-fecha"` y `"2024-13-45"` → `13-17_anos` |
-| `ageToRangoEtario > DEFECTO: una fecha invalida deberia devolver null...` **(it.fails)** | El defecto, declarado | Afirma `null`; hoy falla |
+| `ageToRangoEtario > con una fecha de nacimiento invalida devuelve null` | **F2 resuelto** | `"no-es-fecha"`, `"2024-13-45"` y `""` → `null` (antes: `13-17_anos`) |
+| `ageToRangoEtario > con una fecha de evaluacion invalida devuelve null` | **F2 resuelto**, por el otro lado | `new Date("no-es-fecha")` → `null` |
 | `ageToRangoEtario > bordes de cada rango > nacido 2024-01-15 evaluado X -> Y` (×16) | **Todos los bordes de mes** | `it.each` con los 16 pares: 0, 3, 4, 10, 11, 18, 19, 36, 37, 60, 61, 84, 85, 144, 145 y 204 meses |
 | `ageToRangoEtario > por encima del ultimo rango se queda en 13-17_anos` | Saturación superior | 205 meses y un nacimiento del año 2000 |
 | `ageToRangoEtario > con la evaluacion antes del nacimiento usa el primer rango` | Meses negativos | Nacimiento posterior a la evaluación |
 | `ageToRangoEtario > ignora el dia del mes: solo compara ano y mes` | Sólo año/mes | Nacimiento el 31 y evaluación el 1 del mismo mes → 0 meses |
 | `ageToRangoEtario > cambia de rango al cambiar el mes, no el dia` | Borde de mes | 1 ene vs 30 abr → `0-3_meses`; 31 ene vs 1 may → `4-10_meses` |
 | `ageToRangoEtario > cubre todos los meses de 0 a 204 con algun rango` | Exhaustividad | Bucle de 205 iteraciones: ningún mes queda sin rango |
+| `edadEnMeses > cuenta los meses entre nacimiento y evaluacion` | Cálculo base | 0, 3 y 24 meses |
+| `edadEnMeses > devuelve null sin fecha de nacimiento` | `null` y `""` | — |
+| `edadEnMeses > devuelve null con cualquier fecha invalida` | **La guarda de F2** | Nacimiento inválido, evaluación inválida, y `2024-13-45` |
+| `edadEnMeses > devuelve negativo si la evaluacion es anterior al nacimiento` | Signo | `-5`, para que `ageToRangoEtario` pueda desviar al primer rango |
+| `edadEnMeses > coincide con el rango que elige ageToRangoEtario` | Coherencia entre ambas | 145 meses ↔ `13-17_anos`: impide que se separen y se contradigan |
 | `formatRangoEtario > traduce los ocho rangos a etiquetas legibles` | 4 etiquetas | Incluye "3 a 5 años" |
 | `formatRangoEtario > devuelve el valor original si no lo conoce` | Fallback | `99-100_anos` y `""` |
 | `formatDate > devuelve un guion largo sin fecha` | `null` → `"—"` | — |
@@ -961,14 +966,13 @@ completo con valores por defecto, y `iso(haceDias)` para fechas relativas a hoy.
 
 ## 3. Pruebas que fallan a propósito
 
-Sólo dos, ambas del frontend, y son la forma de dejar constancia de un defecto sin
-arreglarlo. El backend no tiene ninguna hoy: las dos que documentaban el defecto
-B1 se convirtieron en aserciones normales al arreglarlo.
+Sólo una, del frontend. Es la forma de dejar constancia de un defecto sin
+arreglarlo. El backend no tiene ninguna: las dos que documentaban el defecto B1 y
+la que documentaba F2 se convirtieron en aserciones normales al arreglarlos.
 
 | Prueba | Defecto | Qué pasaría al arreglarlo |
 |---|---|---|
 | `utils.test.ts > iniciales > DEFECTO: ...` | F1 | Pasaría y Vitest lo marca como "expected fail" inesperado |
-| `e2p-utils.test.ts > ageToRangoEtario > DEFECTO: ...` | F2 | Ídem |
 
 El resto de los defectos (B2–B12, F3) están fijados con el marcador
 `@pytest.mark.characterization` o comentario equivalente: prueban el
