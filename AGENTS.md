@@ -17,6 +17,12 @@ Monorepo: Next.js 16 frontend + FastAPI backend + PostgreSQL 17.
 all 45 backend modules import (`python -c "import app.main"` inside the built image); `--frozen-lockfile`
 passes. So the checkpoint is a *buildable, importable* baseline.
 
+**Test suite (added after the checkpoint)**: 815 backend tests (pytest in Docker) + 201 frontend tests
+(Vitest), all green, with 4 deliberately-failing tests that document known defects. See `TESTING.md`
+for the full inventory, the isolation design, and the defect list. **Read the defect list before
+touching migrations or planning a fresh deployment** — `alembic upgrade head` cannot build a database
+from scratch (defect B1), which blocks a new deploy and a bare-metal backup restore.
+
 **Not started — this is the actual remaining roadmap**: backups, deployment, multi-user/audit.
 See Roadmap below; the app is *feature-complete enough* and *not production-operable yet*.
 
@@ -38,11 +44,27 @@ docker compose up -d --build    # http://localhost:3000
 | What | Command | Working dir |
 |------|---------|-------------|
 | Build | `pnpm build` | `frontend/` |
-| Lint | `pnpm lint` | `frontend/` |
-| Backend tests | `pytest` | `backend/` |
+| Lint | `pnpm lint` | `frontend/` (69 errors pre-existing, all in `src/`) |
+| Backend tests | `docker compose --profile test run --rm backend-tests` | `.` |
+| Frontend tests | `pnpm test` | `frontend/` |
 | Seed DB | `python seed.py` | `backend/` |
 | Create migration | `python -m alembic revision --autogenerate -m "desc"` | `backend/` |
 | Apply migrations | `python -m alembic upgrade head` | `backend/` |
+
+### How the test suite runs
+
+- **Backend tests run inside Docker**, not on the host: the local venv is stale and
+  `backend/tests/` needs the full stack. The `backend-tests` service lives under the Compose
+  profile `test`, so it never starts with `docker compose up`, and its `command` overrides the
+  image `CMD` — it does **not** run `entrypoint.sh`, so it never migrates or seeds the dev DB.
+- It bind-mounts only `backend/tests/` and `backend/pytest.ini`, so editing tests needs no rebuild.
+  **Changes to `app/`, `migrations/`, `seed.py` or `requirements.txt` require
+  `docker compose --profile test build backend-tests`.**
+- The suite creates its own throwaway databases (`sw_mejor_ninez_test`,
+  `sw_mejor_ninez_seedtest`, `sw_mejor_ninez_migtest`) and drops/recreates them on every run.
+  The development database is never touched — `conftest.py` asserts `DB_NAME` ends in `_test`
+  before dropping anything.
+- Details, inventory and the known-defect list: `TESTING.md`.
 
 ## Roadmap (production priorities, in order)
 
@@ -52,7 +74,10 @@ Context: real institution will use this app. Solo developer. Hosted on a self-co
 2. **Deployment** — run it on the institution's server behind HTTPS. The app currently assumes `localhost` everywhere (CORS is hardcoded to `http://localhost:3000` only) — needs a real domain/origin + TLS + non-hardcoded CORS.
 3. **Multi-user + audit trail** — roles beyond the single admin, and a record of who changed what case and when (institution will ask; protects us too).
 
-Deferred intentionally: tests and CI (solo dev; not needed for the first live version). Revisit when changing old code risks breaking the E2P/PMF/NCFAS scoring, or when a second person joins.
+Deferred intentionally: CI (solo dev; not needed for the first live version). The **test suite is
+done** (see `TESTING.md`) — tests were pulled forward from this list precisely because the scoring
+code (E2P/PMF/NCFAS) is now covered and changes to it are safe. Still deferred: component tests,
+browser E2E, coverage gates.
 
 ## Tech Stack
 
@@ -156,7 +181,9 @@ docker exec sw-mejor-ninez-db psql -U postgres -d sw_mejor_ninez \
 - **Next.js 16 async params**: dynamic route params are `Promise<{ id: string }>`, consumed with `use(params)`.
 - **CORS**: restricted to `http://localhost:3000` only.
 - **pnpm `--ignore-scripts`** in Docker builds — skips postinstall hooks. If adding a dep needing postinstall, remove the flag.
-- **No tests yet**: `pytest` is configured but `backend/tests/` is empty.
+- **Tests**: 815 backend (pytest, inside Docker) + 201 frontend (Vitest). See `TESTING.md`. The
+  backend service is `backend-tests` under the Compose profile `test`; the frontend suite is
+  `pnpm test`. Test files must not be placed under `frontend/src/app/` (Next's route scanner).
 - **Seed is idempotent**: checks `≥2 NNA` before inserting. Also creates default admin user (`admin@mejorninez.cl` / `admin123`) if none exists.
 - **Root cleanup done** (2026-09): removed stray root `src/` (empty better-auth dirs), `.env.local` (Sentry/Better Auth placeholders from an unrelated scaffold), `cleanup.bat`. `shared/` and `backend/app/instruments/` no longer exist.
 - **No separate typecheck** command in frontend. `pnpm build` includes TS type-checking as part of the Next.js build.

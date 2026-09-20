@@ -53,6 +53,32 @@ services:
       - backend
     restart: unless-stopped
 
+  # Suite de pruebas del backend. No arranca con `docker compose up`:
+  # se ejecuta con `docker compose --profile test run --rm backend-tests`.
+  # `command` sobreescribe el CMD de la imagen, por lo que NO corre
+  # entrypoint.sh (no migra ni siembra la DB de desarrollo).
+  backend-tests:
+    profiles: ["test"]
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=sw_mejor_ninez_test
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      # Bind-mount de la configuracion y de las pruebas: permite editarlas
+      # sin reconstruir la imagen. El codigo de `app/` si viene de la imagen,
+      # para que la suite valide el artefacto que se despliega.
+      - ./backend/tests:/app/tests
+      - ./backend/pytest.ini:/app/pytest.ini:ro
+    command: pytest
+
 volumes:
   pgdata:
   uploads:
