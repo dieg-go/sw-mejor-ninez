@@ -6,7 +6,7 @@ lógica pura del frontend.
 
 | Capa | Runner | Pruebas | Estado |
 |------|--------|---------|--------|
-| Backend | `pytest` dentro de Docker | 817 | verde |
+| Backend | `pytest` dentro de Docker | 818 | verde |
 | Frontend | `vitest` | 201 (2 `expected fail`) | verde |
 
 Ninguna prueba toca la base de datos de desarrollo.
@@ -73,11 +73,12 @@ recrea entera:
 
 1. `DROP DATABASE ... WITH (FORCE)` + `CREATE DATABASE` sobre
    `sw_mejor_ninez_test`.
-2. `SQLModel.metadata.create_all()` construye el esquema.
-3. Repite el endurecimiento de la última migración:
-   `ALTER TABLE ... ALTER COLUMN id_caso SET NOT NULL` en las 10 tablas
-   agrupadas (los modelos lo declaran `Optional`, ver defecto B2).
-4. Siembra solo los datos estáticos reutilizando las funciones de `seed.py`:
+2. `SQLModel.metadata.create_all()` construye el esquema. Los modelos declaran
+   las columnas igual que la base —incluido `id_caso NOT NULL`—, así que no hace
+   falta endurecer nada a mano (hasta el arreglo del defecto B2 había que
+   repetir aquí un `ALTER TABLE`, y esa base más permisiva ocultó el fallo de
+   `seed` de B1).
+3. Siembra solo los datos estáticos reutilizando las funciones de `seed.py`:
    `seed_admin_user`, `seed_e2p_static`, `seed_pmf_static`,
    `seed_ncfas_items`, `seed_catalogs`. **No** se llama `seed.seed()` porque
    insertaría los 3 NNA de demostración.
@@ -158,7 +159,7 @@ recrean en cada corrida.
 | `test_pmf.py` | 20 | Preguntas desde tabla y **fallback al JSON**, CRUD, respuestas booleanas |
 | `test_ncfas.py` | 33 | 10 dimensiones, fallback al JSON, filtrado de puntajes y momentos inválidos, upsert de comentarios |
 | `test_services.py` | 61 | `_add_months`, `create_nna_child`, `update_child`, `_assert_caso_abierto`, encadenamiento, servicios de clase, cascadas del ORM |
-| `test_migrations.py` | 21 | Forma de la cadena, paridad modelos↔esquema, índices y FKs compuestas, reproducibilidad desde base vacía |
+| `test_migrations.py` | 22 | Forma de la cadena, paridad modelos↔esquema, índices y FKs compuestas, reproducibilidad desde base vacía, ausencia de deriva para `--autogenerate` |
 | `test_seed.py` | 15 | Conteos exactos, idempotencia, guard `>=2 NNA`, sellado de `id_caso` sobre esquema endurecido, coherencia del mensaje final |
 
 ### Frontend (`frontend/tests/`)
@@ -256,20 +257,57 @@ chocaría con ella: el mismo fallo, otra vez, en el próximo despliegue limpio.
 `::test_el_ciclo_upgrade_downgrade_upgrade_es_estable` y
 `::test_el_esquema_construido_por_la_cadena_coincide_con_los_modelos`.
 
-### B2 — Deriva entre modelos y migraciones en `id_caso`
+### B2 — RESUELTO: deriva entre modelos y migraciones en `id_caso`
 
-Los 10 modelos agrupados declaran `id_caso: Optional[uuid.UUID] = None`, así
-que `SQLModel.metadata` lo describe como *nullable*. El `NOT NULL` real sólo
-existe porque `bbf68836b0d8` lo impone con un `ALTER TABLE`.
+Los 10 modelos agrupados declaraban `id_caso: Optional[uuid.UUID] = None`, que
+`SQLModel.metadata` describe como *nullable*, mientras la base lo exigía
+`NOT NULL` porque `bbf68836b0d8` lo imponía con un `ALTER TABLE`.
 
-**Impacto.** Un `alembic revision --autogenerate` propondría *quitar* el
-`NOT NULL`. Cualquier esquema construido sólo con `create_all` (como el de las
-pruebas) queda más permisivo que producción, y un `NULL` ahí escaparía de la FK
+**Impacto (medido, no supuesto).** `alembic revision --autogenerate` proponía
+*quitar* el `NOT NULL`. Sobre una base migrada a head, la comparación de
+metadata daba **10 entradas, todas `modify_nullable` sobre `id_caso`**, es decir:
+un `--autogenerate` rutinario habría revertido el endurecimiento sin que nadie
+lo notara. Además, cualquier esquema construido con `create_all` (el de las
+pruebas) quedaba más permisivo que producción, y un `NULL` ahí escapaba de la FK
 compuesta contra `Caso`.
 
-**Mitigación en la suite.** `conftest._create_schema` repite el `ALTER TABLE`.
+**Arreglo aplicado.** Los 10 modelos declaran ahora
+`sa_column_kwargs={"nullable": False}`. La anotación sigue siendo `Optional` a
+propósito: el registro se arma en memoria sin caso y se sella antes del INSERT
+(`create_nna_child` y el `before_flush` del seed), así que en memoria sí puede
+ser `None`; lo que no puede es llegar `NULL` a la base.
 
-**Pruebas.** `test_migrations.py::test_los_modelos_declaran_id_caso_como_opcional_y_la_base_lo_exige`.
+Se descartó declararlo `uuid.UUID` sin default (lo que Pydantic marcaría
+`required=True`): se comprobó que **SQLModel no valida en modelos `table=True`**,
+así que `Modelo()` y `Modelo(id_caso=None)` siguen aceptándose igual con ambas
+formas. La única diferencia es la anotación, y `uuid.UUID` sería la mentira en
+ese caso, porque describe como imposible un estado que el código usa a diario.
+El `required=True` no aporta nada aquí: estos son modelos de tabla, no schemas
+de API, y ningún schema `Create`/`Update` expone `id_caso` (verificado).
+
+**Efecto secundario buscado.** La suite ya no necesita replicar el `NOT NULL` a
+mano: `conftest._create_schema` y `test_seed._recrear_scratch` construyen la base
+sólo con `create_all` y queda tan estricta como la migrada. Esa base permisiva
+fue justo lo que ocultó el fallo de `seed` descrito en B1.
+
+**Pruebas.** `test_migrations.py::test_alembic_no_detecta_deriva_entre_los_modelos_y_el_esquema_migrado`
+(la comparación de metadata debe quedar vacía), `::test_los_modelos_declaran_id_caso_no_nulo`
+y `::test_las_tablas_agrupadas_tienen_id_caso_no_nulo`.
+
+**Hallazgo asociado: la base de desarrollo no había sido migrada nunca.** Al medir el drift contra
+`sw_mejor_ninez` aparecieron 10 entradas en la dirección **contraria** (`existing=True` → `False`): la
+base tenía todas las restricciones de `bbf68836b0d8` —las 10 FK compuestas, `uq_caso_nna_caso`,
+`uq_despeje_nna_caso`— pero **ningún `NOT NULL`**, y su `alembic_version` decía `bbf68836b0d8`. Es
+decir: se construyó con `create_all` (que sí crea las restricciones declaradas en los modelos) y se
+marcó la revisión, sin ejecutar la cadena. Eso explica por qué B1 tardó tanto en aparecer: el trabajo
+diario nunca pasó por `alembic upgrade head`; la cadena sólo se ejercitaba en el despliegue, que es
+justo donde fallaba.
+
+Se corrigió en el sitio con 10 `ALTER TABLE ... SET NOT NULL`, previa comprobación de que no hubiera
+ningún `NULL` que lo impidiera (no había: 0 filas). La base quedó con `alembic check` limpio.
+
+**Para comprobar cualquier base**: `python -m alembic check` dentro de `backend/` con el `DB_NAME`
+adecuado. Falla ruidosamente si el esquema y los modelos discrepan, en cualquier dirección.
 
 ### B3 — `GET /api/nna/{id}/despeje` no filtra por caso cuando no hay caso activo
 
@@ -452,13 +490,13 @@ mucho antes: en un esquema con `id_caso NOT NULL` eso es
 Ahora la carpeta activa de cada NNA se abre al crear el NNA, se inserta en el
 acto, y un `before_flush` sella cada registro agrupado antes de su INSERT.
 
-La razón de que la suite no lo detectara es la deriva B2: `test_seed.py`
-construía su base con `create_all`, así que `id_caso` quedaba *nullable* y un
-`NULL` pasaba sin ruido. La base scratch de `test_seed.py` ahora replica el
-`NOT NULL` de producción, y
+La razón de que la suite no lo detectara es la deriva B2 (ya resuelta):
+`test_seed.py` construía su base con `create_all`, y como los modelos declaraban
+`id_caso` como `Optional`, la columna quedaba *nullable* y un `NULL` pasaba sin
+ruido. Ahora los modelos lo declaran `NOT NULL`, así que la base scratch es tan
+estricta como la de producción sin ningún parche, y
 `test_seed.py::test_el_seed_sella_el_caso_de_todos_los_registros_agrupados`
-comprueba además que el endurecimiento se aplicó de verdad y que cada `id_caso`
-apunta a un caso del mismo NNA.
+comprueba que cada `id_caso` está puesto y apunta a un caso del mismo NNA.
 
 ---
 

@@ -100,15 +100,18 @@ def _conectar_admin():
 
 
 def _recrear_scratch() -> None:
-    """Recrea la base scratch y le replica el endurecimiento de produccion.
+    """Recrea la base scratch con el esquema de los modelos.
 
-    ``create_all`` construye el esquema a partir de los modelos, que declaran
-    ``id_caso`` como ``Optional``; el ``NOT NULL`` real lo impone la ultima
-    migracion (``bbf68836b0d8``). Sin repetirlo aqui la base de pruebas queda
-    mas permisiva que la de produccion, y el seed pasa aunque en un despliegue
-    real falle: fue justo lo que oculto que sembrar una base nueva reventara con
-    ``NotNullViolationError``. Las tablas se derivan del propio esquema, para no
-    mantener otra lista paralela a las de ``conftest`` y ``test_migrations``.
+    No hace falta endurecer nada a mano: los modelos declaran ``id_caso`` como
+    ``NOT NULL`` (``sa_column_kwargs``), asi que ``create_all`` ya produce un
+    esquema tan estricto como el de produccion.
+
+    Antes esta funcion replicaba el ``NOT NULL`` con un ``ALTER TABLE`` porque
+    los modelos lo declaraban ``Optional``; esa base mas permisiva fue lo que
+    oculto que sembrar una base nueva reventara con ``NotNullViolationError``
+    (defecto B2, ver ``TESTING.md``). El endurecimiento sigue verificado, ahora
+    contra los modelos, en
+    ``test_el_seed_sella_el_caso_de_todos_los_registros_agrupados``.
     """
     assert SCRATCH_DB.endswith("_seedtest")
     conn = _conectar_admin()
@@ -122,14 +125,6 @@ def _recrear_scratch() -> None:
     engine = create_engine(_url_sync(SCRATCH_DB))
     try:
         SQLModel.metadata.create_all(engine)
-        agrupadas = [
-            t.name for t in SQLModel.metadata.tables.values() if "id_caso" in t.columns
-        ]
-        with engine.begin() as conn:
-            for tabla in agrupadas:
-                conn.execute(
-                    text(f'ALTER TABLE "{tabla}" ALTER COLUMN id_caso SET NOT NULL')
-                )
     finally:
         engine.dispose()
 

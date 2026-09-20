@@ -4,7 +4,7 @@ Detalle de **todas** las pruebas de la suite: qué verifica cada una y cómo lo
 hace. Complementa a `TESTING.md` (que explica el *porqué* y el diseño); aquí
 está el *qué* y el *cómo*.
 
-Cifras: **817 casos de backend** (464 funciones; el resto hasta 817 son
+Cifras: **818 casos de backend** (465 funciones; el resto hasta 818 son
 parametrizaciones) y **201 de frontend** (142 bloques: 138 `it`, 2 `it.fails`
 y 2 `it.each` que expanden a 61 casos).
 
@@ -672,7 +672,7 @@ Pruebas unitarias y de integración directa contra `app/services`.
 | `test_borrar_un_nna_por_el_orm_falla_porque_nulea_las_fk_de_sus_hijos` *(characterization)* | **Defecto B4** | Crea un hijo, `session.delete(nna)` + commit → `IntegrityError` |
 | `test_borrar_un_ncfas_por_el_orm_arrastra_sus_respuestas_y_comentarios` | Contraste: aquí sí hay cascada | Crea respuestas y comentario, borra el NCFAS y comprueba que ambos quedan vacíos |
 
-### 1.23 `test_migrations.py` — 21 casos
+### 1.23 `test_migrations.py` — 22 casos
 
 | Prueba | Qué verifica | Cómo |
 |---|---|---|
@@ -686,11 +686,12 @@ Pruebas unitarias y de integración directa contra `app/services`.
 | `test_la_migracion_inicial_crea_el_esquema_previo_a_la_agrupacion` | Contrato de la inicial | Para en `0b733fafb9a6`: sin tabla `Caso`, sin columnas `id_caso`, con el unique histórico por `id_nna` |
 | `test_el_ciclo_upgrade_downgrade_upgrade_es_estable` | Ida y vuelta | `upgrade`→`downgrade`→`upgrade` y comprueba que no quedan residuos |
 | `test_el_esquema_construido_por_la_cadena_coincide_con_los_modelos` | Paridad fina | Compara columnas, nulabilidad, PKs, FKs locales y restricciones con nombre entre la cadena y los modelos |
+| `test_alembic_no_detecta_deriva_entre_los_modelos_y_el_esquema_migrado` | **B2 resuelto**: `--autogenerate` limpio | Migra a head y compara con `compare_metadata`; exige lista vacía (antes: 10 entradas `modify_nullable` sobre `id_caso`) |
 | `test_todas_las_tablas_de_los_modelos_existen_en_el_esquema` | Paridad | Compara `SQLModel.metadata.tables` con `inspect().get_table_names()` de la base de pruebas |
 | `test_no_hay_tablas_de_aplicacion_de_mas` | Exhaustividad | Igualdad estricta de conjuntos |
 | `test_todas_las_columnas_de_los_modelos_existen` | Columnas | Recorre cada tabla y compara nombres de columna |
-| `test_las_tablas_agrupadas_tienen_id_caso_no_nulo` | `NOT NULL` efectivo | `inspect().get_columns()` y `nullable is False` en las 10 |
-| `test_los_modelos_declaran_id_caso_como_opcional_y_la_base_lo_exige` *(characterization)* | **Defecto B2**: deriva modelos↔migración | Afirma `columna.nullable is True` en los modelos **y** `nullable is False` en la base |
+| `test_las_tablas_agrupadas_tienen_id_caso_no_nulo` | `NOT NULL` efectivo en la base | `inspect().get_columns()` y `nullable is False` en las 10 |
+| `test_los_modelos_declaran_id_caso_no_nulo` | **B2 resuelto**: modelos y base de acuerdo | Afirma `columna.nullable is False` en `SQLModel.metadata` para las 10 |
 | `test_las_tablas_agrupadas_tienen_la_fk_compuesta_contra_caso` | FKs compuestas | Busca una FK a `Caso` con columnas `{id_nna, id_caso}` en cada tabla |
 | `test_existe_el_indice_parcial_de_un_solo_caso_activo_por_nna` | Índice parcial | Busca `uq_caso_activo_por_nna`, comprueba `unique` y `column_names == ["id_nna"]` |
 | `test_la_tabla_caso_tiene_las_restricciones_de_unicidad` | Constraints | `uq_caso_nna_caso` en únicos y `chk_estado_caso` en checks |

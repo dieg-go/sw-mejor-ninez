@@ -9,11 +9,13 @@ Diseno de aislamiento
 2. Una fixture de sesion sincrona recrea esa base desde cero y construye el
    esquema a partir de ``SQLModel.metadata``.
 
-   Nota: *no* se usa ``alembic upgrade head`` para esto porque la cadena de
-   migraciones no es reproducible desde una base vacia (ver
-   ``tests/test_migrations.py`` y la seccion "Defectos conocidos" de
-   ``TESTING.md``). La base de pruebas se construye con ``create_all``, que
-   es exactamente lo que hace la primera migracion.
+   Nota: se usa ``create_all`` (rapido) en vez de ``alembic upgrade head`` para
+   construir el esquema. La paridad entre ambos caminos esta cubierta por
+   ``test_migrations.py::test_el_esquema_construido_por_la_cadena_coincide_con_los_modelos``,
+   asi que la suite no paga el coste de migrar en cada corrida. Los modelos
+   declaran las columnas como la base (incluido ``id_caso NOT NULL``), de modo
+   que este esquema es tan estricto como el de produccion. Antes no lo era, y
+   esa diferencia dejo pasar un ``seed`` roto: ver defecto B2 en ``TESTING.md``.
 
 3. Cada prueba corre dentro de su propia transaccion externa con
    ``join_transaction_mode="create_savepoint"``: los ``commit()`` de las
@@ -27,7 +29,6 @@ from __future__ import annotations
 import asyncio
 import os
 import uuid
-from pathlib import Path
 from typing import AsyncIterator, Iterator
 
 # ── La base de pruebas se fija ANTES de importar `app` ───────────────────────
@@ -47,22 +48,6 @@ from app.core.config import settings  # noqa: E402
 from app.core.database import get_db  # noqa: E402
 from app.main import app  # noqa: E402
 from tests.factories import crear_familiar, crear_nna  # noqa: E402
-
-BACKEND_ROOT = Path(__file__).resolve().parent.parent
-ALEMBIC_HEAD = "bbf68836b0d8"
-
-TABLAS_AGRUPADAS = (
-    "AntecedenteEscolar",
-    "AntecedenteFamiliar",
-    "AntecedenteIngreso",
-    "AntecedenteSalud",
-    "DocumentacionIngreso",
-    "E2P",
-    "InformeTribunal",
-    "NCFAS",
-    "PMF",
-    "ProcesoDespejeFamiliar",
-)
 
 ADMIN_EMAIL = "admin@mejorninez.cl"
 ADMIN_PASSWORD = "admin123"
@@ -108,27 +93,22 @@ def _recreate_database() -> None:
 def _create_schema() -> None:
     """Construye el esquema completo a partir de los modelos SQLModel.
 
-    Despues replica el endurecimiento de la ultima migracion
-    (``bbf68836b0d8``): ``id_caso`` es ``NOT NULL`` en las 10 tablas agrupadas.
+    Los modelos declaran las columnas igual que la base, incluido el
+    ``id_caso NOT NULL`` de las 10 tablas agrupadas (via ``sa_column_kwargs``),
+    asi que ``create_all`` produce un esquema tan estricto como el de la cadena
+    de migraciones.
 
-    Hace falta repetirlo aqui porque los modelos lo declaran como
-    ``Optional[uuid.UUID]``, asi que ``create_all`` genera la columna
-    *nullable* y el esquema de pruebas quedaria mas permisivo que el de
-    produccion. Ver ``test_migrations.py`` para la prueba que documenta esa
-    deriva entre modelos y migraciones.
+    Antes no era asi: los modelos declaraban ``id_caso`` como ``Optional`` y
+    esta funcion tenia que repetir un ``ALTER TABLE ... SET NOT NULL`` para
+    compensar. Esa diferencia entre la base de pruebas y la de produccion dejo
+    pasar un ``seed`` que fallaba en un despliegue real (defecto B2, ver
+    ``TESTING.md``).
     """
-    from sqlalchemy import text
-
     from sqlmodel import SQLModel
 
     engine = create_engine(settings.database_url_sync)
     try:
         SQLModel.metadata.create_all(engine)
-        with engine.begin() as conn:
-            for table in TABLAS_AGRUPADAS:
-                conn.execute(
-                    text(f'ALTER TABLE "{table}" ALTER COLUMN id_caso SET NOT NULL')
-                )
     finally:
         engine.dispose()
 

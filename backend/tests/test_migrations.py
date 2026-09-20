@@ -321,6 +321,39 @@ def test_el_esquema_construido_por_la_cadena_coincide_con_los_modelos(scratch: s
         engine.dispose()
 
 
+@pytest.mark.slow
+def test_alembic_no_detecta_deriva_entre_los_modelos_y_el_esquema_migrado(scratch: str):
+    """``--autogenerate`` no propondria ningun cambio sobre una base migrada.
+
+    Es la prueba que fija el impacto del defecto B2. Los 10 modelos agrupados
+    declaraban ``id_caso`` como ``Optional`` —*nullable* en la metadata— mientras
+    la base lo exigia ``NOT NULL``, asi que ``--autogenerate`` proponia
+    ``ALTER COLUMN id_caso DROP NOT NULL``: revertir el endurecimiento de
+    ``bbf68836b0d8`` sin que nadie lo notara. Medido antes del arreglo: 10
+    entradas, todas ``modify_nullable`` sobre ``id_caso``.
+
+    Se compara la metadata contra el esquema que produce la **cadena de
+    migraciones**, no el de ``create_all``: es el unico que representa lo que
+    hay en produccion.
+    """
+    from alembic.autogenerate import compare_metadata
+    from alembic.migration import MigrationContext
+
+    _ejecutar_alembic("upgrade", "head")
+
+    engine = create_engine(_url_sync(scratch))
+    try:
+        with engine.connect() as conn:
+            contexto = MigrationContext.configure(conn)
+            deriva = compare_metadata(contexto, SQLModel.metadata)
+    finally:
+        engine.dispose()
+
+    assert deriva == [], (
+        f"--autogenerate propondria {len(deriva)} cambio(s): {deriva}"
+    )
+
+
 # ── Paridad entre los modelos y el esquema de pruebas ────────────────────────
 
 
@@ -355,7 +388,13 @@ def test_todas_las_columnas_de_los_modelos_existen():
 
 
 def test_las_tablas_agrupadas_tienen_id_caso_no_nulo():
-    """El esquema de pruebas replica el endurecimiento de ``bbf68836b0d8``."""
+    """El esquema de pruebas, hecho con ``create_all``, es tan estricto como el migrado.
+
+    La base de pruebas ya no necesita replicar el endurecimiento a mano: los
+    modelos lo declaran, asi que ``create_all`` lo produce. Que la cadena de
+    migraciones haga lo mismo lo cubre
+    ``test_el_esquema_construido_por_la_cadena_coincide_con_los_modelos``.
+    """
     engine = create_engine(_url_sync(_db_de_pruebas()))
     try:
         inspector = inspect(engine)
@@ -367,32 +406,21 @@ def test_las_tablas_agrupadas_tienen_id_caso_no_nulo():
         engine.dispose()
 
 
-@pytest.mark.characterization
-def test_los_modelos_declaran_id_caso_como_opcional_y_la_base_lo_exige():
-    """Deriva conocida entre modelos y migraciones.
+def test_los_modelos_declaran_id_caso_no_nulo():
+    """Los modelos dicen lo mismo que la base (antes no: defecto B2).
 
-    Los 10 modelos agrupados declaran ``id_caso: Optional[uuid.UUID] = None``,
-    asi que ``SQLModel.metadata`` lo describe como *nullable*. El ``NOT NULL``
-    real solo existe porque ``bbf68836b0d8`` lo impone con un ``ALTER TABLE``.
+    Los 10 modelos agrupados declaraban ``id_caso: Optional[uuid.UUID] = None``,
+    que en ``SQLModel.metadata`` es *nullable*, mientras la base lo exigia
+    ``NOT NULL``. Ahora lo declaran con ``sa_column_kwargs={"nullable": False}``.
 
-    Consecuencias:
-    - la migracion inicial (``create_all``) genera un esquema mas permisivo que
-      el head, y por eso ``tests/conftest.py`` repite el ``ALTER TABLE`` al
-      construir la base de pruebas;
-    - un ``alembic revision --autogenerate`` propondria *quitar* el ``NOT NULL``.
+    La anotacion sigue siendo ``Optional`` a proposito: el registro se arma en
+    memoria sin caso y se sella antes del INSERT (``create_nna_child`` y el
+    ``before_flush`` del seed), asi que en memoria si puede ser ``None``. Lo que
+    no puede es llegar ``NULL`` a la base.
     """
     for tabla in TABLAS_AGRUPADAS:
         columna = SQLModel.metadata.tables[tabla].columns["id_caso"]
-        assert columna.nullable is True, tabla
-
-    engine = create_engine(_url_sync(_db_de_pruebas()))
-    try:
-        inspector = inspect(engine)
-        for tabla in TABLAS_AGRUPADAS:
-            columnas = {c["name"]: c for c in inspector.get_columns(tabla)}
-            assert columnas["id_caso"]["nullable"] is False, tabla
-    finally:
-        engine.dispose()
+        assert columna.nullable is False, f"{tabla}: el modelo lo declara nullable"
 
 
 def test_las_tablas_agrupadas_tienen_la_fk_compuesta_contra_caso():

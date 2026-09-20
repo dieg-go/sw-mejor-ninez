@@ -17,7 +17,7 @@ Monorepo: Next.js 16 frontend + FastAPI backend + PostgreSQL 17.
 all 45 backend modules import (`python -c "import app.main"` inside the built image); `--frozen-lockfile`
 passes. So the checkpoint is a *buildable, importable* baseline.
 
-**Test suite (added after the checkpoint)**: 817 backend tests (pytest in Docker) + 201 frontend tests
+**Test suite (added after the checkpoint)**: 818 backend tests (pytest in Docker) + 201 frontend tests
 (Vitest), all green. The frontend has 2 deliberately-failing tests that document known defects; the
 backend has none today. See `TESTING.md` for the full inventory, the isolation design, and the defect
 list.
@@ -37,6 +37,15 @@ shell, prefix with `$env:CI='true'`. When curling the API from Windows, use **`1
 `localhost`** — `localhost` resolves to IPv6 `::1`, which Docker Desktop does not forward, so each
 request stalls ~21s before falling back to IPv4 (in-container calls answer in ~23ms).
 
+**There are two ways to build the schema and they are not equivalent.** `create_all` (what the test
+suite uses) builds it from the models; `alembic upgrade head` (what `entrypoint.sh` uses) replays the
+migrations. Any drift between them is a latent prod-only bug. **The development database was found to
+be in that state**: it carried every constraint of `bbf68836b0d8` but *not* its `id_caso NOT NULL`,
+and its `alembic_version` still said head — i.e. it was built by `create_all` and stamped, never
+migrated. That is why B1 hid for so long: nobody ran the chain locally. It was corrected in place
+(verified: no `NULL` values existed) and `python -m alembic check` now reports a clean diff. Run
+`alembic check` against a database before trusting it.
+
 ## Quickstart
 
 ```bash
@@ -54,6 +63,7 @@ docker compose up -d --build    # http://localhost:3000
 | Seed DB | `python seed.py` | `backend/` |
 | Create migration | `python -m alembic revision --autogenerate -m "desc"` | `backend/` |
 | Apply migrations | `python -m alembic upgrade head` | `backend/` |
+| Check schema drift | `python -m alembic check` | `backend/` (fails if a database's schema differs from the models) |
 
 ### How the test suite runs
 
@@ -143,10 +153,11 @@ frontend/
 
 ### Known DB drift (deferred)
 - **`Caso` grouping** — `Caso` model (one active per NNA via partial unique index `uq_caso_activo_por_nna`). Grouped tables (E2P, PMF, NCFAS, AntecedenteIngreso, DocumentacionIngreso, AntecedenteSalud/Escolar/Familiar, InformeTribunal, ProcesoDespejeFamiliar) carry `id_caso` **NOT NULL** + composite FK `(id_nna, id_caso) → Caso(id_nna, id_caso)` (migration `bbf68836b0d8`). Auto-stamped by `create_nna_child`. Writes to records of a `Cerrado` caso → `HTTPException(409)` (guard `_assert_caso_abierto`, `update_child` + despeje/notificación/NCFAS-comment routes). `ProcesoDespejeFamiliar` is unique per `(id_nna, id_caso)` — one despeje per caso, not per NNA. API: `GET/POST /api/nna/{id}/casos`, `GET/PUT /api/casos/{id_caso}`, `?id_caso=` filter on grouped list endpoints; despeje GET accepts optional `id_caso` (defaults to active caso). Backend is done; frontend case switcher (summary page + `?id_caso=` URL param) is **done** — `CasoSwitcher` is rendered from `nna/[id]/page.tsx`.
-- **Caso grouping scope (open product question — ask clients)** — `HistorialConsumoNNA`, `DiscapacidadNNA`, `HistorialRedProteccional` are NNA-level (no `id_caso`), so they stay editable even on a closed caso. They evolve over time and are only edited from inside the case view; ask whether they should be grouped too (read-only on closed casos, one snapshot per caso). Tradeoff: grouped = page shows only the current caso's entries; ungrouped = single merged timeline across casos. `HistorialConsumoAdulto` (familiar-level) and `VinculoFamiliar` (stable relationship graph) should stay ungrouped. If grouped: add `id_caso` + composite FK (copy `antecedentes.py`), extend the seed stamping loop, add `?id_caso=`/read-only to the consumo & discapacidades pages; backend routes work via the generic helpers unchanged.
-- **`AntecedentePenal` vs `AntecedentesPenales`** — DBML says singular, real table is plural (`app/models/familiar.py`). Fix (rename table + migration) deferred.
-- **E2P missing cascade** — `RespuestaE2P`/`PuntajeE2P` lack `ondelete="CASCADE"` (`app/models/e2p.py`) while PMF/NCFAS children have it. There is also **no DELETE endpoint** for E2P at all (`DELETE /api/e2p/{id}` → 405), so the FK failure is latent, not yet reachable via the API. Add `ondelete` + migration before building E2P delete.
+- **Caso grouping scope (open product question — ask clients)** — `HistorialConsumoNNA`, `DiscapacidadNNA`, `HistorialRedProteccional` are NNA-level (no `id_caso`), so they stay editable even on a closed caso. They evolve over time and are only edited from inside the case view; ask whether they should be grouped too (read-only on closed casos, one snapshot per caso). Tradeoff: grouped = page shows only the current caso's entries; ungrouped = single merged timeline across casos. `HistorialConsumoAdulto` (familiar-level) and `VinculoFamiliar` (stable relationship graph) should stay ungrouped. If grouped: add `id_caso` + composite FK (copy `antecedentes.py`), open each NNA's caso in `seed.py` via `abrir_caso` and add the model to `MODELOS_AGRUPADOS` (its `before_flush` stamps the records), add `?id_caso=`/read-only to the consumo & discapacidades pages; backend routes work via the generic helpers unchanged.
+- **`AntecedentePenal` vs `AntecedentesPenales`** — DBML says singular, real table is plural (`app/models/familiar.py`). Fix (rename table + migration) deferred. **Do not attempt it with `--autogenerate`**: it emits a plain `drop_table`/`create_table`, and Alembic's `rename_table` must be written by hand or the data is lost.
+- **E2P missing cascade** — `RespuestaE2P`/`PuntajeE2P` lack `ondelete="CASCADE"` (`app/models/e2p.py`) while PMF/NCFAS children have it. There is also **no DELETE endpoint** for E2P at all (`DELETE /api/e2p/{id}` → 405), so the FK failure is latent, not yet reachable via the API. Add `ondelete` + migration before building E2P delete. Remember to add `ondelete="CASCADE"` to the model too, not only the migration, or `--autogenerate` will report drift (defect B2).
 - **Seed has no instrument answers** — `RespuestaE2P`, `PuntajeE2P` and their PMF/NCFAS equivalents are empty after seeding, so the scoring endpoints return empty/400 until a user fills an instrument. Seed data covers records, not filled instruments.
+- **Resolved (kept for context)**: `id_caso` model/migration drift (B2) — models now declare `nullable=False` and a test asserts `--autogenerate` reports no diff. When a migration hardens a column, harden the model in the same commit.
 
 ### Rollback procedure (git + DB sync)
 When resetting code to an earlier commit, downgrade the DB to match:
@@ -185,12 +196,16 @@ docker exec sw-mejor-ninez-db psql -U postgres -d sw_mejor_ninez \
 - **Next.js 16 async params**: dynamic route params are `Promise<{ id: string }>`, consumed with `use(params)`.
 - **CORS**: restricted to `http://localhost:3000` only.
 - **pnpm `--ignore-scripts`** in Docker builds — skips postinstall hooks. If adding a dep needing postinstall, remove the flag.
-- **Tests**: 817 backend (pytest, inside Docker) + 201 frontend (Vitest). See `TESTING.md`. The
+- **Tests**: 818 backend (pytest, inside Docker) + 201 frontend (Vitest). See `TESTING.md`. The
   backend service is `backend-tests` under the Compose profile `test`; the frontend suite is
   `pnpm test`. Test files must not be placed under `frontend/src/app/` (Next's route scanner).
-  **Test databases must replicate the migrations' hardening** (`id_caso NOT NULL`): `create_all`
-  alone builds a *more permissive* schema than production, which is what once hid a seed bug that
-  broke fresh deploys. `conftest.py` and `test_seed.py` both apply the `ALTER TABLE`.
+  **The models declare the schema as strictly as the database** (e.g. `id_caso` uses
+  `sa_column_kwargs={"nullable": False}`), so `create_all` builds test databases that are as strict
+  as the migrated ones. When a migration hardens a column, harden the model too: a model that
+  under-declares lets `create_all` build a laxer schema, which once hid a seed bug that broke fresh
+  deploys, and makes `--autogenerate` propose reverting the hardening (defect B2).
+  `test_migrations.py::test_alembic_no_detecta_deriva_entre_los_modelos_y_el_esquema_migrado` guards
+  this by requiring an empty `compare_metadata` diff.
 - **Seed is idempotent**: checks `≥2 NNA` before inserting. Also creates default admin user (`admin@mejorninez.cl` / `admin123`) if none exists.
 - **Root cleanup done** (2026-09): removed stray root `src/` (empty better-auth dirs), `.env.local` (Sentry/Better Auth placeholders from an unrelated scaffold), `cleanup.bat`. `shared/` and `backend/app/instruments/` no longer exist.
 - **No separate typecheck** command in frontend. `pnpm build` includes TS type-checking as part of the Next.js build.
