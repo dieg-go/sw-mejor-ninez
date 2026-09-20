@@ -73,6 +73,7 @@ export function Step1Informe({
               <div className="space-y-4">
                 <DatePicker value={recepcionFecha} onChange={setRecepcionFecha} label="Fecha de Recepción del Documento" />
                 <FileUpload
+                  label="Informe del Registro Civil"
                   value={informeUrl || null}
                   onUploadSuccess={(url) => setInformeUrl(url)}
                   onClear={() => setInformeUrl("")}

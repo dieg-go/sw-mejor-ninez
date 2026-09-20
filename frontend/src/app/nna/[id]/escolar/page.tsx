@@ -2,19 +2,16 @@
 
 import { use, useEffect, useState } from "react";
 import { Link } from "@/lib/navigation";
-import { ArrowLeftIcon, CalendarIcon, PlusIcon, PencilIcon } from "lucide-react";
+import { ArrowLeftIcon, PlusIcon, PencilIcon } from "lucide-react";
 import { api, type NNA, type AntecedenteEscolar } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
 import { Empty } from "@/components/ui/empty";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
+import { DateField, TextField } from "@/components/ui/form-field";
 
 function formatDate(iso: string | null) {
   if (!iso) return "—";
@@ -128,27 +125,13 @@ export default function EscolarPage({
           <CardContent>
             <form onSubmit={handleCreate} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-xs">Fecha</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" size="sm" className={cn("w-full justify-start text-left font-normal mt-1", !fecha && "text-muted-foreground")}><CalendarIcon />{fecha ? fecha.toLocaleDateString("es-CL") : "Seleccionar"}</Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={fecha} onSelect={setFecha} /></PopoverContent>
-                  </Popover>
-                </div>
+                <DateField label="Fecha" value={fecha} onChange={setFecha} />
                 <div className="flex items-center gap-2 pt-2">
                   <Checkbox id="escolarizado" checked={form.escolarizado} onCheckedChange={(v) => setForm((p) => ({ ...p, escolarizado: !!v }))} />
                   <Label htmlFor="escolarizado" className="text-xs cursor-pointer">Escolarizado</Label>
                 </div>
-                <div>
-                  <Label className="text-xs">Establecimiento educacional</Label>
-                  <Input className="mt-1" value={form.id_establecimiento_educacional} onChange={(e) => setForm((p) => ({ ...p, id_establecimiento_educacional: e.target.value }))} placeholder="ID establecimiento" />
-                </div>
-                <div>
-                  <Label className="text-xs">Último año cursado</Label>
-                  <Input className="mt-1" type="number" value={form.ultimo_ano_cursado} onChange={(e) => setForm((p) => ({ ...p, ultimo_ano_cursado: e.target.value }))} placeholder="Ej: 5" />
-                </div>
+                <TextField label="Establecimiento educacional" value={form.id_establecimiento_educacional} onChange={(e) => setForm((p) => ({ ...p, id_establecimiento_educacional: e.target.value }))} placeholder="ID establecimiento" />
+                <TextField label="Último año cursado" type="number" value={form.ultimo_ano_cursado} onChange={(e) => setForm((p) => ({ ...p, ultimo_ano_cursado: e.target.value }))} placeholder="Ej: 5" />
               </div>
               {formError && <p className="text-destructive text-sm">{formError}</p>}
               <div className="flex gap-2">
@@ -170,27 +153,13 @@ export default function EscolarPage({
                 {editingId === item.id_antecedente_escolar ? (
                   <form onSubmit={handleUpdate} className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <Label className="text-xs">Fecha</Label>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <Button variant="outline" size="sm" className={cn("w-full justify-start text-left font-normal mt-1", !editFecha && "text-muted-foreground")}><CalendarIcon />{editFecha ? editFecha.toLocaleDateString("es-CL") : "Seleccionar"}</Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={editFecha} onSelect={setEditFecha} /></PopoverContent>
-                        </Popover>
-                      </div>
+                      <DateField label="Fecha" value={editFecha} onChange={setEditFecha} />
                       <div className="flex items-center gap-2 pt-2">
                         <Checkbox id={`edit-esc-${item.id_antecedente_escolar}`} checked={editForm.escolarizado} onCheckedChange={(v) => setEditForm((p) => ({ ...p, escolarizado: !!v }))} />
                         <Label htmlFor={`edit-esc-${item.id_antecedente_escolar}`} className="text-xs cursor-pointer">Escolarizado</Label>
                       </div>
-                      <div>
-                        <Label className="text-xs">Establecimiento educacional</Label>
-                        <Input className="mt-1" value={editForm.id_establecimiento_educacional} onChange={(e) => setEditForm((p) => ({ ...p, id_establecimiento_educacional: e.target.value }))} />
-                      </div>
-                      <div>
-                        <Label className="text-xs">Último año cursado</Label>
-                        <Input className="mt-1" type="number" value={editForm.ultimo_ano_cursado} onChange={(e) => setEditForm((p) => ({ ...p, ultimo_ano_cursado: e.target.value }))} />
-                      </div>
+                      <TextField label="Establecimiento educacional" value={editForm.id_establecimiento_educacional} onChange={(e) => setEditForm((p) => ({ ...p, id_establecimiento_educacional: e.target.value }))} />
+                      <TextField label="Último año cursado" type="number" value={editForm.ultimo_ano_cursado} onChange={(e) => setEditForm((p) => ({ ...p, ultimo_ano_cursado: e.target.value }))} />
                     </div>
                     {editError && <p className="text-destructive text-sm">{editError}</p>}
                     <div className="flex gap-2">
@@ -205,7 +174,7 @@ export default function EscolarPage({
                       <div><span className="text-xs text-muted-foreground">Estado: </span>{item.escolarizado ? <Badge variant="secondary">Escolarizado</Badge> : "No escolarizado"}</div>
                       <div><span className="text-xs text-muted-foreground">Último año: </span>{item.ultimo_ano_cursado ?? "—"}</div>
                     </div>
-                    {!isClosed && <Button variant="ghost" size="icon" onClick={() => startEdit(item)}><PencilIcon className="size-4" /></Button>}
+                    {!isClosed && <Button variant="ghost" size="icon" aria-label={`Editar antecedente escolar${item.id_establecimiento_educacional ? `: ${item.id_establecimiento_educacional}` : ""}`} onClick={() => startEdit(item)}><PencilIcon className="size-4" /></Button>}
                   </div>
                 )}
               </CardContent>

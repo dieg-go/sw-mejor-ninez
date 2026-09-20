@@ -111,8 +111,8 @@ describe("pagina de discapacidades del NNA", () => {
     await screen.findByText("Sin discapacidades registradas.");
     await user.click(screen.getByRole("button", { name: /nueva discapacidad/i }));
 
-    await user.type(screen.getByPlaceholderText("Ej: Física, intelectual"), "Fisica");
-    await user.type(screen.getByPlaceholderText("Ej: 50"), "50");
+    await user.type(screen.getByLabelText("Tipo"), "Fisica");
+    await user.type(screen.getByLabelText("Porcentaje / Grado"), "50");
     await user.click(screen.getByRole("button", { name: /^guardar$/i }));
 
     // `porcentaje_grado` vacio se omite; el numero se manda como number, no string
@@ -149,7 +149,7 @@ describe("pagina de discapacidades del NNA", () => {
 
     expect(await screen.findByText("Tipo invalido")).toBeInTheDocument();
     // El formulario sigue visible para corregir
-    expect(screen.getByPlaceholderText("Ej: Física, intelectual")).toBeInTheDocument();
+    expect(screen.getByLabelText("Tipo")).toBeInTheDocument();
   });
 
   it("edita en linea y reemplaza el registro actualizado", async () => {
@@ -161,16 +161,11 @@ describe("pagina de discapacidades del NNA", () => {
     await renderPagina();
 
     await screen.findByText("Intelectual");
-    // El boton de editar es solo icono y no tiene nombre accesible (ver nota
-    // de accesibilidad al final del archivo), asi que se ubica por descarte:
-    // es el unico button del listado sin texto.
-    const botonEditar = screen
-      .getAllByRole("button")
-      .find((b) => b.textContent?.trim() === "");
-    expect(botonEditar).toBeDefined();
-    await user.click(botonEditar as HTMLElement);
+    // El boton de editar es solo un icono, pero tiene nombre accesible
+    await user.click(screen.getByRole("button", { name: /editar discapacidad/i }));
 
-    const inputTipo = await screen.findByDisplayValue("Intelectual");
+    const inputTipo = screen.getByLabelText("Tipo");
+    expect(inputTipo).toHaveValue("Intelectual");
     await user.clear(inputTipo);
     await user.type(inputTipo, "Intelectual leve");
     await user.click(screen.getByRole("button", { name: /^guardar$/i }));
@@ -186,18 +181,17 @@ describe("pagina de discapacidades del NNA", () => {
 });
 
 /**
- * Nota de accesibilidad (hallazgos al escribir estos tests, no defectos de la
- * suite): la pagina tiene dos problemas reales que la obligan a consultarse por
- * placeholder y por descarte en vez de por nombre accesible.
+ * Nota de accesibilidad: al escribir estos tests se detectaron dos problemas
+ * reales en la pagina, y ambos se arreglaron (2026-09):
  *
- *  1. Los `<Label>` no estan asociados a sus `<Input>` (falta `htmlFor`/`id`),
- *     asi que `getByLabelText("Tipo")` no funciona. Un lector de pantalla
- *     tampoco puede anunciar el campo.
- *  2. El boton de editar es solo un icono sin `aria-label`, asi que no tiene
- *     nombre accesible y hay que ubicarlo por descarte.
+ *  1. Los `<Label>` no estaban asociados a sus `<Input>` (faltaba
+ *     `htmlFor`/`id`), asi que un lector de pantalla no podia anunciar el campo
+ *     y los tests tenian que consultar por placeholder. Ahora los campos usan
+ *     `TextField` (`@/components/ui/form-field`), que asocia etiqueta y control
+ *     con un id unico de `useId()`. Por eso estos tests consultan con
+ *     `getByLabelText(...)`: si la asociacion se rompe, fallan.
+ *  2. El boton de editar era un icono sin nombre accesible. Ahora lleva
+ *     `aria-label`, y el test lo ubica por rol + nombre.
  *
- * Ambos se arreglan con cambios chicos en `page.tsx` (asociar label/id y
- * `aria-label` en los botones de icono). Vale la pena hacerlo en las ~12
- * sub-paginas de una vez, porque el patron esta clonado. Se dejan documentados
- * aca en vez de cambiados, para no mezclar refactor de UI con este setup.
+ * Esos tests son la red que impide que la regresion vuelva.
  */

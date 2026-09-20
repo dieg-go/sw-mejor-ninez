@@ -41,11 +41,13 @@ export function StepHistorial({ data, onData, onBack, onNext }: { data: WizardDa
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Field className="sm:col-span-2">
-                  <FieldLabel>Nombre del programa</FieldLabel>
+                  {/* Ids derivados del indice: es una lista dinamica, asi que un id
+                      fijo se repetiria en cada tarjeta. */}
+                  <FieldLabel htmlFor={`historial-${i}-programa`}>Nombre del programa</FieldLabel>
                   <Select value={h.nombre_programa || "none"} onValueChange={(v) => {
                     const hs = [...data.historial]; hs[i] = { ...hs[i], nombre_programa: v === "none" ? "" : v, nombre_programa_otro: v === "Otro" ? hs[i].nombre_programa_otro : "" }; onData({ ...data, historial: hs });
                   }}>
-                    <SelectTrigger><SelectValue placeholder="Seleccionar programa..." /></SelectTrigger>
+                    <SelectTrigger id={`historial-${i}-programa`}><SelectValue placeholder="Seleccionar programa..." /></SelectTrigger>
                     <SelectContent>
                       {CATALOGO_PROGRAMAS_PREVIOS.map((p) => (
                         <SelectItem key={p} value={p}>{p}</SelectItem>
@@ -55,6 +57,7 @@ export function StepHistorial({ data, onData, onBack, onNext }: { data: WizardDa
                   {h.nombre_programa === "Otro" && (
                     <Input
                       className="mt-2"
+                      aria-label="Especificar programa"
                       placeholder="Especificar programa..."
                       value={h.nombre_programa_otro}
                       onChange={(e) => {
@@ -70,11 +73,11 @@ export function StepHistorial({ data, onData, onBack, onNext }: { data: WizardDa
                   const hs = [...data.historial]; hs[i] = { ...hs[i], fecha_egreso: d ?? null }; onData({ ...data, historial: hs });
                 }} />
                 <Field className="sm:col-span-2">
-                  <FieldLabel>Motivo de egreso</FieldLabel>
+                  <FieldLabel htmlFor={`historial-${i}-motivo`}>Motivo de egreso</FieldLabel>
                   <Select value={h.motivo_egreso || "none"} onValueChange={(v) => {
                     const hs = [...data.historial]; hs[i] = { ...hs[i], motivo_egreso: v === "none" ? "" : v, motivo_egreso_otro: v === "Otro" ? hs[i].motivo_egreso_otro : "" }; onData({ ...data, historial: hs });
                   }}>
-                    <SelectTrigger><SelectValue placeholder="Seleccionar motivo..." /></SelectTrigger>
+                    <SelectTrigger id={`historial-${i}-motivo`}><SelectValue placeholder="Seleccionar motivo..." /></SelectTrigger>
                     <SelectContent>
                       {CATALOGO_MOTIVO_EGRESO.map((m) => (
                         <SelectItem key={m} value={m}>{m}</SelectItem>
@@ -84,6 +87,7 @@ export function StepHistorial({ data, onData, onBack, onNext }: { data: WizardDa
                   {h.motivo_egreso === "Otro" && (
                     <Input
                       className="mt-2"
+                      aria-label="Especificar motivo de egreso"
                       placeholder="Especificar motivo..."
                       value={h.motivo_egreso_otro}
                       onChange={(e) => {

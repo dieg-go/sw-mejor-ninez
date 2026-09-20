@@ -2,7 +2,7 @@
 
 import { use, useEffect, useState } from "react";
 import { Link } from "@/lib/navigation";
-import { ArrowLeftIcon, CalendarIcon, PlusIcon, PencilIcon } from "lucide-react";
+import { ArrowLeftIcon, PlusIcon, PencilIcon } from "lucide-react";
 import {
   api,
   type NNA,
@@ -13,13 +13,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
 import { Empty } from "@/components/ui/empty";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -28,7 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+import { DateField } from "@/components/ui/form-field";
 
 function formatDate(iso: string | null) {
   if (!iso) return "—";
@@ -166,15 +163,7 @@ export default function FamiliarPage({
           <CardHeader className="pb-2"><CardTitle className="text-base">Nuevo antecedente familiar</CardTitle></CardHeader>
           <CardContent>
             <form onSubmit={handleCreate} className="space-y-4">
-              <div>
-                <Label className="text-xs">Fecha</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" size="sm" className={cn("w-full justify-start text-left font-normal mt-1", !fecha && "text-muted-foreground")}><CalendarIcon />{fecha ? fecha.toLocaleDateString("es-CL") : "Seleccionar"}</Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={fecha} onSelect={setFecha} /></PopoverContent>
-                </Popover>
-              </div>
+              <DateField label="Fecha" value={fecha} onChange={setFecha} />
               {formError && <p className="text-destructive text-sm">{formError}</p>}
               <div className="flex gap-2">
                 <Button type="submit" size="sm" disabled={saving}>{saving ? "Guardando..." : "Guardar"}</Button>
@@ -194,15 +183,7 @@ export default function FamiliarPage({
               <CardContent className="pt-4">
                 {editingId === item.id_antecedente_familiar ? (
                   <form onSubmit={handleUpdate} className="space-y-4">
-                    <div>
-                      <Label className="text-xs">Fecha</Label>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button variant="outline" size="sm" className={cn("w-full justify-start text-left font-normal mt-1", !editFecha && "text-muted-foreground")}><CalendarIcon />{editFecha ? editFecha.toLocaleDateString("es-CL") : "Seleccionar"}</Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={editFecha} onSelect={setEditFecha} /></PopoverContent>
-                      </Popover>
-                    </div>
+                    <DateField label="Fecha" value={editFecha} onChange={setEditFecha} />
                     {editError && <p className="text-destructive text-sm">{editError}</p>}
                     <div className="flex gap-2">
                       <Button type="submit" size="sm" disabled={editSaving}>{editSaving ? "Guardando..." : "Guardar"}</Button>
@@ -214,7 +195,7 @@ export default function FamiliarPage({
                     <div className="text-sm">
                       <span className="text-xs text-muted-foreground">Fecha: </span>{formatDate(item.fecha_antecedente_familiar)}
                     </div>
-                    {!isClosed && <Button variant="ghost" size="icon" onClick={() => startEdit(item)}><PencilIcon className="size-4" /></Button>}
+                    {!isClosed && <Button variant="ghost" size="icon" aria-label={`Editar antecedente familiar${item.fecha_antecedente_familiar ? `: ${formatDate(item.fecha_antecedente_familiar)}` : ""}`} onClick={() => startEdit(item)}><PencilIcon className="size-4" /></Button>}
                   </div>
                 )}
 
@@ -239,8 +220,12 @@ export default function FamiliarPage({
                           </ul>
                         )}
                         <div className="flex items-center gap-2 flex-wrap">
+                          {/* Este sub-formulario compacto no lleva etiquetas
+                              visibles, asi que el nombre accesible va por
+                              aria-label (antes solo existia el placeholder, que
+                              no cuenta como nombre). */}
                           <Select value={vinculoForm.id_familiar} onValueChange={(v) => setVinculoForm((p) => ({ ...p, id_familiar: v }))}>
-                            <SelectTrigger className="h-7 text-xs w-40"><SelectValue placeholder="Familiar" /></SelectTrigger>
+                            <SelectTrigger aria-label="Familiar del vínculo" className="h-7 text-xs w-40"><SelectValue placeholder="Familiar" /></SelectTrigger>
                             <SelectContent>
                               <SelectGroup>
                                 {familiares.map((f) => (
@@ -250,12 +235,13 @@ export default function FamiliarPage({
                             </SelectContent>
                           </Select>
                           <Input
+                            aria-label="Parentesco del vínculo"
                             className="h-7 text-xs w-28"
                             value={vinculoForm.parentesco}
                             onChange={(e) => setVinculoForm((p) => ({ ...p, parentesco: e.target.value }))}
                             placeholder="Parentesco"
                           />
-                          <Button size="sm" className="h-7 text-xs" onClick={createVinculo} disabled={vinculoSaving}>+</Button>
+                          <Button size="sm" className="h-7 text-xs" aria-label="Agregar vínculo familiar" onClick={createVinculo} disabled={vinculoSaving}>+</Button>
                         </div>
                         <Button variant="ghost" size="sm" onClick={() => setExpandedId(null)}>Ocultar</Button>
                       </div>

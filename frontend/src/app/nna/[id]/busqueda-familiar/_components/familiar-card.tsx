@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Link } from "@/lib/navigation";
 import {
   AlertTriangleIcon,
@@ -34,14 +34,18 @@ function RespuestaForm({
   onSave: () => void;
   loading: boolean;
 }) {
+  // Los dos campos de este formulario viven en la misma tarjeta, asi que cada
+  // uno necesita su propio id para no colisionar entre si.
+  const resultadoId = useId();
+  const observacionId = useId();
   return (
     <div className="bg-muted/10 p-4 rounded-lg border space-y-3">
       <h5 className="font-semibold text-xs text-primary">Registrar Respuesta del Familiar</h5>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="space-y-1.5">
-          <Label className="text-xs">Resultado del Contacto</Label>
+          <Label htmlFor={resultadoId} className="text-xs">Resultado del Contacto</Label>
           <Select value={resultado} onValueChange={setResultado}>
-            <SelectTrigger>
+            <SelectTrigger id={resultadoId}>
               <SelectValue placeholder="Selecciona el resultado" />
             </SelectTrigger>
             <SelectContent>
@@ -52,8 +56,8 @@ function RespuestaForm({
           </Select>
         </div>
         <div className="space-y-1.5">
-          <Label className="text-xs">Observación / Detalle</Label>
-          <Input value={observacion} onChange={(e) => setObservacion(e.target.value)} placeholder="Ej: Indicar si asiste el lunes" />
+          <Label htmlFor={observacionId} className="text-xs">Observación / Detalle</Label>
+          <Input id={observacionId} value={observacion} onChange={(e) => setObservacion(e.target.value)} placeholder="Ej: Indicar si asiste el lunes" />
         </div>
       </div>
       <div className="flex gap-2 justify-end">
@@ -84,6 +88,10 @@ export function FamiliarCard({
   const [codigo, setCodigo] = useState("");
   const [resultado, setResultado] = useState<string>("");
   const [observacion, setObservacion] = useState("");
+  // El codigo de seguimiento aparece en el formulario de la carta 1 y en el de
+  // la carta 2: ids distintos por instancia, nunca un id fijo.
+  const codigo1Id = useId();
+  const codigo2Id = useId();
 
   const dias1 = diasDesde(notif.fecha_envio_carta_1);
   const dias2 = diasDesde(notif.fecha_envio_carta_2);
@@ -175,8 +183,8 @@ export function FamiliarCard({
                 <div className="grid grid-cols-2 gap-3">
                   <DatePicker value={fechaCarta} onChange={setFechaCarta} label="Fecha de Envío" />
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Código de Seguimiento (Correos)</Label>
-                    <Input value={codigo} onChange={(e) => setCodigo(e.target.value)} placeholder="Ej: CP-1234567-CL" />
+                    <Label htmlFor={codigo1Id} className="text-xs">Código de Seguimiento (Correos)</Label>
+                    <Input id={codigo1Id} value={codigo} onChange={(e) => setCodigo(e.target.value)} placeholder="Ej: CP-1234567-CL" />
                   </div>
                 </div>
                 <div className="flex gap-2 justify-end">
@@ -231,8 +239,8 @@ export function FamiliarCard({
                 <div className="grid grid-cols-2 gap-3">
                   <DatePicker value={fechaCarta} onChange={setFechaCarta} label="Fecha de Envío" />
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Código de Seguimiento (Correos)</Label>
-                    <Input value={codigo} onChange={(e) => setCodigo(e.target.value)} placeholder="Ej: CP-9876543-CL" />
+                    <Label htmlFor={codigo2Id} className="text-xs">Código de Seguimiento (Correos)</Label>
+                    <Input id={codigo2Id} value={codigo} onChange={(e) => setCodigo(e.target.value)} placeholder="Ej: CP-9876543-CL" />
                   </div>
                 </div>
                 <div className="flex gap-2 justify-end">

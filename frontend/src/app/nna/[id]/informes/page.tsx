@@ -1,10 +1,9 @@
 "use client";
 
-import { use, useEffect, useMemo, useState } from "react";
+import { use, useEffect, useId, useMemo, useState } from "react";
 import { Link } from "@/lib/navigation";
 import {
   ArrowLeftIcon,
-  CalendarIcon,
   PencilIcon,
   ClockIcon,
   CheckCircle2Icon,
@@ -19,9 +18,8 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
 import { Empty, EmptyHeader, EmptyTitle, EmptyDescription, EmptyMedia } from "@/components/ui/empty";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { FileUpload } from "@/components/ui/file-upload";
+import { DateField } from "@/components/ui/form-field";
 import {
   Select,
   SelectContent,
@@ -71,6 +69,7 @@ export default function InformesPage({
   const { id } = use(params);
   const sp = use(searchParams);
   const idCaso = typeof sp.id_caso === "string" ? sp.id_caso : undefined;
+  const estadoSelectId = useId();
   const [nna, setNna] = useState<NNA | null>(null);
   const [items, setItems] = useState<InformeTribunal[]>([]);
   const [loading, setLoading] = useState(true);
@@ -239,28 +238,31 @@ export default function InformesPage({
                   {editingId === item.id_informe ? (
                     <form onSubmit={handleUpdate} className="space-y-4">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {/* Tipo: solo lectura */}
+                        {/* Tipo: solo lectura. Es un titulo, no un <Label>: no
+                            hay control que etiquetar. Conserva las clases base
+                            de Label (font-medium leading-none) para paridad
+                            visual con el resto de los campos. */}
                         <div>
-                          <Label className="text-xs">Tipo informe</Label>
+                          <p className="text-xs font-medium leading-none">Tipo informe</p>
                           <div className="mt-1 text-sm font-medium">
                             {item.tipo_informe || "—"}
                           </div>
                         </div>
                         {/* Fecha vencimiento: solo lectura */}
                         <div>
-                          <Label className="text-xs">Fecha vencimiento</Label>
+                          <p className="text-xs font-medium leading-none">Fecha vencimiento</p>
                           <div className="mt-1 text-sm font-medium">
                             {formatDate(item.fecha_vencimiento)}
                           </div>
                         </div>
                         {/* Estado: editable */}
                         <div>
-                          <Label className="text-xs">Estado</Label>
+                          <Label htmlFor={estadoSelectId} className="text-xs">Estado</Label>
                           <Select
                             value={editEstado}
                             onValueChange={(v) => setEditEstado(v as EstadoInforme)}
                           >
-                            <SelectTrigger className="mt-1 w-full">
+                            <SelectTrigger id={estadoSelectId} className="mt-1 w-full">
                               <SelectValue placeholder="Seleccionar" />
                             </SelectTrigger>
                             <SelectContent>
@@ -275,38 +277,16 @@ export default function InformesPage({
                           </Select>
                         </div>
                         {/* Fecha envío real: editable */}
-                        <div>
-                          <Label className="text-xs">Fecha envío real</Label>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className={cn(
-                                  "w-full justify-start text-left font-normal mt-1",
-                                  !editFechaEnvio && "text-muted-foreground"
-                                )}
-                              >
-                                <CalendarIcon />
-                                {editFechaEnvio
-                                  ? editFechaEnvio.toLocaleDateString("es-CL")
-                                  : "Seleccionar"}
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                              <Calendar
-                                mode="single"
-                                selected={editFechaEnvio}
-                                onSelect={setEditFechaEnvio}
-                              />
-                            </PopoverContent>
-                          </Popover>
-                        </div>
+                        <DateField
+                          label="Fecha envío real"
+                          value={editFechaEnvio}
+                          onChange={setEditFechaEnvio}
+                        />
                       </div>
                       {/* Documento del informe: editable */}
                       <div>
-                        <Label className="text-xs">Documento del informe</Label>
                         <FileUpload
+                          label="Documento del informe"
                           value={editUrlDocumento || null}
                           onUploadSuccess={(url) => setEditUrlDocumento(url)}
                           onClear={() => setEditUrlDocumento("")}
@@ -387,7 +367,12 @@ export default function InformesPage({
                         )}
                       </div>
                       {!isClosed && (
-                        <Button variant="ghost" size="icon" onClick={() => startEdit(item)}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label={`Editar informe${item.tipo_informe ? `: ${item.tipo_informe}` : ""}`}
+                          onClick={() => startEdit(item)}
+                        >
                           <PencilIcon className="size-4" />
                         </Button>
                       )}

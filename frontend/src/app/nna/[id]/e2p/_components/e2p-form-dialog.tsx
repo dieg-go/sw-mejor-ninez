@@ -1,16 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CalendarIcon } from "lucide-react";
 import { api, type NNA, type Familiar, type E2PEvaluacion, type E2PUpdate, type E2PQuestions, type E2PPuntaje } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { DateField, TextareaField } from "@/components/ui/form-field";
 import { FamiliarSelect } from "@/components/familiar-select";
 import { ageToRangoEtario, edadEnMeses, ZONE_COLORS } from "./e2p-utils";
 import { E2PQuestionnaire } from "./e2p-questionnaire";
@@ -158,19 +154,7 @@ export function E2PFormDialog({
               nullable={mode === "edit"}
               emptyMessage="No hay familiares vinculados al NNA"
             />
-            <div>
-              <Label className="text-xs">Fecha evaluación</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className={cn("w-full justify-start text-left font-normal mt-1", !fechaEval && "text-muted-foreground")}>
-                    <CalendarIcon />{fechaEval ? fechaEval.toLocaleDateString("es-CL") : "Seleccionar"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar mode="single" selected={fechaEval} onSelect={setFechaEval} />
-                </PopoverContent>
-              </Popover>
-            </div>
+            <DateField label="Fecha evaluación" value={fechaEval} onChange={setFechaEval} />
           </div>
 
           {puntajeResumen && (
@@ -209,10 +193,7 @@ export function E2PFormDialog({
             />
           )}
 
-          <div>
-            <Label className="text-xs">Observación</Label>
-            <Textarea className="mt-1" value={observacion} onChange={(e) => setObservacion(e.target.value)} placeholder="Observaciones" rows={3} />
-          </div>
+          <TextareaField label="Observación" value={observacion} onChange={(e) => setObservacion(e.target.value)} placeholder="Observaciones" rows={3} />
 
           {error && <p className="text-destructive text-sm">{error}</p>}
 

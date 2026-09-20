@@ -47,7 +47,7 @@ export function StepDocs({ data, onData, onBack, onNext }: { data: WizardData; o
                 <Select value={doc.tipo_documento || "none"} onValueChange={(v) => {
                   const ds = [...data.docs]; ds[i] = { ...ds[i], tipo_documento: v === "none" ? "" : v, tipo_documento_otro: v === "Otro" ? ds[i].tipo_documento_otro : "" }; onData({ ...data, docs: ds });
                 }}>
-                  <SelectTrigger><SelectValue placeholder="Tipo de documento" /></SelectTrigger>
+                  <SelectTrigger aria-label={`Tipo de documento ${i + 1}`}><SelectValue placeholder="Tipo de documento" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">Ninguno</SelectItem>
                     {CATALOGO_DOCUMENTACION_INGRESO.map((tipo) => (
@@ -58,6 +58,7 @@ export function StepDocs({ data, onData, onBack, onNext }: { data: WizardData; o
                 {doc.tipo_documento === "Otro" && (
                   <Input
                     className="sm:col-span-2"
+                    aria-label={`Especificar tipo de documento ${i + 1}`}
                     placeholder="Especificar tipo de documento..."
                     value={doc.tipo_documento_otro}
                     onChange={(e) => {
@@ -67,6 +68,7 @@ export function StepDocs({ data, onData, onBack, onNext }: { data: WizardData; o
                 )}
                 <div className="sm:col-span-2 mt-1">
                   <FileUpload
+                    label={`Documento del ingreso ${i + 1}`}
                     value={doc.url_documentacion_ingreso || null}
                     onUploadSuccess={(url) => {
                       const ds = [...data.docs];

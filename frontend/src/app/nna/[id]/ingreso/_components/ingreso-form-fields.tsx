@@ -50,10 +50,13 @@ export function IngresoFormFields({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
-        <Label className="text-xs">Fecha ingreso residencia</Label>
+        <Label htmlFor={`${idPrefix}-fecha-ingreso-residencia`} className="text-xs">
+          Fecha ingreso residencia
+        </Label>
         <Popover>
           <PopoverTrigger asChild>
             <Button
+              id={`${idPrefix}-fecha-ingreso-residencia`}
               variant="outline"
               size="sm"
               className={cn(
@@ -71,14 +74,14 @@ export function IngresoFormFields({
         </Popover>
       </div>
       <div>
-        <Label className="text-xs">Quién solicita ingreso</Label>
+        <Label htmlFor={`${idPrefix}-solicitante`} className="text-xs">Quién solicita ingreso</Label>
         <Select
           value={form.id_solicitante_ingreso || "none"}
           onValueChange={(v) =>
             setForm((prev) => ({ ...prev, id_solicitante_ingreso: v === "none" ? "" : v }))
           }
         >
-          <SelectTrigger className="mt-1">
+          <SelectTrigger id={`${idPrefix}-solicitante`} className="mt-1">
             <SelectValue placeholder="Seleccionar" />
           </SelectTrigger>
           <SelectContent>
@@ -102,8 +105,9 @@ export function IngresoFormFields({
         </Label>
       </div>
       <div>
-        <Label className="text-xs">Tribunal</Label>
+        <Label htmlFor={`${idPrefix}-tribunal`} className="text-xs">Tribunal</Label>
         <Input
+          id={`${idPrefix}-tribunal`}
           className="mt-1"
           value={form.tribunal}
           onChange={(e) => setForm((prev) => ({ ...prev, tribunal: e.target.value }))}
@@ -111,10 +115,11 @@ export function IngresoFormFields({
         />
       </div>
       <div>
-        <Label className="text-xs">Fecha causa</Label>
+        <Label htmlFor={`${idPrefix}-fecha-causa`} className="text-xs">Fecha causa</Label>
         <Popover>
           <PopoverTrigger asChild>
             <Button
+              id={`${idPrefix}-fecha-causa`}
               variant="outline"
               size="sm"
               className={cn(
@@ -132,8 +137,9 @@ export function IngresoFormFields({
         </Popover>
       </div>
       <div>
-        <Label className="text-xs">Materia</Label>
+        <Label htmlFor={`${idPrefix}-materia`} className="text-xs">Materia</Label>
         <Input
+          id={`${idPrefix}-materia`}
           className="mt-1"
           value={form.materia}
           onChange={(e) => setForm((prev) => ({ ...prev, materia: e.target.value }))}
@@ -141,8 +147,9 @@ export function IngresoFormFields({
         />
       </div>
       <div>
-        <Label className="text-xs">Código RIT</Label>
+        <Label htmlFor={`${idPrefix}-codigo-rit`} className="text-xs">Código RIT</Label>
         <Input
+          id={`${idPrefix}-codigo-rit`}
           className="mt-1"
           value={form.codigo_rit}
           onChange={(e) => setForm((prev) => ({ ...prev, codigo_rit: e.target.value }))}
@@ -150,8 +157,9 @@ export function IngresoFormFields({
         />
       </div>
       <div>
-        <Label className="text-xs">Código RUC</Label>
+        <Label htmlFor={`${idPrefix}-codigo-ruc`} className="text-xs">Código RUC</Label>
         <Input
+          id={`${idPrefix}-codigo-ruc`}
           className="mt-1"
           value={form.codigo_ruc}
           onChange={(e) => setForm((prev) => ({ ...prev, codigo_ruc: e.target.value }))}

@@ -51,7 +51,12 @@ export function NcfasListCard({ item, familiares, onEdit, readOnly }: NcfasListC
             )}
           </div>
           {!readOnly && (
-            <Button variant="ghost" size="icon" onClick={() => onEdit(item)}>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={`Editar evaluación NCFAS${item.estado ? `: ${item.estado}` : ""}`}
+              onClick={() => onEdit(item)}
+            >
               <PencilIcon className="size-4" />
             </Button>
           )}

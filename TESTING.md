@@ -7,7 +7,7 @@ lógica pura del frontend.
 | Capa | Runner | Pruebas | Estado |
 |------|--------|---------|--------|
 | Backend | `pytest` dentro de Docker | 818 | verde |
-| Frontend | `vitest` | 214 (1 `expected fail`) | verde |
+| Frontend | `vitest` | 223 (1 `expected fail`) | verde |
 
 Ninguna prueba toca la base de datos de desarrollo.
 
@@ -55,14 +55,27 @@ por archivo** con el docblock:
 ```
 
 Así la suite de lógica pura (la mayoría) no paga el costo de jsdom ni cambia de
-comportamiento. `tests/setup.ts` registra los matchers de `jest-dom` y hace
-`cleanup` de React Testing Library solo cuando hay DOM.
+comportamiento. `tests/setup.ts` registra los matchers de `jest-dom`, hace
+`cleanup` de React Testing Library solo cuando hay DOM, e instala **shims** de
+APIs que jsdom no implementa y que Radix necesita (`ResizeObserver`,
+`scrollIntoView`, pointer capture, `matchMedia`). Sin esos shims, montar un
+`Select`, un `Popover` o un `Calendar` revienta con
+`ResizeObserver is not defined`. Todo va detrás de un guard para no afectar al
+entorno `node`.
 
 #### Tests de componente
 
-Existen desde 2026-09, como piloto sobre `nna/[id]/discapacidades` (el patrón
-que clonan las ~12 sub-páginas). Corren con `@testing-library/react` + `jsdom`,
-mockeando `@/lib/api` (sin red ni backend).
+Existen desde 2026-09. Tres páginas cubiertas, elegidas por ser las que más
+patrones ejercitan:
+
+| Archivo | Página | Qué cubre |
+|---|---|---|
+| `componentes-discapacidades.test.tsx` | `nna/[id]/discapacidades` | Inputs, alta, edición en línea, errores de API |
+| `componentes-documentacion.test.tsx` | `nna/[id]/documentacion` | Input, **Select**, **date picker**, **FileUpload**, botón de icono |
+| `componentes-consumo.test.tsx` | `nna/[id]/consumo` | **Checkbox**, Select con `useId()` inline, y **dos formularios montados a la vez** |
+
+Corren con `@testing-library/react` + `jsdom`, mockeando `@/lib/api` (sin red ni
+backend).
 
 Dos cosas que hay que saber al escribir uno, ambas por `use(params)` (API de
 Next 16):
@@ -72,6 +85,13 @@ Next 16):
 2. **El `render` va dentro de `await act(async () => ...)`.** Con un `render`
    normal, React 19 no reintenta el árbol suspendido y el fallback queda pegado
    para siempre (verificado aislando el mecanismo).
+
+Además, los tests **consultan por etiqueta** (`getByLabelText`) siempre que
+pueden. Eso es deliberado: es la red que detecta si un `<Label>` deja de estar
+asociado a su control. Para eso los campos usan los componentes de
+`@/components/ui/form-field`, que atan etiqueta y control con un id de `useId()`
+(necesario porque el formulario de alta y el de edición conviven en la misma
+página, así que los ids fijos colisionarían).
 
 El único acoplamiento al router es `@/lib/navigation`, que reexporta
 `Link`/`useRouter`/`usePathname`. Al escribir tests de página se mockea ese

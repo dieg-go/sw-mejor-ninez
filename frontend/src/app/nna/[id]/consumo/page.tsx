@@ -1,19 +1,16 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { use, useEffect, useId, useState } from "react";
 import { Link } from "@/lib/navigation";
-import { ArrowLeftIcon, CalendarIcon, PlusIcon, PencilIcon } from "lucide-react";
+import { ArrowLeftIcon, PlusIcon, PencilIcon } from "lucide-react";
 import { api, type NNA, type HistorialConsumoNNA } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
 import { Empty } from "@/components/ui/empty";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -22,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+import { DateField, TextField } from "@/components/ui/form-field";
 
 function formatDate(iso: string | null) {
   if (!iso) return "—";
@@ -40,6 +37,8 @@ const DEFAULT = {
 
 export default function ConsumoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const estadoSelectId = useId();
+  const editEstadoSelectId = useId();
   const [nna, setNna] = useState<NNA | null>(null);
   const [items, setItems] = useState<HistorialConsumoNNA[]>([]);
   const [loading, setLoading] = useState(true);
@@ -142,14 +141,11 @@ export default function ConsumoPage({ params }: { params: Promise<{ id: string }
           <CardContent>
             <form onSubmit={handleCreate} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <TextField label="Sustancia" value={form.nombre_sustancia} onChange={(e) => setForm((p) => ({ ...p, nombre_sustancia: e.target.value }))} placeholder="Nombre sustancia" />
                 <div>
-                  <Label className="text-xs">Sustancia</Label>
-                  <Input className="mt-1" value={form.nombre_sustancia} onChange={(e) => setForm((p) => ({ ...p, nombre_sustancia: e.target.value }))} placeholder="Nombre sustancia" />
-                </div>
-                <div>
-                  <Label className="text-xs">Estado consumo</Label>
+                  <Label htmlFor={estadoSelectId} className="text-xs">Estado consumo</Label>
                   <Select value={form.estado_consumo} onValueChange={(v) => setForm((p) => ({ ...p, estado_consumo: v }))}>
-                    <SelectTrigger className="mt-1 w-full"><SelectValue placeholder="Seleccionar" /></SelectTrigger>
+                    <SelectTrigger id={estadoSelectId} className="mt-1 w-full"><SelectValue placeholder="Seleccionar" /></SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
                         <SelectItem value="Activo">Activo</SelectItem>
@@ -160,24 +156,8 @@ export default function ConsumoPage({ params }: { params: Promise<{ id: string }
                     </SelectContent>
                   </Select>
                 </div>
-                <div>
-                  <Label className="text-xs">Fecha inicio</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" size="sm" className={cn("w-full justify-start text-left font-normal mt-1", !fechaInicio && "text-muted-foreground")}><CalendarIcon />{fechaInicio ? fechaInicio.toLocaleDateString("es-CL") : "Seleccionar"}</Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={fechaInicio} onSelect={setFechaInicio} /></PopoverContent>
-                  </Popover>
-                </div>
-                <div>
-                  <Label className="text-xs">Fecha término</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" size="sm" className={cn("w-full justify-start text-left font-normal mt-1", !fechaTermino && "text-muted-foreground")}><CalendarIcon />{fechaTermino ? fechaTermino.toLocaleDateString("es-CL") : "Seleccionar"}</Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={fechaTermino} onSelect={setFechaTermino} /></PopoverContent>
-                  </Popover>
-                </div>
+                <DateField label="Fecha inicio" value={fechaInicio} onChange={setFechaInicio} />
+                <DateField label="Fecha término" value={fechaTermino} onChange={setFechaTermino} />
                 <div className="flex items-center gap-2 pt-2">
                   <Checkbox id="cons-indirecto" checked={form.consumo_indirecto_gestacional} onCheckedChange={(v) => setForm((p) => ({ ...p, consumo_indirecto_gestacional: !!v }))} />
                   <Label htmlFor="cons-indirecto" className="text-xs cursor-pointer">Consumo gestacional</Label>
@@ -207,14 +187,11 @@ export default function ConsumoPage({ params }: { params: Promise<{ id: string }
                 {editingId === item.id_historial_consumo_nna ? (
                   <form onSubmit={handleUpdate} className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <TextField label="Sustancia" value={editForm.nombre_sustancia} onChange={(e) => setEditForm((p) => ({ ...p, nombre_sustancia: e.target.value }))} />
                       <div>
-                        <Label className="text-xs">Sustancia</Label>
-                        <Input className="mt-1" value={editForm.nombre_sustancia} onChange={(e) => setEditForm((p) => ({ ...p, nombre_sustancia: e.target.value }))} />
-                      </div>
-                      <div>
-                        <Label className="text-xs">Estado consumo</Label>
+                        <Label htmlFor={editEstadoSelectId} className="text-xs">Estado consumo</Label>
                         <Select value={editForm.estado_consumo} onValueChange={(v) => setEditForm((p) => ({ ...p, estado_consumo: v }))}>
-                          <SelectTrigger className="mt-1 w-full"><SelectValue placeholder="Seleccionar" /></SelectTrigger>
+                          <SelectTrigger id={editEstadoSelectId} className="mt-1 w-full"><SelectValue placeholder="Seleccionar" /></SelectTrigger>
                           <SelectContent>
                             <SelectItem value="Activo">Activo</SelectItem>
                             <SelectItem value="Inactivo">Inactivo</SelectItem>
@@ -223,24 +200,8 @@ export default function ConsumoPage({ params }: { params: Promise<{ id: string }
                           </SelectContent>
                         </Select>
                       </div>
-                      <div>
-                        <Label className="text-xs">Fecha inicio</Label>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <Button variant="outline" size="sm" className={cn("w-full justify-start text-left font-normal mt-1", !editFechaInicio && "text-muted-foreground")}><CalendarIcon />{editFechaInicio ? editFechaInicio.toLocaleDateString("es-CL") : "Seleccionar"}</Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={editFechaInicio} onSelect={setEditFechaInicio} /></PopoverContent>
-                        </Popover>
-                      </div>
-                      <div>
-                        <Label className="text-xs">Fecha término</Label>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <Button variant="outline" size="sm" className={cn("w-full justify-start text-left font-normal mt-1", !editFechaTermino && "text-muted-foreground")}><CalendarIcon />{editFechaTermino ? editFechaTermino.toLocaleDateString("es-CL") : "Seleccionar"}</Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={editFechaTermino} onSelect={setEditFechaTermino} /></PopoverContent>
-                        </Popover>
-                      </div>
+                      <DateField label="Fecha inicio" value={editFechaInicio} onChange={setEditFechaInicio} />
+                      <DateField label="Fecha término" value={editFechaTermino} onChange={setEditFechaTermino} />
                       <div className="flex items-center gap-2 pt-2">
                         <Checkbox id={`edit-ges-${item.id_historial_consumo_nna}`} checked={editForm.consumo_indirecto_gestacional} onCheckedChange={(v) => setEditForm((p) => ({ ...p, consumo_indirecto_gestacional: !!v }))} />
                         <Label htmlFor={`edit-ges-${item.id_historial_consumo_nna}`} className="text-xs cursor-pointer">Consumo gestacional</Label>
@@ -266,7 +227,7 @@ export default function ConsumoPage({ params }: { params: Promise<{ id: string }
                       <div><span className="text-xs text-muted-foreground">Gestacional: </span>{item.consumo_indirecto_gestacional ? <Badge variant="secondary">Sí</Badge> : "No"}</div>
                       <div><span className="text-xs text-muted-foreground">Tratamiento: </span>{item.en_tratamiento ? <Badge variant="secondary">Sí</Badge> : "No"}</div>
                     </div>
-                    <Button variant="ghost" size="icon" onClick={() => startEdit(item)}><PencilIcon className="size-4" /></Button>
+                    <Button variant="ghost" size="icon" aria-label={`Editar consumo${item.nombre_sustancia ? `: ${item.nombre_sustancia}` : ""}`} onClick={() => startEdit(item)}><PencilIcon className="size-4" /></Button>
                   </div>
                 )}
               </CardContent>

@@ -57,7 +57,16 @@ export function E2PItemCard({ item, puntaje, familiares, onEdit, readOnly }: E2P
               </div>
             )}
           </div>
-          {!readOnly && <Button variant="ghost" size="icon" onClick={onEdit}><PencilIcon className="size-4" /></Button>}
+          {!readOnly && (
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={`Editar E2P${item.id_familiar ? `: ${getFamiliarName(item.id_familiar, familiares)}` : ""}`}
+              onClick={onEdit}
+            >
+              <PencilIcon className="size-4" />
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>

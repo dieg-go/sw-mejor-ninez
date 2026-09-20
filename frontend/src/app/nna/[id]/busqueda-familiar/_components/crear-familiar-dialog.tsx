@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { 
   CalendarIcon, 
   Plus, 
@@ -55,12 +55,16 @@ function fmt(d: Date | null): string | null {
 }
 
 function DateField({ label, value, onChange }: { label?: string; value: Date | null; onChange: (d: Date | undefined) => void }) {
+  // No es el `DateField` compartido: conserva sus propias clases. El boton que
+  // abre el calendario es el control etiquetable y recibe el id.
+  const id = useId();
   return (
     <Field>
-      {label && <FieldLabel className="text-sm font-medium mb-1">{label}</FieldLabel>}
+      {label && <FieldLabel htmlFor={id} className="text-sm font-medium mb-1">{label}</FieldLabel>}
       <Popover>
         <PopoverTrigger asChild>
           <Button 
+            id={id}
             variant="outline" 
             className={cn("w-full justify-start text-left font-normal border-input", !value && "text-muted-foreground")}
           >
@@ -127,6 +131,7 @@ function PenalesSection({
               type="button" 
               variant="ghost" 
               size="icon" 
+              aria-label={`Eliminar antecedente penal${entry.descripcion ? `: ${entry.descripcion}` : ""}`}
               className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0 h-9 w-9" 
               onClick={() => onChange(items.filter((_, j) => j !== i))}
             >
@@ -134,6 +139,7 @@ function PenalesSection({
             </Button>
           </div>
           <FileUpload
+            label="Documento de respaldo"
             value={entry.url_adjunto || null}
             onUploadSuccess={(url) => {
               const next = [...items];
@@ -166,6 +172,9 @@ function ConsumoSection({
   items: ConsumoEntry[];
   onChange: (d: ConsumoEntry[]) => void;
 }) {
+  // Los registros no traen id propio (son filas locales del formulario), asi que
+  // el id del checkbox se arma con el id unico de la seccion mas el indice.
+  const tratamientoId = useId();
   const add = () => onChange([...items, { nombre_sustancia: "", estado_consumo: "", fecha_inicio: null, en_tratamiento: false }]);
 
   return (
@@ -206,14 +215,15 @@ function ConsumoSection({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 items-end">
             <DateField value={c.fecha_inicio} onChange={(d) => { const cs = [...items]; cs[i] = { ...cs[i], fecha_inicio: d ?? null }; onChange(cs); }} />
             <div className="flex items-center justify-between border rounded-md px-3 h-10 bg-muted/10">
-              <label className="flex items-center gap-2 text-sm cursor-pointer select-none">
-                <Checkbox checked={c.en_tratamiento} onCheckedChange={(v) => { const cs = [...items]; cs[i] = { ...cs[i], en_tratamiento: !!v }; onChange(cs); }} />
+              <label htmlFor={`${tratamientoId}-${i}`} className="flex items-center gap-2 text-sm cursor-pointer select-none">
+                <Checkbox id={`${tratamientoId}-${i}`} checked={c.en_tratamiento} onCheckedChange={(v) => { const cs = [...items]; cs[i] = { ...cs[i], en_tratamiento: !!v }; onChange(cs); }} />
                 En tratamiento activo
               </label>
               <Button 
                 type="button" 
                 variant="ghost" 
                 size="icon" 
+                aria-label={`Eliminar registro de consumo${c.nombre_sustancia ? `: ${c.nombre_sustancia}` : ""}`}
                 className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 h-8 w-8" 
                 onClick={() => onChange(items.filter((_, j) => j !== i))}
               >
@@ -294,6 +304,7 @@ function DiscapacidadSection({
               type="button" 
               variant="ghost" 
               size="icon" 
+              aria-label={`Eliminar discapacidad${d.tipo ? `: ${d.tipo}` : ""}`}
               className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0 h-9 w-9" 
               onClick={() => onChange(items.filter((_, j) => j !== i))}
             >
@@ -325,6 +336,7 @@ export function CrearFamiliarDialog({ open, onOpenChange, nnaId, onCreated }: Cr
   const [discapacidades, setDiscapacidades] = useState<DiscapacidadEntry[]>([]);
   const [parentesco, setParentesco] = useState("");
 
+  const penalesId = useId();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -475,8 +487,8 @@ export function CrearFamiliarDialog({ open, onOpenChange, nnaId, onCreated }: Cr
                 {tienePenales && <Badge variant="destructive">Registra Antecedentes</Badge>}
               </div>
               <div className="space-y-3">
-                <label className="flex items-center gap-2 text-sm font-medium border rounded-md p-3 cursor-pointer bg-muted/20 hover:bg-muted/30 transition-colors">
-                  <Checkbox checked={tienePenales} onCheckedChange={(v) => {
+                <label htmlFor={penalesId} className="flex items-center gap-2 text-sm font-medium border rounded-md p-3 cursor-pointer bg-muted/20 hover:bg-muted/30 transition-colors">
+                  <Checkbox id={penalesId} checked={tienePenales} onCheckedChange={(v) => {
                     setTienePenales(!!v);
                     if (!v) setPenales([]); // Limpia la lista si se desmarca
                   }} />

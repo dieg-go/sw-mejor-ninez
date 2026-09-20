@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { CalendarIcon } from "lucide-react";
 import { api, type NCFASEvaluacion, type Familiar, type DimensionNCFAS } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -46,6 +46,9 @@ export function NcfasFormDialog({
 }: NcfasFormDialogProps) {
   const isEdit = mode === "edit" && !!evaluation;
   const familiarOptions = vinculados;
+  const estadoId = useId();
+  const esReunificacionId = useId();
+  const observacionGeneralId = useId();
 
   // Header — initialised from props (key ensures remount)
   const [idFamiliar, setIdFamiliar] = useState(isEdit ? (evaluation.id_familiar || "") : "");
@@ -193,12 +196,12 @@ export function NcfasFormDialog({
               />
             </div>
             <div>
-              <Label className="text-xs">Estado</Label>
-              <Input className="mt-1 h-8 text-sm" value={estado} onChange={(e) => setEstado(e.target.value)} placeholder="Ej: Ingreso completado" />
+              <Label htmlFor={estadoId} className="text-xs">Estado</Label>
+              <Input id={estadoId} className="mt-1 h-8 text-sm" value={estado} onChange={(e) => setEstado(e.target.value)} placeholder="Ej: Ingreso completado" />
             </div>
             <div className="flex items-end gap-2">
-              <label className="flex items-center gap-1.5 text-xs cursor-pointer select-none">
-                <input type="checkbox" checked={esReunificacion} onChange={(e) => setEsReunificacion(e.target.checked)} className="size-3.5" />
+              <label htmlFor={esReunificacionId} className="flex items-center gap-1.5 text-xs cursor-pointer select-none">
+                <input id={esReunificacionId} type="checkbox" checked={esReunificacion} onChange={(e) => setEsReunificacion(e.target.checked)} className="size-3.5" />
                 Es reunificación
               </label>
             </div>
@@ -206,8 +209,8 @@ export function NcfasFormDialog({
             <CalendarField label="Fecha apertura" date={fechaApertura} onSelect={setFechaApertura} />
             <CalendarField label="Fecha cierre" date={fechaCierre} onSelect={setFechaCierre} />
             <div className="sm:col-span-2">
-              <Label className="text-xs">Observación general</Label>
-              <Input className="mt-1 h-8 text-sm" value={observacionGeneral} onChange={(e) => setObservacionGeneral(e.target.value)} placeholder="Observaciones" />
+              <Label htmlFor={observacionGeneralId} className="text-xs">Observación general</Label>
+              <Input id={observacionGeneralId} className="mt-1 h-8 text-sm" value={observacionGeneral} onChange={(e) => setObservacionGeneral(e.target.value)} placeholder="Observaciones" />
             </div>
           </div>
 
@@ -274,12 +277,13 @@ function CalendarField({
   date: Date | undefined;
   onSelect: (d: Date | undefined) => void;
 }) {
+  const id = useId();
   return (
     <div>
-      <Label className="text-xs">{label}</Label>
+      <Label htmlFor={id} className="text-xs">{label}</Label>
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="outline" size="sm" className={cn("w-full justify-start text-left font-normal mt-1 h-8 text-sm", !date && "text-muted-foreground")}>
+          <Button id={id} variant="outline" size="sm" className={cn("w-full justify-start text-left font-normal mt-1 h-8 text-sm", !date && "text-muted-foreground")}>
             <CalendarIcon className="size-3.5 mr-1" />{date ? date.toLocaleDateString("es-CL") : "Seleccionar"}
           </Button>
         </PopoverTrigger>

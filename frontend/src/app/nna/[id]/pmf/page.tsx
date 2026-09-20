@@ -2,17 +2,14 @@
 
 import { use, useEffect, useState } from "react";
 import { Link } from "@/lib/navigation";
-import { ArrowLeftIcon, CalendarIcon, PlusIcon, PencilIcon } from "lucide-react";
+import { ArrowLeftIcon, PlusIcon, PencilIcon } from "lucide-react";
 import { api, type NNA, type PMFEvaluacion, type Familiar, type PMFQuestions } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { Empty } from "@/components/ui/empty";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { DateField, TextField } from "@/components/ui/form-field";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useVinculados } from "@/hooks/use-vinculados";
 import { FamiliarSelect } from "@/components/familiar-select";
@@ -201,7 +198,7 @@ export default function PMFPage({
                     )}
                     {item.observacion && <div className="col-span-2"><span className="text-xs text-muted-foreground">Obs: </span>{item.observacion}</div>}
                   </div>
-                  {!isClosed && <Button variant="ghost" size="icon" onClick={() => openDialog("edit", item)}><PencilIcon className="size-4" /></Button>}
+                  {!isClosed && <Button variant="ghost" size="icon" aria-label={`Editar PMF${item.resultado ? `: ${item.resultado}` : ""}`} onClick={() => openDialog("edit", item)}><PencilIcon className="size-4" /></Button>}
                 </div>
               </CardContent>
             </Card>
@@ -224,32 +221,10 @@ export default function PMFPage({
                   nullable
                 />
               </div>
-              <div>
-                <Label className="text-xs">Resultado</Label>
-                <Input className="mt-1" value={resultado} onChange={(e) => setResultado(e.target.value)} placeholder="Resultado" />
-              </div>
-              <div>
-                <Label className="text-xs">Fecha evaluación</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" size="sm" className={cn("w-full justify-start text-left font-normal mt-1", !fechaEval && "text-muted-foreground")}><CalendarIcon />{fechaEval ? fechaEval.toLocaleDateString("es-CL") : "Seleccionar"}</Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={fechaEval} onSelect={setFechaEval} /></PopoverContent>
-                </Popover>
-              </div>
-              <div>
-                <Label className="text-xs">Próxima evaluación</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" size="sm" className={cn("w-full justify-start text-left font-normal mt-1", !fechaProx && "text-muted-foreground")}><CalendarIcon />{fechaProx ? fechaProx.toLocaleDateString("es-CL") : "Seleccionar"}</Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={fechaProx} onSelect={setFechaProx} /></PopoverContent>
-                </Popover>
-              </div>
-              <div className="sm:col-span-2">
-                <Label className="text-xs">Observación</Label>
-                <Input className="mt-1" value={observacion} onChange={(e) => setObservacion(e.target.value)} placeholder="Observaciones" />
-              </div>
+              <TextField label="Resultado" value={resultado} onChange={(e) => setResultado(e.target.value)} placeholder="Resultado" />
+              <DateField label="Fecha evaluación" value={fechaEval} onChange={setFechaEval} />
+              <DateField label="Próxima evaluación" value={fechaProx} onChange={setFechaProx} />
+              <TextField label="Observación" className="sm:col-span-2" value={observacion} onChange={(e) => setObservacion(e.target.value)} placeholder="Observaciones" />
             </div>
 
             {questionsLoading && (

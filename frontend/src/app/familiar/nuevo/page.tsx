@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { Link, useRouter } from "@/lib/navigation";
 import { ArrowLeftIcon, CalendarIcon } from "lucide-react";
 import { api, type NNA } from "@/lib/api";
@@ -30,12 +30,15 @@ function fmt(d: Date | null): string | null {
 }
 
 function DateField({ label, value, onChange }: { label?: string; value: Date | null; onChange: (d: Date | undefined) => void }) {
+  // Id unico por instancia: la etiqueta tiene que quedar asociada al boton que
+  // abre el calendario (un button es un elemento etiquetable).
+  const id = useId();
   return (
     <Field>
-      {label && <FieldLabel>{label}</FieldLabel>}
+      {label && <FieldLabel htmlFor={id}>{label}</FieldLabel>}
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !value && "text-muted-foreground")}>
+          <Button id={id} variant="outline" className={cn("w-full justify-start text-left font-normal", !value && "text-muted-foreground")}>
             <CalendarIcon data-icon="inline-start" />
             {value ? value.toLocaleDateString("es-CL") : "Seleccionar fecha"}
           </Button>
@@ -74,7 +77,10 @@ function PenalesSection({
       {items.map((entry, i) => (
         <div key={i} className="space-y-2 mb-3 p-3 border rounded-lg">
           <div className="flex items-center gap-2">
+            {/* Sin etiqueta visible en esta fila compacta: el nombre accesible
+                va por aria-label (un placeholder no cuenta como nombre). */}
             <Input
+              aria-label={`Descripción del antecedente penal ${i + 1}`}
               placeholder="Descripción del antecedente"
               value={entry.descripcion}
               onChange={(e) => {
@@ -88,6 +94,7 @@ function PenalesSection({
             </Button>
           </div>
           <FileUpload
+            label={`Documento adjunto ${i + 1}`}
             value={entry.url_adjunto || null}
             onUploadSuccess={(url) => {
               const next = [...items];
@@ -381,9 +388,9 @@ export default function NuevoFamiliarPage() {
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Field>
-                  <FieldLabel>NNA</FieldLabel>
+                  <FieldLabel htmlFor="vf-nna">NNA</FieldLabel>
                   <Select value={nnaId} onValueChange={setNnaId}>
-                    <SelectTrigger><SelectValue placeholder="Seleccionar NNA" /></SelectTrigger>
+                    <SelectTrigger id="vf-nna"><SelectValue placeholder="Seleccionar NNA" /></SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
                         {nnaList.map((n) => (
@@ -396,8 +403,8 @@ export default function NuevoFamiliarPage() {
                   </Select>
                 </Field>
                 <Field>
-                  <FieldLabel>Parentesco</FieldLabel>
-                  <Input value={parentesco} onChange={(e) => setParentesco(e.target.value)} placeholder="Madre / Padre / Tío..." />
+                  <FieldLabel htmlFor="vf-parentesco">Parentesco</FieldLabel>
+                  <Input id="vf-parentesco" value={parentesco} onChange={(e) => setParentesco(e.target.value)} placeholder="Madre / Padre / Tío..." />
                 </Field>
               </div>
             </CardContent>

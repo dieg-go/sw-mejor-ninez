@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { use, useEffect, useId, useState } from "react";
 import { Link } from "@/lib/navigation";
 import { ArrowLeftIcon, PlusIcon, PencilIcon } from "lucide-react";
 import { api, type NNA, type HistorialRedProteccional } from "@/lib/api";
@@ -10,12 +10,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { Empty } from "@/components/ui/empty";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CATALOGO_PROGRAMAS_PREVIOS, CATALOGO_MOTIVO_EGRESO } from "@/lib/catalogos";
+import { DateField } from "@/components/ui/form-field";
 
 function formatDate(iso: string | null) {
   if (!iso) return "—";
@@ -26,6 +24,10 @@ const DEFAULT = { nombre_programa: "", fecha_ingreso: "", fecha_egreso: "", moti
 
 export default function HistorialPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const programaSelectId = useId();
+  const motivoSelectId = useId();
+  const editProgramaSelectId = useId();
+  const editMotivoSelectId = useId();
   const [nna, setNna] = useState<NNA | null>(null);
   const [items, setItems] = useState<HistorialRedProteccional[]>([]);
   const [loading, setLoading] = useState(true);
@@ -152,9 +154,9 @@ export default function HistorialPage({ params }: { params: Promise<{ id: string
                     <form onSubmit={handleCreate} className="space-y-4">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                          <Label className="text-xs">Nombre programa</Label>
+                          <Label htmlFor={programaSelectId} className="text-xs">Nombre programa</Label>
                           <Select value={programaSelect} onValueChange={(v) => { setProgramaSelect(v); if (v === "Otro") { setForm((p) => ({ ...p, nombre_programa: "" })); } else { setForm((p) => ({ ...p, nombre_programa: v })); } }}>
-                            <SelectTrigger size="sm" className="mt-1 w-full"><SelectValue placeholder="Seleccionar" /></SelectTrigger>
+                            <SelectTrigger id={programaSelectId} size="sm" className="mt-1 w-full"><SelectValue placeholder="Seleccionar" /></SelectTrigger>
                             <SelectContent>
                               {CATALOGO_PROGRAMAS_PREVIOS.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
                             </SelectContent>
@@ -162,33 +164,17 @@ export default function HistorialPage({ params }: { params: Promise<{ id: string
                           {programaSelect === "Otro" && <Input className="mt-1" value={form.nombre_programa} onChange={(e) => setForm((p) => ({ ...p, nombre_programa: e.target.value }))} placeholder="Especificar" />}
                         </div>
                         <div>
-                          <Label className="text-xs">Motivo egreso</Label>
+                          <Label htmlFor={motivoSelectId} className="text-xs">Motivo egreso</Label>
                           <Select value={motivoSelect} onValueChange={(v) => { setMotivoSelect(v); if (v === "Otro") { setForm((p) => ({ ...p, motivo_egreso: "" })); } else { setForm((p) => ({ ...p, motivo_egreso: v })); } }}>
-                            <SelectTrigger size="sm" className="mt-1 w-full"><SelectValue placeholder="Seleccionar" /></SelectTrigger>
+                            <SelectTrigger id={motivoSelectId} size="sm" className="mt-1 w-full"><SelectValue placeholder="Seleccionar" /></SelectTrigger>
                             <SelectContent>
                               {CATALOGO_MOTIVO_EGRESO.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
                             </SelectContent>
                           </Select>
                           {motivoSelect === "Otro" && <Input className="mt-1" value={form.motivo_egreso} onChange={(e) => setForm((p) => ({ ...p, motivo_egreso: e.target.value }))} placeholder="Especificar" />}
                         </div>
-                        <div>
-                          <Label className="text-xs">Fecha ingreso</Label>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <Button variant="outline" size="sm" className={cn("w-full justify-start text-left font-normal mt-1", !fechaIngreso && "text-muted-foreground")}><CalendarIcon />{fechaIngreso ? fechaIngreso.toLocaleDateString("es-CL") : "Seleccionar"}</Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={fechaIngreso} onSelect={setFechaIngreso} /></PopoverContent>
-                          </Popover>
-                        </div>
-                        <div>
-                          <Label className="text-xs">Fecha egreso</Label>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <Button variant="outline" size="sm" className={cn("w-full justify-start text-left font-normal mt-1", !fechaEgreso && "text-muted-foreground")}><CalendarIcon />{fechaEgreso ? fechaEgreso.toLocaleDateString("es-CL") : "Seleccionar"}</Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={fechaEgreso} onSelect={setFechaEgreso} /></PopoverContent>
-                          </Popover>
-                        </div>
+                        <DateField label="Fecha ingreso" value={fechaIngreso} onChange={setFechaIngreso} />
+                        <DateField label="Fecha egreso" value={fechaEgreso} onChange={setFechaEgreso} />
                       </div>
                       {formError && <p className="text-destructive text-sm">{formError}</p>}
                       <div className="flex gap-2">
@@ -215,9 +201,9 @@ export default function HistorialPage({ params }: { params: Promise<{ id: string
                         <form onSubmit={handleUpdate} className="space-y-4">
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                              <Label className="text-xs">Nombre programa</Label>
+                              <Label htmlFor={editProgramaSelectId} className="text-xs">Nombre programa</Label>
                               <Select value={editProgramaSelect} onValueChange={(v) => { setEditProgramaSelect(v); if (v === "Otro") { setEditForm((p) => ({ ...p, nombre_programa: "" })); } else { setEditForm((p) => ({ ...p, nombre_programa: v })); } }}>
-                                <SelectTrigger size="sm" className="mt-1 w-full"><SelectValue placeholder="Seleccionar" /></SelectTrigger>
+                                <SelectTrigger id={editProgramaSelectId} size="sm" className="mt-1 w-full"><SelectValue placeholder="Seleccionar" /></SelectTrigger>
                                 <SelectContent>
                                   {CATALOGO_PROGRAMAS_PREVIOS.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
                                 </SelectContent>
@@ -225,33 +211,17 @@ export default function HistorialPage({ params }: { params: Promise<{ id: string
                               {editProgramaSelect === "Otro" && <Input className="mt-1" value={editForm.nombre_programa} onChange={(e) => setEditForm((p) => ({ ...p, nombre_programa: e.target.value }))} placeholder="Especificar" />}
                             </div>
                             <div>
-                              <Label className="text-xs">Motivo egreso</Label>
+                              <Label htmlFor={editMotivoSelectId} className="text-xs">Motivo egreso</Label>
                               <Select value={editMotivoSelect} onValueChange={(v) => { setEditMotivoSelect(v); if (v === "Otro") { setEditForm((p) => ({ ...p, motivo_egreso: "" })); } else { setEditForm((p) => ({ ...p, motivo_egreso: v })); } }}>
-                                <SelectTrigger size="sm" className="mt-1 w-full"><SelectValue placeholder="Seleccionar" /></SelectTrigger>
+                                <SelectTrigger id={editMotivoSelectId} size="sm" className="mt-1 w-full"><SelectValue placeholder="Seleccionar" /></SelectTrigger>
                                 <SelectContent>
                                   {CATALOGO_MOTIVO_EGRESO.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
                                 </SelectContent>
                               </Select>
                               {editMotivoSelect === "Otro" && <Input className="mt-1" value={editForm.motivo_egreso} onChange={(e) => setEditForm((p) => ({ ...p, motivo_egreso: e.target.value }))} placeholder="Especificar" />}
                             </div>
-                            <div>
-                              <Label className="text-xs">Fecha ingreso</Label>
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <Button variant="outline" size="sm" className={cn("w-full justify-start text-left font-normal mt-1", !editFechaIngreso && "text-muted-foreground")}><CalendarIcon />{editFechaIngreso ? editFechaIngreso.toLocaleDateString("es-CL") : "Seleccionar"}</Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={editFechaIngreso} onSelect={setEditFechaIngreso} /></PopoverContent>
-                              </Popover>
-                            </div>
-                            <div>
-                              <Label className="text-xs">Fecha egreso</Label>
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <Button variant="outline" size="sm" className={cn("w-full justify-start text-left font-normal mt-1", !editFechaEgreso && "text-muted-foreground")}><CalendarIcon />{editFechaEgreso ? editFechaEgreso.toLocaleDateString("es-CL") : "Seleccionar"}</Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={editFechaEgreso} onSelect={setEditFechaEgreso} /></PopoverContent>
-                              </Popover>
-                            </div>
+                            <DateField label="Fecha ingreso" value={editFechaIngreso} onChange={setEditFechaIngreso} />
+                            <DateField label="Fecha egreso" value={editFechaEgreso} onChange={setEditFechaEgreso} />
                           </div>
                           {editError && <p className="text-destructive text-sm">{editError}</p>}
                           <div className="flex gap-2">
@@ -263,7 +233,7 @@ export default function HistorialPage({ params }: { params: Promise<{ id: string
                         <div>
                           <div className="flex items-start justify-between mb-1.5">
                             <h3 className="font-medium text-sm">{item.nombre_programa || "Sin nombre"}</h3>
-                            <Button variant="ghost" size="icon" className="-mr-2 -mt-1" onClick={() => startEdit(item)}><PencilIcon className="size-4" /></Button>
+                            <Button variant="ghost" size="icon" aria-label={`Editar registro${item.nombre_programa ? `: ${item.nombre_programa}` : ""}`} className="-mr-2 -mt-1" onClick={() => startEdit(item)}><PencilIcon className="size-4" /></Button>
                           </div>
                           <div className="flex items-center gap-1.5 text-xs mb-1.5">
                             <span className="text-muted-foreground">{item.fecha_ingreso ? formatDate(item.fecha_ingreso) : "—"}</span>

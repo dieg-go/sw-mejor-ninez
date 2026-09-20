@@ -17,10 +17,11 @@ Monorepo: Next.js 16 frontend + FastAPI backend + PostgreSQL 17.
 all 45 backend modules import (`python -c "import app.main"` inside the built image); `--frozen-lockfile`
 passes. So the checkpoint is a *buildable, importable* baseline.
 
-**Test suite (added after the checkpoint)**: 818 backend tests (pytest in Docker) + 214 frontend tests
+**Test suite (added after the checkpoint)**: 818 backend tests (pytest in Docker) + 223 frontend tests
 (Vitest), all green. The frontend has 1 deliberately-failing test that documents a known defect; the
 backend has none today. See `TESTING.md` for the full inventory, the isolation design, and the defect
-list. Since 2026-09 the frontend also has **component tests** (piloto: `nna/[id]/discapacidades`).
+list. Since 2026-09 the frontend also has **component tests** (tres páginas: `discapacidades`,
+`documentacion` y `consumo`).
 
 **Fresh deploys work**: the migration chain builds a database from scratch (defect B1, fixed — see
 `TESTING.md`). `alembic upgrade head` + `seed.py` on an empty database now produces a working
@@ -90,8 +91,8 @@ Context: real institution will use this app. Solo developer. Hosted on a self-co
 
 Deferred intentionally: CI (solo dev; not needed for the first live version). The **test suite is
 done** (see `TESTING.md`) — tests were pulled forward from this list precisely because the scoring
-code (E2P/PMF/NCFAS) is now covered and changes to it are safe. Component tests exist as a one-page
-pilot (2026-09); extending them to the rest of the pages is the pending part. Still deferred:
+code (E2P/PMF/NCFAS) is now covered and changes to it are safe. Component tests cover three pages
+(2026-09); extending them to the rest is the pending part. Still deferred:
 browser E2E, coverage gates.
 
 ## Tech Stack
@@ -192,6 +193,7 @@ docker exec sw-mejor-ninez-db psql -U postgres -d sw_mejor_ninez \
 - **API client**: single `api` object in `src/lib/api.ts` with nested method groups. Base URL from `NEXT_PUBLIC_API_URL` (defaults to `http://localhost:8000/api`). Auto-attaches Bearer token from `localStorage["auth_token"]`, redirects to `/login` on 401. All TS interfaces are hand-maintained (not shared with backend).
 - **Navigation imports go through `@/lib/navigation`**, never `next/link` or `next/navigation` directly. It re-exports `Link`/`useRouter`/`usePathname` and is the *only* router coupling in the app (~31 files migrated in 2026-09). Mocking it in a test is one module instead of two Next modules. `use(params)` is deliberately **not** wrapped: absorbing that would mean changing the `params: Promise<{id}>` signature of 21 pages, which is separate work.
 - **Fuentes: `@fontsource-variable/*`, no `next/font`.** `layout.tsx` importa `@fontsource-variable/{inter,sora,geist-mono}` (self-hosted, OFL-1.1) y `globals.css` mapea los nombres reales en `@theme inline`: `--font-sans` → `"Inter Variable"`, `--font-mono` → `"Geist Mono Variable"`, `--font-heading` → `"Sora Variable"`. Los paquetes variables traen **todos** los subsets con `unicode-range` (no hay `latin.css`), así que el navegador solo baja el woff2 que necesita. Con `next/font` las variables se inyectaban en runtime; ahora el layout no tiene ninguna dependencia de Next. Si se cambia de fuente hay que tocar **ambos** archivos: el import y el mapeo en el CSS.
+- **Accesibilidad de formularios (regla, no sugerencia).** Todo `<Label>` va asociado a su control: `htmlFor` en la etiqueta + `id` en el control, o los componentes de `@/components/ui/form-field` (`TextField`, `TextareaField`, `DateField`, `SelectField`), que lo hacen con un id de `useId()`. **No uses ids estáticos en estos formularios**: el de alta y el de edición en línea conviven en la misma página y colisionarían. Para un `SelectTrigger` el `id` va en el trigger; para un date picker, en el `Button` del `Popover` (un `button` es etiquetable). Todo `<Button size="icon">` cuyo hijo sea solo un icono lleva `aria-label` (dentro de un `.map`, incluyendo el nombre del ítem). En 2026-09 se corrigieron ~100 etiquetas sin asociar y 22 botones sin nombre; los tests de componente consultan con `getByLabelText` justamente para que la regresión se detecte.
 - **`/nuevo-caso` wizard**: 6 steps, creates records sequentially (NNA first for `id_nna`). Only NNA is required.
 
 ### Environment & tooling
@@ -200,7 +202,7 @@ docker exec sw-mejor-ninez-db psql -U postgres -d sw_mejor_ninez \
 - **Next.js 16 async params**: dynamic route params are `Promise<{ id: string }>`, consumed with `use(params)`.
 - **CORS**: restricted to `http://localhost:3000` only.
 - **pnpm `--ignore-scripts`** in Docker builds — skips postinstall hooks. If adding a dep needing postinstall, remove the flag.
-- **Tests**: 818 backend (pytest, inside Docker) + 214 frontend (Vitest). See `TESTING.md`. The
+- **Tests**: 818 backend (pytest, inside Docker) + 223 frontend (Vitest). See `TESTING.md`. The
   backend service is `backend-tests` under the Compose profile `test`; the frontend suite is
   `pnpm test`. Test files must not be placed under `frontend/src/app/` (Next's route scanner).
   The frontend suite defaults to the `node` environment; a component test opts into jsdom with a

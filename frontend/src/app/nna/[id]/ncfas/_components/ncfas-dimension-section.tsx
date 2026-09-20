@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import { ChevronDownIcon } from "lucide-react";
 import { type DimensionNCFAS, type ItemNCFAS } from "@/lib/api";
 import { Label } from "@/components/ui/label";
@@ -34,7 +35,14 @@ function PuntajeSelect({
 
   return (
     <Select value={currentValue} onValueChange={(v) => onSetPuntaje(momento, key, v)}>
-      <SelectTrigger className="w-[120px] h-7 text-xs">
+      {/* Sin esto, el trigger solo se anuncia por su valor elegido ("—" al
+          empezar), asi que un lector de pantalla no distingue entre los ~100
+          selectores de puntaje del instrumento. Se incluye el momento porque el
+          mismo item se responde en Ingreso, Intermedio y Cierre. */}
+      <SelectTrigger
+        aria-label={`Puntaje ${momento} — ${item.numero_item}. ${item.nombre_item}`}
+        className="w-[120px] h-7 text-xs"
+      >
         <SelectValue placeholder="—" />
       </SelectTrigger>
       <SelectContent>
@@ -67,6 +75,7 @@ export function NcfasDimensionSection({
   onSetPuntaje,
   onSetComentario,
 }: NcfasDimensionSectionProps) {
+  const comentarioId = useId();
   const scoredCount = Object.keys(respuestasMomento).filter((k) =>
     k.startsWith(dimension.letra + "_")
   ).length;
@@ -114,8 +123,9 @@ export function NcfasDimensionSection({
             );
           })}
           <div className="pt-2 border-t border-border/50">
-            <Label className="text-xs text-muted-foreground">Comentario {dimension.letra}</Label>
+            <Label htmlFor={comentarioId} className="text-xs text-muted-foreground">Comentario {dimension.letra}</Label>
             <Textarea
+              id={comentarioId}
               className="mt-1 h-16 text-xs"
               value={comentario}
               onChange={(e) => onSetComentario(dimension.letra, e.target.value)}

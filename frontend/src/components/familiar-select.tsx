@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import { type Familiar } from "@/lib/api";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -13,10 +14,14 @@ interface FamiliarSelectProps {
 }
 
 export function FamiliarSelect({ familiares, value, onChange, nullable, emptyMessage }: FamiliarSelectProps) {
+  const id = useId();
+
   if (familiares.length === 0) {
     return (
       <div>
-        <Label className="text-xs">Familiar</Label>
+        {/* No hay control al que asociar la etiqueta: es un titulo, no un <Label>.
+            Se conservan las clases base de Label (mas `text-xs`) para no mover nada. */}
+        <p className="flex items-center gap-2 text-xs leading-none font-medium select-none">Familiar</p>
         <p className="text-sm text-muted-foreground mt-1.5">{emptyMessage || "No hay familiares disponibles"}</p>
       </div>
     );
@@ -24,9 +29,9 @@ export function FamiliarSelect({ familiares, value, onChange, nullable, emptyMes
 
   return (
     <div>
-      <Label className="text-xs">Familiar</Label>
+      <Label htmlFor={id} className="text-xs">Familiar</Label>
       <Select value={value} onValueChange={onChange}>
-        <SelectTrigger className="mt-1 w-full">
+        <SelectTrigger id={id} className="mt-1 w-full">
           <SelectValue placeholder="Seleccionar" />
         </SelectTrigger>
         <SelectContent>

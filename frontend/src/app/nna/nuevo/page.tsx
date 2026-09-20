@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Link, useRouter } from "@/lib/navigation";
 import { ArrowLeftIcon, CalendarIcon } from "lucide-react";
 import { api, type NNACreate } from "@/lib/api";
@@ -46,6 +46,8 @@ export default function NewNNAPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [date, setDate] = useState<Date | undefined>(undefined);
+  // Id unico para asociar la etiqueta "Fecha de Nacimiento" al boton del calendario.
+  const fechaNacId = useId();
 
   const setField = (field: keyof NNACreate) => (
     e: React.ChangeEvent<HTMLInputElement>
@@ -117,10 +119,13 @@ export default function NewNNAPage() {
                 </Field>
 
                 <Field>
-                  <FieldLabel>Fecha de Nacimiento</FieldLabel>
+                  {/* Id unico por instancia y asociado al boton del calendario,
+                      que es el control etiquetable de este campo. */}
+                  <FieldLabel htmlFor={fechaNacId}>Fecha de Nacimiento</FieldLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
+                        id={fechaNacId}
                         variant="outline"
                         className={cn(
                           "w-full justify-start text-left font-normal",

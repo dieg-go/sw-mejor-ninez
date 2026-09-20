@@ -212,7 +212,12 @@ export function IngresoCard({ ingreso, solicitantes, onUpdate }: IngresoCardProp
                   {ingreso.codigo_ruc || "—"}
                 </div>
               </div>
-              <Button variant="ghost" size="icon" onClick={startEdit}>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label={`Editar antecedente de ingreso${ingreso.fecha_ingreso_residencia ? `: ${formatDate(ingreso.fecha_ingreso_residencia)}` : ""}`}
+                onClick={startEdit}
+              >
                 <PencilIcon className="size-4" />
               </Button>
             </div>

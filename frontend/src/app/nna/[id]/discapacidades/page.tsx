@@ -6,8 +6,7 @@ import { ArrowLeftIcon, PlusIcon, PencilIcon } from "lucide-react";
 import { api, type NNA, type DiscapacidadNNA } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { TextField } from "@/components/ui/form-field";
 import { Spinner } from "@/components/ui/spinner";
 import { Empty } from "@/components/ui/empty";
 
@@ -101,18 +100,9 @@ export default function DiscapacidadesPage({ params }: { params: Promise<{ id: s
           <CardContent>
             <form onSubmit={handleCreate} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-xs">Tipo</Label>
-                  <Input className="mt-1" value={form.tipo} onChange={(e) => setForm((p) => ({ ...p, tipo: e.target.value }))} placeholder="Ej: Física, intelectual" />
-                </div>
-                <div>
-                  <Label className="text-xs">Porcentaje / Grado</Label>
-                  <Input className="mt-1" type="number" value={form.porcentaje_grado} onChange={(e) => setForm((p) => ({ ...p, porcentaje_grado: e.target.value }))} placeholder="Ej: 50" />
-                </div>
-                <div className="sm:col-span-2">
-                  <Label className="text-xs">Observación</Label>
-                  <Input className="mt-1" value={form.observacion} onChange={(e) => setForm((p) => ({ ...p, observacion: e.target.value }))} placeholder="Observaciones" />
-                </div>
+                <TextField label="Tipo" value={form.tipo} onChange={(e) => setForm((p) => ({ ...p, tipo: e.target.value }))} placeholder="Ej: Física, intelectual" />
+                <TextField label="Porcentaje / Grado" type="number" value={form.porcentaje_grado} onChange={(e) => setForm((p) => ({ ...p, porcentaje_grado: e.target.value }))} placeholder="Ej: 50" />
+                <TextField label="Observación" className="sm:col-span-2" value={form.observacion} onChange={(e) => setForm((p) => ({ ...p, observacion: e.target.value }))} placeholder="Observaciones" />
               </div>
               {formError && <p className="text-destructive text-sm">{formError}</p>}
               <div className="flex gap-2">
@@ -134,18 +124,9 @@ export default function DiscapacidadesPage({ params }: { params: Promise<{ id: s
                 {editingId === item.id_discapacidad_nna ? (
                   <form onSubmit={handleUpdate} className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <Label className="text-xs">Tipo</Label>
-                        <Input className="mt-1" value={editForm.tipo} onChange={(e) => setEditForm((p) => ({ ...p, tipo: e.target.value }))} />
-                      </div>
-                      <div>
-                        <Label className="text-xs">Porcentaje / Grado</Label>
-                        <Input className="mt-1" type="number" value={editForm.porcentaje_grado} onChange={(e) => setEditForm((p) => ({ ...p, porcentaje_grado: e.target.value }))} />
-                      </div>
-                      <div className="sm:col-span-2">
-                        <Label className="text-xs">Observación</Label>
-                        <Input className="mt-1" value={editForm.observacion} onChange={(e) => setEditForm((p) => ({ ...p, observacion: e.target.value }))} />
-                      </div>
+                      <TextField label="Tipo" value={editForm.tipo} onChange={(e) => setEditForm((p) => ({ ...p, tipo: e.target.value }))} />
+                      <TextField label="Porcentaje / Grado" type="number" value={editForm.porcentaje_grado} onChange={(e) => setEditForm((p) => ({ ...p, porcentaje_grado: e.target.value }))} />
+                      <TextField label="Observación" className="sm:col-span-2" value={editForm.observacion} onChange={(e) => setEditForm((p) => ({ ...p, observacion: e.target.value }))} />
                     </div>
                     {editError && <p className="text-destructive text-sm">{editError}</p>}
                     <div className="flex gap-2">
@@ -160,7 +141,7 @@ export default function DiscapacidadesPage({ params }: { params: Promise<{ id: s
                       <div><span className="text-xs text-muted-foreground">Grado: </span>{item.porcentaje_grado ?? "—"}{item.porcentaje_grado != null ? "%" : ""}</div>
                       {item.observacion && <div className="col-span-2"><span className="text-xs text-muted-foreground">Obs: </span>{item.observacion}</div>}
                     </div>
-                    <Button variant="ghost" size="icon" onClick={() => startEdit(item)}><PencilIcon className="size-4" /></Button>
+                    <Button variant="ghost" size="icon" aria-label={`Editar discapacidad${item.tipo ? `: ${item.tipo}` : ""}`} onClick={() => startEdit(item)}><PencilIcon className="size-4" /></Button>
                   </div>
                 )}
               </CardContent>

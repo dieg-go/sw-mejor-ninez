@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { UserPlusIcon, ChevronRightIcon } from "lucide-react";
 import { type Familiar, type NotificacionFamiliar } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -36,6 +36,8 @@ export function Step2Identificar({
 }: Step2IdentificarProps) {
   const [selectedFamiliarId, setSelectedFamiliarId] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
+  // El disparador del select es el control etiquetable; el `id` va ahi.
+  const selectId = useId();
 
   return (
     <>
@@ -61,9 +63,9 @@ export function Step2Identificar({
 
               <TabsContent value="existente" className="space-y-4">
                 <div className="space-y-1.5">
-                  <Label className="text-xs">Selecciona el Familiar</Label>
+                  <Label htmlFor={selectId} className="text-xs">Selecciona el Familiar</Label>
                   <Select value={selectedFamiliarId} onValueChange={setSelectedFamiliarId}>
-                    <SelectTrigger>
+                    <SelectTrigger id={selectId}>
                       <SelectValue placeholder="Buscar en el sistema..." />
                     </SelectTrigger>
                     <SelectContent>

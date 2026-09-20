@@ -2,19 +2,15 @@
 
 import { use, useEffect, useState } from "react";
 import { Link } from "@/lib/navigation";
-import { ArrowLeftIcon, CalendarIcon, PencilIcon } from "lucide-react";
+import { ArrowLeftIcon, PencilIcon } from "lucide-react";
 import { api, type Familiar, type E2PEvaluacion } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
 import { Empty } from "@/components/ui/empty";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { cn } from "@/lib/utils";
+import { DateField, TextField } from "@/components/ui/form-field";
 
 function formatDate(iso: string | null) {
   if (!iso) return "\u2014";
@@ -113,7 +109,7 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
                     <div><span className="text-xs text-muted-foreground">Perfil global: </span><Badge variant="outline">{item.perfil_resultado_global || "\u2014"}</Badge></div>
                     {item.observacion && <div className="col-span-2"><span className="text-xs text-muted-foreground">Obs: </span>{item.observacion}</div>}
                   </div>
-                  <Button variant="ghost" size="icon" onClick={() => openEdit(item)}><PencilIcon className="size-4" /></Button>
+                  <Button variant="ghost" size="icon" aria-label={`Editar E2P${item.fecha_evaluacion ? `: ${formatDate(item.fecha_evaluacion)}` : ""}`} onClick={() => openEdit(item)}><PencilIcon className="size-4" /></Button>
                 </div>
               </CardContent>
             </Card>
@@ -127,19 +123,8 @@ export default function E2PPage({ params }: { params: Promise<{ id: string }> })
             <DialogTitle>Editar E2P</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleUpdate} className="space-y-4">
-            <div>
-              <Label className="text-xs">Fecha evaluación</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className={cn("w-full justify-start text-left font-normal mt-1", !editFechaEval && "text-muted-foreground")}><CalendarIcon />{editFechaEval ? editFechaEval.toLocaleDateString("es-CL") : "Seleccionar"}</Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={editFechaEval} onSelect={setEditFechaEval} /></PopoverContent>
-              </Popover>
-            </div>
-            <div>
-              <Label className="text-xs">Observación</Label>
-              <Input className="mt-1" value={editObservacion} onChange={(e) => setEditObservacion(e.target.value)} placeholder="Observaciones" />
-            </div>
+            <DateField label="Fecha evaluación" value={editFechaEval} onChange={setEditFechaEval} />
+            <TextField label="Observación" value={editObservacion} onChange={(e) => setEditObservacion(e.target.value)} placeholder="Observaciones" />
             {formError && <p className="text-destructive text-sm">{formError}</p>}
             <DialogFooter>
               <Button type="submit" disabled={saving}>{saving ? "Guardando..." : "Guardar"}</Button>

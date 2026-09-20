@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useId, useState } from "react";
 import { useDropzone, type Accept } from "react-dropzone";
 import { UploadCloudIcon, FileIcon, XIcon, CheckCircle2Icon, AlertTriangleIcon } from "lucide-react";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 
 const DEFAULT_ACCEPT: Accept = {
@@ -28,6 +29,19 @@ interface FileUploadProps {
   disabled?: boolean;
   dropzoneLabel?: string;
   dropzoneHint?: string;
+  /**
+   * Etiqueta visible del campo.
+   *
+   * Se asocia al `<input type="file">` con `htmlFor`/`id`, que es la forma
+   * estandar y la unica que funciona de verdad: la zona de dropzone que genera
+   * `getRootProps()` lleva `role="presentation"`, asi que queda fuera del arbol
+   * de accesibilidad y un `aria-labelledby` sobre ella lo ignora el lector de
+   * pantalla (aunque `getByLabelText` lo encuentre, porque es permisivo). El
+   * input solo existe mientras no hay archivo subido; cuando ya hay uno, la
+   * etiqueta se renderiza como texto sin `for`, porque no queda ningun control
+   * de formulario que nombrar.
+   */
+  label?: string;
 }
 
 export function FileUpload({
@@ -39,7 +53,9 @@ export function FileUpload({
   disabled = false,
   dropzoneLabel = "Arrastra el archivo aquí o haz clic para buscar",
   dropzoneHint = "PDF, imágenes o documentos (máx. 10 MB)",
+  label,
 }: FileUploadProps) {
+  const inputId = useId();
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -88,6 +104,11 @@ export function FileUpload({
   if (!hasValue && !uploading) {
     return (
       <div className="space-y-2 w-full">
+        {label && (
+          <Label htmlFor={inputId} className="text-xs">
+            {label}
+          </Label>
+        )}
         <div
           {...getRootProps()}
           className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${
@@ -98,7 +119,7 @@ export function FileUpload({
                 : "border-muted-foreground/20 hover:border-primary/50 bg-background"
           }`}
         >
-          <input {...getInputProps()} />
+          <input {...getInputProps()} id={inputId} />
           <div className="flex flex-col items-center justify-center space-y-2">
             <UploadCloudIcon className="size-8 text-muted-foreground" />
             <p className="text-sm font-medium">
@@ -118,6 +139,14 @@ export function FileUpload({
 
   return (
     <div className="space-y-2 w-full">
+      {/* Con archivo ya subido no hay `<input type="file">`, asi que la etiqueta
+          es texto: un `<Label htmlFor>` apuntaria a un control ausente. Se
+          conservan las clases base de Label para no mover nada. */}
+      {label && (
+        <p className="flex items-center gap-2 text-xs leading-none font-medium select-none">
+          {label}
+        </p>
+      )}
       <div className="border rounded-xl p-4 bg-muted/10 flex items-center justify-between">
         <div className="flex items-center space-x-3 min-w-0">
           <FileIcon className="size-8 text-primary shrink-0" />
@@ -145,6 +174,7 @@ export function FileUpload({
           type="button"
           variant="ghost"
           size="icon"
+          aria-label="Quitar archivo"
           onClick={handleRemove}
           disabled={uploading}
           className="size-8 text-muted-foreground hover:text-destructive shrink-0"

@@ -2,19 +2,16 @@
 
 import { use, useEffect, useState } from "react";
 import { Link } from "@/lib/navigation";
-import { ArrowLeftIcon, CalendarIcon, PlusIcon, PencilIcon } from "lucide-react";
+import { ArrowLeftIcon, PlusIcon, PencilIcon } from "lucide-react";
 import { api, type NNA, type AntecedenteSalud } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
 import { Empty } from "@/components/ui/empty";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
+import { DateField, TextField } from "@/components/ui/form-field";
 
 function formatDate(iso: string | null) {
   if (!iso) return "—";
@@ -127,27 +124,13 @@ export default function SaludPage({
           <CardContent>
             <form onSubmit={handleCreate} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-xs">Fecha</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" size="sm" className={cn("w-full justify-start text-left font-normal mt-1", !fecha && "text-muted-foreground")}><CalendarIcon />{fecha ? fecha.toLocaleDateString("es-CL") : "Seleccionar"}</Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={fecha} onSelect={setFecha} /></PopoverContent>
-                  </Popover>
-                </div>
+                <DateField label="Fecha" value={fecha} onChange={setFecha} />
                 <div className="flex items-center gap-2 pt-2">
                   <Checkbox id="inscrito" checked={form.inscrito_en_centro_salud} onCheckedChange={(v) => setForm((p) => ({ ...p, inscrito_en_centro_salud: !!v }))} />
                   <Label htmlFor="inscrito" className="text-xs cursor-pointer">Inscrito en centro de salud</Label>
                 </div>
-                <div>
-                  <Label className="text-xs">Centro de salud</Label>
-                  <Input className="mt-1" value={form.id_centro_salud} onChange={(e) => setForm((p) => ({ ...p, id_centro_salud: e.target.value }))} placeholder="ID centro de salud" />
-                </div>
-                <div>
-                  <Label className="text-xs">Previsión</Label>
-                  <Input className="mt-1" value={form.prevision} onChange={(e) => setForm((p) => ({ ...p, prevision: e.target.value }))} placeholder="Ej: FONASA, ISAPRE" />
-                </div>
+                <TextField label="Centro de salud" value={form.id_centro_salud} onChange={(e) => setForm((p) => ({ ...p, id_centro_salud: e.target.value }))} placeholder="ID centro de salud" />
+                <TextField label="Previsión" value={form.prevision} onChange={(e) => setForm((p) => ({ ...p, prevision: e.target.value }))} placeholder="Ej: FONASA, ISAPRE" />
               </div>
               {formError && <p className="text-destructive text-sm">{formError}</p>}
               <div className="flex gap-2">
@@ -169,27 +152,13 @@ export default function SaludPage({
                 {editingId === item.id_antecedente_salud ? (
                   <form onSubmit={handleUpdate} className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <Label className="text-xs">Fecha</Label>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <Button variant="outline" size="sm" className={cn("w-full justify-start text-left font-normal mt-1", !editFecha && "text-muted-foreground")}><CalendarIcon />{editFecha ? editFecha.toLocaleDateString("es-CL") : "Seleccionar"}</Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={editFecha} onSelect={setEditFecha} /></PopoverContent>
-                        </Popover>
-                      </div>
+                      <DateField label="Fecha" value={editFecha} onChange={setEditFecha} />
                       <div className="flex items-center gap-2 pt-2">
                         <Checkbox id={`edit-ins-${item.id_antecedente_salud}`} checked={editForm.inscrito_en_centro_salud} onCheckedChange={(v) => setEditForm((p) => ({ ...p, inscrito_en_centro_salud: !!v }))} />
                         <Label htmlFor={`edit-ins-${item.id_antecedente_salud}`} className="text-xs cursor-pointer">Inscrito</Label>
                       </div>
-                      <div>
-                        <Label className="text-xs">Centro de salud</Label>
-                        <Input className="mt-1" value={editForm.id_centro_salud} onChange={(e) => setEditForm((p) => ({ ...p, id_centro_salud: e.target.value }))} />
-                      </div>
-                      <div>
-                        <Label className="text-xs">Previsión</Label>
-                        <Input className="mt-1" value={editForm.prevision} onChange={(e) => setEditForm((p) => ({ ...p, prevision: e.target.value }))} />
-                      </div>
+                      <TextField label="Centro de salud" value={editForm.id_centro_salud} onChange={(e) => setEditForm((p) => ({ ...p, id_centro_salud: e.target.value }))} />
+                      <TextField label="Previsión" value={editForm.prevision} onChange={(e) => setEditForm((p) => ({ ...p, prevision: e.target.value }))} />
                     </div>
                     {editError && <p className="text-destructive text-sm">{editError}</p>}
                     <div className="flex gap-2">
@@ -204,7 +173,7 @@ export default function SaludPage({
                       <div><span className="text-xs text-muted-foreground">Centro de salud: </span>{item.inscrito_en_centro_salud ? <Badge variant="secondary">Sí</Badge> : "No"}</div>
                       <div><span className="text-xs text-muted-foreground">Previsión: </span>{item.prevision || "—"}</div>
                     </div>
-                    {!isClosed && <Button variant="ghost" size="icon" onClick={() => startEdit(item)}><PencilIcon className="size-4" /></Button>}
+                    {!isClosed && <Button variant="ghost" size="icon" aria-label={`Editar antecedente de salud${item.prevision ? `: ${item.prevision}` : ""}`} onClick={() => startEdit(item)}><PencilIcon className="size-4" /></Button>}
                   </div>
                 )}
               </CardContent>

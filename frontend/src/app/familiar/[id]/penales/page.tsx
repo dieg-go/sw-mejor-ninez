@@ -6,11 +6,10 @@ import { ArrowLeftIcon, PlusIcon, PencilIcon } from "lucide-react";
 import { api, type Familiar, type AntecedentesPenales } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
 import { Empty } from "@/components/ui/empty";
+import { TextField } from "@/components/ui/form-field";
 import { FileUpload } from "@/components/ui/file-upload";
 
 const DEFAULT = { descripcion: "", url_documento_adjunto: "" };
@@ -112,13 +111,10 @@ export default function PenalesPage({ params }: { params: Promise<{ id: string }
           <CardContent>
             <form onSubmit={handleCreate} className="space-y-4">
               <div className="grid grid-cols-1 gap-4">
+                <TextField label="Descripción" value={form.descripcion} onChange={(e) => setForm((p) => ({ ...p, descripcion: e.target.value }))} placeholder="Descripción del antecedente" />
                 <div>
-                  <Label className="text-xs">Descripción</Label>
-                  <Input className="mt-1" value={form.descripcion} onChange={(e) => setForm((p) => ({ ...p, descripcion: e.target.value }))} placeholder="Descripción del antecedente" />
-                </div>
-                <div>
-                  <Label className="text-xs">Documento adjunto</Label>
                   <FileUpload
+                    label="Documento adjunto"
                     value={form.url_documento_adjunto || null}
                     onUploadSuccess={(url) => setForm((p) => ({ ...p, url_documento_adjunto: url }))}
                     onClear={() => setForm((p) => ({ ...p, url_documento_adjunto: "" }))}
@@ -145,13 +141,10 @@ export default function PenalesPage({ params }: { params: Promise<{ id: string }
                 {editingId === item.id_antecedente_penal ? (
                   <form onSubmit={handleUpdate} className="space-y-4">
                     <div className="grid grid-cols-1 gap-4">
+                      <TextField label="Descripción" value={editForm.descripcion} onChange={(e) => setEditForm((p) => ({ ...p, descripcion: e.target.value }))} />
                       <div>
-                        <Label className="text-xs">Descripción</Label>
-                        <Input className="mt-1" value={editForm.descripcion} onChange={(e) => setEditForm((p) => ({ ...p, descripcion: e.target.value }))} />
-                      </div>
-                      <div>
-                        <Label className="text-xs">Documento adjunto</Label>
                         <FileUpload
+                          label="Documento adjunto"
                           value={editForm.url_documento_adjunto || null}
                           onUploadSuccess={(url) => setEditForm((p) => ({ ...p, url_documento_adjunto: url }))}
                           onClear={() => setEditForm((p) => ({ ...p, url_documento_adjunto: "" }))}
@@ -180,7 +173,7 @@ export default function PenalesPage({ params }: { params: Promise<{ id: string }
                         </a>
                       )}
                     </div>
-                    <Button variant="ghost" size="icon" onClick={() => startEdit(item)}><PencilIcon className="size-4" /></Button>
+                    <Button variant="ghost" size="icon" aria-label={`Editar antecedente penal${item.descripcion ? `: ${item.descripcion}` : ""}`} onClick={() => startEdit(item)}><PencilIcon className="size-4" /></Button>
                   </div>
                 )}
               </CardContent>

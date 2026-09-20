@@ -2,18 +2,14 @@
 
 import { use, useEffect, useState } from "react";
 import { Link } from "@/lib/navigation";
-import { ArrowLeftIcon, CalendarIcon, PencilIcon } from "lucide-react";
+import { ArrowLeftIcon, PencilIcon } from "lucide-react";
 import { api, type Familiar, type PMFEvaluacion } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { Empty } from "@/components/ui/empty";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { cn } from "@/lib/utils";
+import { DateField, TextField } from "@/components/ui/form-field";
 
 function formatDate(iso: string | null) {
   if (!iso) return "\u2014";
@@ -120,7 +116,7 @@ export default function PMFPage({ params }: { params: Promise<{ id: string }> })
                     {item.respuestas && <div><span className="text-xs text-muted-foreground">Respuestas: </span>{Object.keys(item.respuestas).length} preguntas</div>}
                     {item.observacion && <div className="col-span-2"><span className="text-xs text-muted-foreground">Obs: </span>{item.observacion}</div>}
                   </div>
-                  <Button variant="ghost" size="icon" onClick={() => openEdit(item)}><PencilIcon className="size-4" /></Button>
+                  <Button variant="ghost" size="icon" aria-label={`Editar PMF${item.fecha_evaluacion ? `: ${formatDate(item.fecha_evaluacion)}` : ""}`} onClick={() => openEdit(item)}><PencilIcon className="size-4" /></Button>
                 </div>
               </CardContent>
             </Card>
@@ -134,32 +130,10 @@ export default function PMFPage({ params }: { params: Promise<{ id: string }> })
             <DialogTitle>Editar PMF</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleUpdate} className="space-y-4">
-            <div>
-              <Label className="text-xs">Resultado</Label>
-              <Input className="mt-1" value={editResultado} onChange={(e) => setEditResultado(e.target.value)} placeholder="Resultado" />
-            </div>
-            <div>
-              <Label className="text-xs">Fecha evaluación</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className={cn("w-full justify-start text-left font-normal mt-1", !editFechaEval && "text-muted-foreground")}><CalendarIcon />{editFechaEval ? editFechaEval.toLocaleDateString("es-CL") : "Seleccionar"}</Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={editFechaEval} onSelect={setEditFechaEval} /></PopoverContent>
-              </Popover>
-            </div>
-            <div>
-              <Label className="text-xs">Próxima evaluación</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className={cn("w-full justify-start text-left font-normal mt-1", !editFechaProx && "text-muted-foreground")}><CalendarIcon />{editFechaProx ? editFechaProx.toLocaleDateString("es-CL") : "Seleccionar"}</Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={editFechaProx} onSelect={setEditFechaProx} /></PopoverContent>
-              </Popover>
-            </div>
-            <div>
-              <Label className="text-xs">Observación</Label>
-              <Input className="mt-1" value={editObservacion} onChange={(e) => setEditObservacion(e.target.value)} placeholder="Observaciones" />
-            </div>
+            <TextField label="Resultado" value={editResultado} onChange={(e) => setEditResultado(e.target.value)} placeholder="Resultado" />
+            <DateField label="Fecha evaluación" value={editFechaEval} onChange={setEditFechaEval} />
+            <DateField label="Próxima evaluación" value={editFechaProx} onChange={setEditFechaProx} />
+            <TextField label="Observación" value={editObservacion} onChange={(e) => setEditObservacion(e.target.value)} placeholder="Observaciones" />
             {formError && <p className="text-destructive text-sm">{formError}</p>}
             <DialogFooter>
               <Button type="submit" disabled={saving}>{saving ? "Guardando..." : "Guardar"}</Button>
