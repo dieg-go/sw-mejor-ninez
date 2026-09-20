@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/lib/navigation";
 import { SearchIcon } from "lucide-react";
 import { api, NNA } from "@/lib/api";
 import {

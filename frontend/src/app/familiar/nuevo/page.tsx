@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { Link, useRouter } from "@/lib/navigation";
 import { ArrowLeftIcon, CalendarIcon } from "lucide-react";
 import { api, type NNA } from "@/lib/api";
 import { Button } from "@/components/ui/button";

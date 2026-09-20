@@ -7,7 +7,7 @@ lógica pura del frontend.
 | Capa | Runner | Pruebas | Estado |
 |------|--------|---------|--------|
 | Backend | `pytest` dentro de Docker | 818 | verde |
-| Frontend | `vitest` | 206 (1 `expected fail`) | verde |
+| Frontend | `vitest` | 214 (1 `expected fail`) | verde |
 
 Ninguna prueba toca la base de datos de desarrollo.
 
@@ -44,6 +44,38 @@ cd frontend
 pnpm test          # una pasada, para CI o verificación
 pnpm test:watch    # modo interactivo
 ```
+
+#### Entorno de los tests
+
+El entorno por defecto es `node`. Los tests de componente piden jsdom **archivo
+por archivo** con el docblock:
+
+```ts
+// @vitest-environment jsdom
+```
+
+Así la suite de lógica pura (la mayoría) no paga el costo de jsdom ni cambia de
+comportamiento. `tests/setup.ts` registra los matchers de `jest-dom` y hace
+`cleanup` de React Testing Library solo cuando hay DOM.
+
+#### Tests de componente
+
+Existen desde 2026-09, como piloto sobre `nna/[id]/discapacidades` (el patrón
+que clonan las ~12 sub-páginas). Corren con `@testing-library/react` + `jsdom`,
+mockeando `@/lib/api` (sin red ni backend).
+
+Dos cosas que hay que saber al escribir uno, ambas por `use(params)` (API de
+Next 16):
+
+1. **Hace falta un `<Suspense>` explícito.** `use` suspende mientras la promesa
+   está pendiente; en la app lo aporta el framework, en un test no existe.
+2. **El `render` va dentro de `await act(async () => ...)`.** Con un `render`
+   normal, React 19 no reintenta el árbol suspendido y el fallback queda pegado
+   para siempre (verificado aislando el mecanismo).
+
+El único acoplamiento al router es `@/lib/navigation`, que reexporta
+`Link`/`useRouter`/`usePathname`. Al escribir tests de página se mockea ese
+módulo, no `next/link` ni `next/navigation`.
 
 ### Cuándo hay que reconstruir la imagen
 
@@ -463,7 +495,8 @@ vago.
 nacimiento invalida devuelve null"` y `"con una fecha de evaluacion invalida
 devuelve null"`; `edadEnMeses` (5 casos, incluido el negativo). Las pruebas del
 defecto se convirtieron en aserciones normales. **Nota**: el aviso del diálogo no
-tiene prueba automática —el proyecto no tiene tests de componente—, así que esa
+tiene prueba automática —la suite de componentes existe desde 2026-09 pero es un
+piloto sobre `nna/[id]/discapacidades`, no cubre E2P—, así que esa
 parte está verificada por typecheck y lectura, no por test.
 
 ### F3 — `isAuthenticated()` da `true` con un token de cadena vacía

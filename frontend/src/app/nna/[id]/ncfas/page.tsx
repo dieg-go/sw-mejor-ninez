@@ -1,7 +1,7 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/lib/navigation";
 import { ArrowLeftIcon, PlusIcon } from "lucide-react";
 import { api, type NNA, type NCFASEvaluacion, type Familiar } from "@/lib/api";
 import { Button } from "@/components/ui/button";

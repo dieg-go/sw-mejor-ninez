@@ -1,19 +1,16 @@
 import type { Metadata } from "next";
-import { Geist_Mono, Inter, Sora } from "next/font/google";
+// Fuentes self-hosted (paquetes @fontsource-variable, OFL-1.1). Se importa el
+// CSS completo, que declara cada subset con `unicode-range`: el navegador solo
+// descarga el woff2 que necesita (el latino), asi que no hay requests a Google.
+// Antes venian de `next/font/google`; se quitaron para que el router adapter
+// (`@/lib/navigation`) sea el unico acoplamiento a Next que queda en la UI.
+import "@fontsource-variable/inter";
+import "@fontsource-variable/sora";
+import "@fontsource-variable/geist-mono";
 import { AppHeader } from "@/components/app-header";
 import { AuthProvider } from "@/components/auth-provider";
 import "./globals.css";
-import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
-
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
-
-const sora = Sora({ subsets: ["latin"], variable: "--font-heading" });
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "SW Mejor Niñez",
@@ -27,18 +24,7 @@ export default function RootLayout({
 }>) {
   return (
     <>
-      <html
-        lang="es"
-        suppressHydrationWarning
-        className={cn(
-          "h-full",
-          "antialiased",
-          geistMono.variable,
-          "font-sans",
-          inter.variable,
-          sora.variable,
-        )}
-      >
+      <html lang="es" suppressHydrationWarning className="h-full antialiased font-sans">
         <head />
         <body className="min-h-full flex flex-col">
           <ThemeProvider

@@ -1,7 +1,7 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/lib/navigation";
 import { ArrowLeftIcon, CalendarIcon, PlusIcon, PencilIcon } from "lucide-react";
 import { api, type NNA, type PMFEvaluacion, type Familiar, type PMFQuestions } from "@/lib/api";
 import { Button } from "@/components/ui/button";

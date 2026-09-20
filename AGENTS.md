@@ -17,10 +17,10 @@ Monorepo: Next.js 16 frontend + FastAPI backend + PostgreSQL 17.
 all 45 backend modules import (`python -c "import app.main"` inside the built image); `--frozen-lockfile`
 passes. So the checkpoint is a *buildable, importable* baseline.
 
-**Test suite (added after the checkpoint)**: 818 backend tests (pytest in Docker) + 206 frontend tests
+**Test suite (added after the checkpoint)**: 818 backend tests (pytest in Docker) + 214 frontend tests
 (Vitest), all green. The frontend has 1 deliberately-failing test that documents a known defect; the
 backend has none today. See `TESTING.md` for the full inventory, the isolation design, and the defect
-list.
+list. Since 2026-09 the frontend also has **component tests** (piloto: `nna/[id]/discapacidades`).
 
 **Fresh deploys work**: the migration chain builds a database from scratch (defect B1, fixed — see
 `TESTING.md`). `alembic upgrade head` + `seed.py` on an empty database now produces a working
@@ -90,7 +90,8 @@ Context: real institution will use this app. Solo developer. Hosted on a self-co
 
 Deferred intentionally: CI (solo dev; not needed for the first live version). The **test suite is
 done** (see `TESTING.md`) — tests were pulled forward from this list precisely because the scoring
-code (E2P/PMF/NCFAS) is now covered and changes to it are safe. Still deferred: component tests,
+code (E2P/PMF/NCFAS) is now covered and changes to it are safe. Component tests exist as a one-page
+pilot (2026-09); extending them to the rest of the pages is the pending part. Still deferred:
 browser E2E, coverage gates.
 
 ## Tech Stack
@@ -123,6 +124,7 @@ frontend/
     familiar/[id]/          # Familiar detail (tabs)
     nuevo-caso/            # 6-step wizard
   src/lib/api.ts           # Centralized API client + all TypeScript interfaces
+  src/lib/navigation.ts    # Adapter: re-exports Link/useRouter/usePathname (the ONLY router coupling)
   src/hooks/               # use-vinculados.ts (single hook)
   src/components/ui/       # shadcn/ui components
   public/                  # .gitkeep only — MUST exist: Dockerfile does `COPY /app/public`
@@ -188,6 +190,8 @@ docker exec sw-mejor-ninez-db psql -U postgres -d sw_mejor_ninez \
 ### Frontend patterns
 - **NNA sub-page pattern**: client component, `use(params)` for route param, `useEffect` fetch. "Nuevo" form toggles with `showForm`/`saving`/`formError`. "Editar" per-row with `editingId`/`editForm`/`editSaving`/`editError`. Dates: `Date | undefined` for Calendar → `"YYYY-MM-DD"` string for API. Display: `new Date(iso + "T00:00:00").toLocaleDateString("es-CL")` (the `T00:00:00` prevents timezone offset).
 - **API client**: single `api` object in `src/lib/api.ts` with nested method groups. Base URL from `NEXT_PUBLIC_API_URL` (defaults to `http://localhost:8000/api`). Auto-attaches Bearer token from `localStorage["auth_token"]`, redirects to `/login` on 401. All TS interfaces are hand-maintained (not shared with backend).
+- **Navigation imports go through `@/lib/navigation`**, never `next/link` or `next/navigation` directly. It re-exports `Link`/`useRouter`/`usePathname` and is the *only* router coupling in the app (~31 files migrated in 2026-09). Mocking it in a test is one module instead of two Next modules. `use(params)` is deliberately **not** wrapped: absorbing that would mean changing the `params: Promise<{id}>` signature of 21 pages, which is separate work.
+- **Fuentes: `@fontsource-variable/*`, no `next/font`.** `layout.tsx` importa `@fontsource-variable/{inter,sora,geist-mono}` (self-hosted, OFL-1.1) y `globals.css` mapea los nombres reales en `@theme inline`: `--font-sans` → `"Inter Variable"`, `--font-mono` → `"Geist Mono Variable"`, `--font-heading` → `"Sora Variable"`. Los paquetes variables traen **todos** los subsets con `unicode-range` (no hay `latin.css`), así que el navegador solo baja el woff2 que necesita. Con `next/font` las variables se inyectaban en runtime; ahora el layout no tiene ninguna dependencia de Next. Si se cambia de fuente hay que tocar **ambos** archivos: el import y el mapeo en el CSS.
 - **`/nuevo-caso` wizard**: 6 steps, creates records sequentially (NNA first for `id_nna`). Only NNA is required.
 
 ### Environment & tooling
@@ -196,9 +200,13 @@ docker exec sw-mejor-ninez-db psql -U postgres -d sw_mejor_ninez \
 - **Next.js 16 async params**: dynamic route params are `Promise<{ id: string }>`, consumed with `use(params)`.
 - **CORS**: restricted to `http://localhost:3000` only.
 - **pnpm `--ignore-scripts`** in Docker builds — skips postinstall hooks. If adding a dep needing postinstall, remove the flag.
-- **Tests**: 818 backend (pytest, inside Docker) + 206 frontend (Vitest). See `TESTING.md`. The
+- **Tests**: 818 backend (pytest, inside Docker) + 214 frontend (Vitest). See `TESTING.md`. The
   backend service is `backend-tests` under the Compose profile `test`; the frontend suite is
   `pnpm test`. Test files must not be placed under `frontend/src/app/` (Next's route scanner).
+  The frontend suite defaults to the `node` environment; a component test opts into jsdom with a
+  `// @vitest-environment jsdom` docblock. Component tests need a `<Suspense>` wrapper **and**
+  `await act(async () => render(...))`, because `use(params)` suspends and React 19 does not retry a
+  tree rendered with a plain `render` (see `TESTING.md`).
   **The models declare the schema as strictly as the database** (e.g. `id_caso` uses
   `sa_column_kwargs={"nullable": False}`), so `create_all` builds test databases that are as strict
   as the migrated ones. When a migration hardens a column, harden the model too: a model that
@@ -234,10 +242,10 @@ From a full-repo ponytail audit. Do before writing any new nna/familiar page. Ra
 12. **[DONE `55abe957`]** **Dead imports** in `services/__init__.py` (`and_`, `func`, 17 models) + scattered unused imports (~32 ln).
 13. **[DONE half `55abe957`]** **`date-fns` dep** — zero src imports, removed. **`@base-ui/react`** — see #2, still pending.
 14. **Dead auth helpers** `getToken`/`getUser`/`isAuthenticated` — `auth-provider.tsx` re-implements inline; keep one.
-15. **`next.config.ts` rewrites + `API_BACKEND_URL`** — nothing requests relative `/api`/`/uploads`.
+15. **[CORREGIDO 2026-09 — el audit estaba equivocado]** **`next.config.ts` rewrites + `API_BACKEND_URL`** — el audit decía "nothing requests relative `/api`/`/uploads`" y eso es **falso**. En Docker el frontend se construye con `NEXT_PUBLIC_API_URL=/api` (build arg del `Dockerfile` + env de `docker-compose.yml`), así que el navegador pide `/api/...` **relativo** y el rewrite de Next lo proxya a `http://backend:8000`. **Borrar los rewrites rompe el deploy de Docker.** En dev local no se nota porque `src/lib/api.ts` cae al default absoluto `http://localhost:8000/api` y la request va por CORS. Los rewrites quedan redundantes recién cuando el ítem 2 del roadmap ponga un reverse proxy con `/api` delante del backend.
 16. **[DONE `55abe957`]** **Unused E2P Read schemas** (`BaremoE2PRead`, `PreguntaE2PRead`, `PuntajeE2PRead`, 49 ln) + `UsuarioCreate` + `_parse_item_key()`.
 17. **`formatDate`/`fmt` date helpers duplicated in ~17 files** — one shared helper in `src/lib/utils.ts`.
-18. **[DONE `55abe957`]** **Orphan `/faq` page** (52 ln, template filler); **create-next-app boilerplate** (5 public svgs, README.md); **Geist font** (variable never used).
+18. **[DONE `55abe957`]** **Orphan `/faq` page** (52 ln, template filler); **create-next-app boilerplate** (5 public svgs, README.md). **[CORREGIDO 2026-09]** El "Geist font (variable never used)" de este ítem era **falso**: `--font-mono` sí se usa (`font-mono` en 4 lugares de `busqueda-familiar`). Las tres fuentes se usan y desde 2026-09 vienen de `@fontsource-variable/*` — ver el bullet de fuentes en *Frontend patterns*.
 19. **Re-rolled shared components** in `familiar/[id]/page.tsx` (`InfoRow`, SectionCard, `diasDesde`, `RESULTADO_STYLES` duplicated).
 20. **[DONE half `55abe957`]** **`requirements.txt`**: `httpx` removed; `python-dotenv` still present (zero imports — pydantic-settings reads `.env`); `pytest`+`pytest-asyncio` optional (tests/ empty).
 21. **Small dead bits**: `theme-provider.tsx` pass-through, alembic.ini `sqlalchemy.url` (env.py overrides), `app/core/__init__.py` re-exports, `EstadoInforme.VENCIDO`, `PreguntaPMF.escala`, `Usuario.updated_at`, duplicate show/hide-password toggles on login, commented-out JSX on home page.

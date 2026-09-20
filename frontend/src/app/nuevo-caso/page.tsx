@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { Link, useRouter } from "@/lib/navigation";
 import { ArrowLeftIcon } from "lucide-react";
 import { api, type NNACreate, type SolicitanteIngreso } from "@/lib/api";
 import { StepIndicator } from "./_components/step-indicator";
