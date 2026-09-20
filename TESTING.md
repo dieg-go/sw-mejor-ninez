@@ -6,7 +6,7 @@ lógica pura del frontend.
 
 | Capa | Runner | Pruebas | Estado |
 |------|--------|---------|--------|
-| Backend | `pytest` dentro de Docker | 815 (2 `xfail`) | verde |
+| Backend | `pytest` dentro de Docker | 817 | verde |
 | Frontend | `vitest` | 201 (2 `expected fail`) | verde |
 
 Ninguna prueba toca la base de datos de desarrollo.
@@ -158,8 +158,8 @@ recrean en cada corrida.
 | `test_pmf.py` | 20 | Preguntas desde tabla y **fallback al JSON**, CRUD, respuestas booleanas |
 | `test_ncfas.py` | 33 | 10 dimensiones, fallback al JSON, filtrado de puntajes y momentos inválidos, upsert de comentarios |
 | `test_services.py` | 61 | `_add_months`, `create_nna_child`, `update_child`, `_assert_caso_abierto`, encadenamiento, servicios de clase, cascadas del ORM |
-| `test_migrations.py` | 20 | Forma de la cadena, paridad modelos↔esquema, índices y FKs compuestas, reproducibilidad (2 `xfail`) |
-| `test_seed.py` | 14 | Conteos exactos, idempotencia, guard `>=2 NNA`, coherencia del mensaje final |
+| `test_migrations.py` | 21 | Forma de la cadena, paridad modelos↔esquema, índices y FKs compuestas, reproducibilidad desde base vacía |
+| `test_seed.py` | 15 | Conteos exactos, idempotencia, guard `>=2 NNA`, sellado de `id_caso` sobre esquema endurecido, coherencia del mensaje final |
 
 ### Frontend (`frontend/tests/`)
 
@@ -224,34 +224,37 @@ identificadores (solo en el texto).
 
 ## 5. Defectos conocidos
 
-### B1 — BLOQUEANTE: `alembic upgrade head` no construye una base desde cero
+### B1 — RESUELTO: `alembic upgrade head` no construía una base desde cero
 
-`0b733fafb9a6_initial.py` ejecuta `SQLModel.metadata.create_all(...)`, que crea
+Era el defecto bloqueante: impedía un despliegue nuevo y la restauración de un
+`pg_dump` en una base limpia.
+
+`0b733fafb9a6_initial.py` ejecutaba `SQLModel.metadata.create_all(...)`, que crea
 el esquema **actual** —incluida la tabla `Caso` y las columnas `id_caso`—.
-Después `3f2e134a5977_caso_grouping.py` intenta `op.create_table('Caso', ...)`
-y falla con `DuplicateTable: relation "Caso" already exists`. `downgrade base`
-falla por el motivo inverso: intenta borrar restricciones
-`fk_<tabla>_id_caso` que el `create_all` inicial nunca creó.
+Después `3f2e134a5977_caso_grouping.py` intentaba `op.create_table('Caso', ...)`
+y fallaba con `DuplicateTable: relation "Caso" already exists`. `downgrade base`
+fallaba por el motivo inverso.
 
-**Alcance e impacto.** La cadena sólo funciona de forma incremental, que es como
-se construyó la base de desarrollo. Un despliegue nuevo (volumen `pgdata`
-vacío) no puede migrar: `entrypoint.sh` corre `alembic upgrade head` con
-`set -e`, así que el backend no arranca. Tampoco se puede restaurar un backup
-`pg_dump` en una base limpia. Es el primer obstáculo real de la prioridad 2 del
-roadmap (deployment), y afecta directamente a la prioridad 1 (backups).
+**Arreglo aplicado.** `0b733fafb9a6` ahora crea el esquema **previo** a la
+agrupación por caso como DDL congelado. El DDL histórico real no existía en el
+repo (nunca se escribió: lo generaba `create_all`), así que se reconstruyó de
+forma determinista: se construyó el esquema de los modelos en una base
+desechable, se le quitó la tabla `Caso` y las columnas `id_caso` con SQL
+(`DROP ... CASCADE`, para que PostgreSQL resolviera las dependencias) y se volcó
+con `pg_dump --schema-only`. Ver la cabecera de la migración.
 
-**Atenuante.** PostgreSQL aplica DDL transaccional: el fallo revierte el
-`upgrade` completo y la base queda vacía, sin estado a medias.
+Se descartó la alternativa de volver idempotentes las migraciones 2 y 3: además
+de exigir guardas para casi todo (la tabla, el índice parcial, el unique, las
+columnas, las FK), el problema era estructural y habría vuelto. Con `create_all`
+dentro de una migración, cualquier columna agregada a los modelos en el futuro
+la crearía la migración inicial por adelantado, y la migración que la introduce
+chocaría con ella: el mismo fallo, otra vez, en el próximo despliegue limpio.
 
-**Pruebas.** `test_migrations.py::test_upgrade_head_construye_el_esquema_desde_una_base_vacia`
-(`xfail`), `::test_downgrade_base_no_deja_tablas_de_la_aplicacion` (`xfail`),
-`::test_el_upgrade_desde_cero_falla_en_la_migracion_de_agrupacion` y
-`::test_el_fallo_del_upgrade_no_deja_estado_parcial`.
-
-**Arreglo probable.** Reescribir `0b733fafb9a6` con el DDL histórico real (hoy
-no existe en el repo) o volver idempotentes los pasos de `3f2e134a5977` y
-`bbf68836b0d8` (`IF NOT EXISTS` / comprobar antes de crear). Es un cambio de
-producción y merece su propia sesión.
+**Pruebas.** `test_migrations.py`: `::test_upgrade_head_construye_el_esquema_desde_una_base_vacia`,
+`::test_downgrade_base_no_deja_tablas_de_la_aplicacion`,
+`::test_la_migracion_inicial_crea_el_esquema_previo_a_la_agrupacion`,
+`::test_el_ciclo_upgrade_downgrade_upgrade_es_estable` y
+`::test_el_esquema_construido_por_la_cadena_coincide_con_los_modelos`.
 
 ### B2 — Deriva entre modelos y migraciones en `id_caso`
 
@@ -426,6 +429,36 @@ impacto es bajo; queda documentado.
   Estaba abierto como pregunta de producto; las pruebas fijan el contrato
   actual.
   → `test_caso_cerrado.py` (sección "Contrato de las entidades NO agrupadas").
+
+### Encontrados y corregidos al arreglar B1
+
+Los dos aparecieron **al hacer que la cadena corriera por primera vez**, y los
+dos habrían roto un despliegue nuevo.
+
+**El `downgrade` de `bbf68836b0d8` no se podía ejecutar.** Borraba
+`uq_caso_nna_caso` en medio de la lista de FK compuestas, y esa restricción es
+el destino de las diez: PostgreSQL lo rechaza con *"cannot drop constraint ...
+because other objects depend on it"*. El orden venía de `--autogenerate` y nunca
+se había ejecutado, porque B1 impedía que la cadena llegara tan lejos. Arreglado
+en la propia migración (las diez FK primero) y fijado por
+`test_migrations.py::test_downgrade_base_no_deja_tablas_de_la_aplicacion` y
+`::test_el_ciclo_upgrade_downgrade_upgrade_es_estable`.
+
+**El `seed` fallaba sobre un esquema migrado.** `seed.py` creaba los registros
+agrupados sin `id_caso` y los sellaba con un recorrido posterior, pero entre
+medio hace varios `flush()` (para obtener PKs) que insertan los pendientes
+mucho antes: en un esquema con `id_caso NOT NULL` eso es
+`NotNullViolationError` — el despliegue fallaba un paso después de migrar.
+Ahora la carpeta activa de cada NNA se abre al crear el NNA, se inserta en el
+acto, y un `before_flush` sella cada registro agrupado antes de su INSERT.
+
+La razón de que la suite no lo detectara es la deriva B2: `test_seed.py`
+construía su base con `create_all`, así que `id_caso` quedaba *nullable* y un
+`NULL` pasaba sin ruido. La base scratch de `test_seed.py` ahora replica el
+`NOT NULL` de producción, y
+`test_seed.py::test_el_seed_sella_el_caso_de_todos_los_registros_agrupados`
+comprueba además que el endurecimiento se aplicó de verdad y que cada `id_caso`
+apunta a un caso del mismo NNA.
 
 ---
 

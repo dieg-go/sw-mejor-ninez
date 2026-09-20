@@ -13,7 +13,7 @@ from pathlib import Path
 
 import psycopg2
 import pytest
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
 from sqlmodel import SQLModel, select
@@ -100,6 +100,16 @@ def _conectar_admin():
 
 
 def _recrear_scratch() -> None:
+    """Recrea la base scratch y le replica el endurecimiento de produccion.
+
+    ``create_all`` construye el esquema a partir de los modelos, que declaran
+    ``id_caso`` como ``Optional``; el ``NOT NULL`` real lo impone la ultima
+    migracion (``bbf68836b0d8``). Sin repetirlo aqui la base de pruebas queda
+    mas permisiva que la de produccion, y el seed pasa aunque en un despliegue
+    real falle: fue justo lo que oculto que sembrar una base nueva reventara con
+    ``NotNullViolationError``. Las tablas se derivan del propio esquema, para no
+    mantener otra lista paralela a las de ``conftest`` y ``test_migrations``.
+    """
     assert SCRATCH_DB.endswith("_seedtest")
     conn = _conectar_admin()
     try:
@@ -112,6 +122,14 @@ def _recrear_scratch() -> None:
     engine = create_engine(_url_sync(SCRATCH_DB))
     try:
         SQLModel.metadata.create_all(engine)
+        agrupadas = [
+            t.name for t in SQLModel.metadata.tables.values() if "id_caso" in t.columns
+        ]
+        with engine.begin() as conn:
+            for tabla in agrupadas:
+                conn.execute(
+                    text(f'ALTER TABLE "{tabla}" ALTER COLUMN id_caso SET NOT NULL')
+                )
     finally:
         engine.dispose()
 
@@ -197,6 +215,57 @@ def scratch(monkeypatch: pytest.MonkeyPatch):
 def test_el_seed_crea_la_base_de_demostracion(scratch: str, monkeypatch: pytest.MonkeyPatch):
     _sembrar(monkeypatch)
     assert asyncio.run(_contar()) == CONTEOS_ESPERADOS
+
+
+@pytest.mark.slow
+def test_el_seed_sella_el_caso_de_todos_los_registros_agrupados(
+    scratch: str, monkeypatch: pytest.MonkeyPatch
+):
+    """Ningun registro agrupado queda sin carpeta, y la que tiene es la del NNA.
+
+    La base scratch replica el ``id_caso NOT NULL`` de produccion, asi que un
+    registro sin sellar romperia el seed. Esta prueba ademas exige que cada
+    ``id_caso`` apunte a un caso del **mismo** NNA, que es lo que la FK compuesta
+    ``(id_nna, id_caso)`` garantiza en el esquema migrado.
+    """
+    _sembrar(monkeypatch)
+
+    async def revisar() -> int:
+        engine = create_async_engine(_url_async(SCRATCH_DB), poolclass=NullPool)
+        try:
+            async with AsyncSession(engine, expire_on_commit=False) as session:
+                # Primero comprobar que la base de pruebas es de verdad tan
+                # estricta como la de produccion: si el endurecimiento no se
+                # aplicara, esta prueba perderia todo su valor sin avisar.
+                permisivas = (
+                    await session.execute(
+                        text(
+                            "SELECT table_name FROM information_schema.columns "
+                            "WHERE table_schema = 'public' AND column_name = 'id_caso' "
+                            "AND is_nullable = 'YES'"
+                        )
+                    )
+                ).scalars().all()
+                assert not permisivas, f"id_caso nullable en: {sorted(permisivas)}"
+
+                pares = {
+                    (c.id_caso, c.id_nna)
+                    for c in (await session.execute(select(Caso))).scalars().all()
+                }
+                filas = 0
+                for model in seed_module.MODELOS_AGRUPADOS:
+                    for row in (await session.execute(select(model))).scalars().all():
+                        nombre = type(row).__name__
+                        assert row.id_caso is not None, f"{nombre} sin id_caso"
+                        assert (row.id_caso, row.id_nna) in pares, (
+                            f"{nombre}: id_caso no pertenece al caso de su NNA"
+                        )
+                        filas += 1
+                return filas
+        finally:
+            await engine.dispose()
+
+    assert asyncio.run(revisar()) > 0
 
 
 @pytest.mark.slow

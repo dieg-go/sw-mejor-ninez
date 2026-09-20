@@ -4,7 +4,7 @@ Detalle de **todas** las pruebas de la suite: qué verifica cada una y cómo lo
 hace. Complementa a `TESTING.md` (que explica el *porqué* y el diseño); aquí
 está el *qué* y el *cómo*.
 
-Cifras: **815 casos de backend** (462 funciones; el resto hasta 815 son
+Cifras: **817 casos de backend** (464 funciones; el resto hasta 817 son
 parametrizaciones) y **201 de frontend** (142 bloques: 138 `it`, 2 `it.fails`
 y 2 `it.each` que expanden a 61 casos).
 
@@ -672,7 +672,7 @@ Pruebas unitarias y de integración directa contra `app/services`.
 | `test_borrar_un_nna_por_el_orm_falla_porque_nulea_las_fk_de_sus_hijos` *(characterization)* | **Defecto B4** | Crea un hijo, `session.delete(nna)` + commit → `IntegrityError` |
 | `test_borrar_un_ncfas_por_el_orm_arrastra_sus_respuestas_y_comentarios` | Contraste: aquí sí hay cascada | Crea respuestas y comentario, borra el NCFAS y comprueba que ambos quedan vacíos |
 
-### 1.23 `test_migrations.py` — 20 casos
+### 1.23 `test_migrations.py` — 21 casos
 
 | Prueba | Qué verifica | Cómo |
 |---|---|---|
@@ -681,10 +681,11 @@ Pruebas unitarias y de integración directa contra `app/services`.
 | `test_la_migracion_de_agrupacion_lista_las_diez_tablas` | Contenido | Busca `"<tabla>"` en el texto de `3f2e134a5977` |
 | `test_la_migracion_de_endurecimiento_lista_las_diez_fks_compuestas` | Contenido | Busca `fk_<tabla>_nna_caso` en `bbf68836b0d8` |
 | `test_los_nombres_de_tabla_de_las_migraciones_existen_en_los_modelos` | Sin tablas fantasma | Cruza los nombres citados contra `SQLModel.metadata.tables` |
-| `test_upgrade_head_construye_el_esquema_desde_una_base_vacia` **(xfail estricto)** | **Defecto B1** | Crea `sw_mejor_ninez_migtest`, corre `alembic upgrade head` y espera el esquema completo |
-| `test_downgrade_base_no_deja_tablas_de_la_aplicacion` **(xfail estricto)** | **Defecto B1** | `upgrade` + `downgrade base` y espera 0 tablas de la app |
-| `test_el_upgrade_desde_cero_falla_en_la_migracion_de_agrupacion` | Punto exacto del fallo | `pytest.raises(ProgrammingError)` y comprueba que el mensaje menciona `Caso` y `already exists` |
-| `test_el_fallo_del_upgrade_no_deja_estado_parcial` | DDL transaccional | Tras el fallo, la base scratch queda con **cero** tablas |
+| `test_upgrade_head_construye_el_esquema_desde_una_base_vacia` | Reproducibilidad (B1 resuelto) | Crea `sw_mejor_ninez_migtest`, corre `alembic upgrade head` y espera el esquema completo |
+| `test_downgrade_base_no_deja_tablas_de_la_aplicacion` | Reversibilidad (B1 resuelto) | `upgrade` + `downgrade base` y espera 0 tablas de la app |
+| `test_la_migracion_inicial_crea_el_esquema_previo_a_la_agrupacion` | Contrato de la inicial | Para en `0b733fafb9a6`: sin tabla `Caso`, sin columnas `id_caso`, con el unique histórico por `id_nna` |
+| `test_el_ciclo_upgrade_downgrade_upgrade_es_estable` | Ida y vuelta | `upgrade`→`downgrade`→`upgrade` y comprueba que no quedan residuos |
+| `test_el_esquema_construido_por_la_cadena_coincide_con_los_modelos` | Paridad fina | Compara columnas, nulabilidad, PKs, FKs locales y restricciones con nombre entre la cadena y los modelos |
 | `test_todas_las_tablas_de_los_modelos_existen_en_el_esquema` | Paridad | Compara `SQLModel.metadata.tables` con `inspect().get_table_names()` de la base de pruebas |
 | `test_no_hay_tablas_de_aplicacion_de_mas` | Exhaustividad | Igualdad estricta de conjuntos |
 | `test_todas_las_columnas_de_los_modelos_existen` | Columnas | Recorre cada tabla y compara nombres de columna |
@@ -697,7 +698,7 @@ Pruebas unitarias y de integración directa contra `app/services`.
 | `test_las_tablas_hijas_de_instrumentos_tienen_su_unique` | Uniques de hijos | `RespuestaNCFAS` y `VinculoNNA` con su nombre; `RespuestaE2P` con uno anónimo |
 | `test_los_instrumentos_cascada_declaran_ondelete` | Pendiente conocido | `CASCADE` en NCFAS/PMF y `None` en `RespuestaE2P` |
 
-### 1.24 `test_seed.py` — 14 casos
+### 1.24 `test_seed.py` — 15 casos
 
 Corren sobre `sw_mejor_ninez_seedtest`, recreada con `create_all`. Para sembrar
 esa base se sustituye `seed.async_session` con `monkeypatch.setattr` (única
@@ -709,6 +710,7 @@ costura necesaria; el código de producción queda intacto).
 | `test_el_seed_crea_el_admin_por_defecto` | Usuario admin | Lee el `Usuario`, comprueba email, nombre, `is_active`, que el hash no es la password y que `verify_password("admin123", hash)` es `True` |
 | `test_el_seed_deja_un_caso_activo_por_nna_y_uno_cerrado` | 3 activos + 1 cerrado | Agrupa por estado y compara los `id_nna` de los activos con los de los NNA |
 | `test_el_seed_sella_los_registros_agrupados_con_su_caso` | Sellado coherente | Construye `{id_caso: id_nna}` y verifica en 7 modelos que `caso_de[registro.id_caso] == registro.id_nna` |
+| `test_el_seed_sella_el_caso_de_todos_los_registros_agrupados` | Sellado completo sobre esquema endurecido | Exige que **ninguna** de las 10 tablas tenga `id_caso` nullable, recorre los 10 modelos comprobando `id_caso` no nulo y que el par `(id_caso, id_nna)` exista entre los casos |
 | `test_el_seed_no_crea_respuestas_de_instrumentos` *(pendiente conocido)* | Hueco documentado | `RespuestaE2P`, `RespuestaPMF` y `RespuestaNCFAS` en 0 |
 | `test_los_e2p_sembrados_tienen_su_perfil_global_pero_no_puntajes` | Datos coherentes a medias | Los 3 perfiles son `{Monitoreo, Optimo, Riesgo}` |
 | `test_el_seed_crea_el_despeje_de_cada_nna` | Despejes y notificaciones | Estados `{Cerrado Sin Red, En Notificación, Evaluando}` y notificaciones por despeje `[1, 2, 2]` |
@@ -958,12 +960,12 @@ completo con valores por defecto, y `iso(haceDias)` para fechas relativas a hoy.
 
 ## 3. Pruebas que fallan a propósito
 
-Sólo cuatro, y son la forma de dejar constancia de un defecto sin arreglarlo.
+Sólo dos, ambas del frontend, y son la forma de dejar constancia de un defecto sin
+arreglarlo. El backend no tiene ninguna hoy: las dos que documentaban el defecto
+B1 se convirtieron en aserciones normales al arreglarlo.
 
 | Prueba | Defecto | Qué pasaría al arreglarlo |
 |---|---|---|
-| `test_migrations.py::test_upgrade_head_construye_el_esquema_desde_una_base_vacia` | B1 | Pasaría; con `strict=True` pytest la reporta como **fallo** y obliga a quitar el `xfail` |
-| `test_migrations.py::test_downgrade_base_no_deja_tablas_de_la_aplicacion` | B1 | Ídem |
 | `utils.test.ts > iniciales > DEFECTO: ...` | F1 | Pasaría y Vitest lo marca como "expected fail" inesperado |
 | `e2p-utils.test.ts > ageToRangoEtario > DEFECTO: ...` | F2 | Ídem |
 

@@ -4,6 +4,7 @@ import uuid
 from datetime import date, timedelta
 from pathlib import Path
 
+from sqlalchemy import event
 from sqlmodel import select
 
 from app.core.database import async_session
@@ -47,6 +48,52 @@ def fecha_hace(dias: int) -> date:
 
 
 _DATA_DIR = Path(__file__).resolve().parent / "app" / "data"
+
+
+# Los 10 modelos que cuelgan de una carpeta de caso (`id_caso` NOT NULL).
+MODELOS_AGRUPADOS = (
+    E2P,
+    PMF,
+    NCFAS,
+    AntecedenteIngreso,
+    DocumentacionIngreso,
+    AntecedenteSalud,
+    AntecedenteEscolar,
+    AntecedenteFamiliar,
+    InformeTribunal,
+    ProcesoDespejeFamiliar,
+)
+
+
+def _sellar_id_caso_antes_de_insertar(session, casos_por_nna: dict) -> None:
+    """Asigna ``id_caso`` a los registros agrupados antes de que se inserten.
+
+    El seed arma los registros agrupados sin ``id_caso`` y antes los sellaba con
+    un recorrido posterior. Ese enfoque solo funcionaba sobre un esquema
+    permisivo: en uno migrado ``id_caso`` es NOT NULL, y el seed hace varios
+    ``flush()`` intermedios (para obtener PKs) que insertan los registros
+    pendientes mucho antes de que el sellado posterior tenga ocasion de correr.
+    El resultado era ``NotNullViolationError`` al sembrar una base nueva: el
+    despliegue fallaba un paso despues de migrar.
+
+    Aqui el ``id_caso`` se pone en el ``before_flush``, tomandolo de la carpeta
+    que cada NNA abrio al crearse (ver ``abrir_caso``). Se exige que la carpeta
+    exista en vez de crearla aqui: un objeto agregado dentro de ``before_flush``
+    entra tarde al plan de flush y su INSERT puede quedar despues del de la fila
+    que lo referencia, lo que da una violacion de FK.
+    """
+    @event.listens_for(session.sync_session, "before_flush")
+    def _sellar(sess, flush_context, instances) -> None:
+        for obj in sess.new:
+            if not isinstance(obj, MODELOS_AGRUPADOS) or obj.id_caso is not None:
+                continue
+            caso = casos_por_nna.get(obj.id_nna)
+            if caso is None:
+                raise RuntimeError(
+                    f"{type(obj).__name__} apunta a un NNA sin carpeta de caso "
+                    f"abierta ({obj.id_nna}); abrir el caso al crear el NNA."
+                )
+            obj.id_caso = caso.id_caso
 
 
 async def seed_e2p_static(session):
@@ -215,6 +262,20 @@ async def seed():
             print(f"Seed data already exists ({len(count_nna)} NNA) — skipping.")
             return
 
+        # Carpeta de caso activa por NNA. `Caso.id_nna` apunta a `NNA`, asi que
+        # la carpeta se abre *despues* de que el NNA este insertado, y se
+        # inserta ella sola en el acto: para cuando el seed agregue el primer
+        # registro agrupado, su `id_caso` ya existe en la base.
+        casos_por_nna: dict[uuid.UUID, Caso] = {}
+
+        async def abrir_caso(nna) -> None:
+            caso = Caso(id_nna=nna.id_nna)
+            casos_por_nna[nna.id_nna] = caso
+            session.add(caso)
+            await session.flush()
+
+        _sellar_id_caso_antes_de_insertar(session, casos_por_nna)
+
         # Load catalog references
         sols = (await session.execute(select(SolicitanteIngreso))).scalars().all()
         sol_by_name = {s.nombre: s for s in sols}
@@ -256,6 +317,7 @@ async def seed():
         )
         session.add_all([madre_ana, tio_ana])
         await session.flush()
+        await abrir_caso(ana)
 
         session.add(
             AntecedentesPenales(
@@ -415,6 +477,7 @@ async def seed():
         )
         session.add(padre_carlos)
         await session.flush()
+        await abrir_caso(carlos)
 
         session.add(HistorialConsumoAdulto(
             id_familiar=padre_carlos.id_familiar,
@@ -515,6 +578,7 @@ async def seed():
         )
         session.add_all([abuela_maria, madre_maria])
         await session.flush()
+        await abrir_caso(maria)
 
         session.add(HistorialConsumoAdulto(
             id_familiar=madre_maria.id_familiar,
@@ -711,7 +775,10 @@ async def seed():
             prevision="Fonasa",
         ))
 
-        # ═══ Casos: one active folder per seeded NNA + stamp grouped records ══
+        # ═══ Casos: one active folder per seeded NNA ═════════════════════════
+        # Los registros agrupados ya viajan con su `id_caso` (lo pone
+        # `_sellar_id_caso_antes_de_insertar`). Aqui solo se garantiza que todo
+        # NNA tenga su carpeta activa, aunque no haya creado registros agrupados.
         existing_casos = {
             c.id_nna
             for c in (await session.execute(select(Caso))).scalars().all()
@@ -720,26 +787,6 @@ async def seed():
             if nna_obj.id_nna not in existing_casos:
                 session.add(Caso(id_nna=nna_obj.id_nna))
         await session.flush()
-
-        caso_by_nna = {
-            c.id_nna: c.id_caso
-            for c in (await session.execute(select(Caso))).scalars().all()
-        }
-        for model in [
-            E2P,
-            PMF,
-            NCFAS,
-            AntecedenteIngreso,
-            DocumentacionIngreso,
-            AntecedenteSalud,
-            AntecedenteEscolar,
-            AntecedenteFamiliar,
-            InformeTribunal,
-            ProcesoDespejeFamiliar,
-        ]:
-            for row in (await session.execute(select(model))).scalars().all():
-                if row.id_nna in caso_by_nna:
-                    row.id_caso = caso_by_nna[row.id_nna]
 
         # ═══ Closed caso (read-only test) ═════════════════════════════════════
         # Ana's previous case, already closed with records. Switching to it in

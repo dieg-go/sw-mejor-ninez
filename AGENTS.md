@@ -17,11 +17,15 @@ Monorepo: Next.js 16 frontend + FastAPI backend + PostgreSQL 17.
 all 45 backend modules import (`python -c "import app.main"` inside the built image); `--frozen-lockfile`
 passes. So the checkpoint is a *buildable, importable* baseline.
 
-**Test suite (added after the checkpoint)**: 815 backend tests (pytest in Docker) + 201 frontend tests
-(Vitest), all green, with 4 deliberately-failing tests that document known defects. See `TESTING.md`
-for the full inventory, the isolation design, and the defect list. **Read the defect list before
-touching migrations or planning a fresh deployment** — `alembic upgrade head` cannot build a database
-from scratch (defect B1), which blocks a new deploy and a bare-metal backup restore.
+**Test suite (added after the checkpoint)**: 817 backend tests (pytest in Docker) + 201 frontend tests
+(Vitest), all green. The frontend has 2 deliberately-failing tests that document known defects; the
+backend has none today. See `TESTING.md` for the full inventory, the isolation design, and the defect
+list.
+
+**Fresh deploys work**: the migration chain builds a database from scratch (defect B1, fixed — see
+`TESTING.md`). `alembic upgrade head` + `seed.py` on an empty database now produces a working
+installation; that was verified end to end (migrate → seed → login → API), not assumed. Backups and
+deployment are still unstarted, so this is *not* production-operable yet.
 
 **Not started — this is the actual remaining roadmap**: backups, deployment, multi-user/audit.
 See Roadmap below; the app is *feature-complete enough* and *not production-operable yet*.
@@ -70,8 +74,8 @@ docker compose up -d --build    # http://localhost:3000
 
 Context: real institution will use this app. Solo developer. Hosted on a self-controlled server.
 
-1. **Backups** — non-negotiable (data is children in the protective system; Ley 19.628). `pg_dump` on a schedule. Do this before anything else on this list.
-2. **Deployment** — run it on the institution's server behind HTTPS. The app currently assumes `localhost` everywhere (CORS is hardcoded to `http://localhost:3000` only) — needs a real domain/origin + TLS + non-hardcoded CORS.
+1. **Backups** — non-negotiable (data is children in the protective system; Ley 19.628). `pg_dump` on a schedule. Do this before anything else on this list. **Unblocked**: the bare-metal restore into a clean database works now that defect B1 is fixed — verify it with a real restore rather than trusting the migration chain.
+2. **Deployment** — run it on the institution's server behind HTTPS. The app currently assumes `localhost` everywhere (CORS is hardcoded to `http://localhost:3000` only) — needs a real domain/origin + TLS + non-hardcoded CORS. **Unblocked**: a fresh deploy now migrates and seeds from an empty database.
 3. **Multi-user + audit trail** — roles beyond the single admin, and a record of who changed what case and when (institution will ask; protects us too).
 
 Deferred intentionally: CI (solo dev; not needed for the first live version). The **test suite is
@@ -132,7 +136,7 @@ frontend/
 - Port **5432** (matches `docker-compose.yml`; `backend/.env` for local runs also uses 5432). Inside Compose, hostname `db` on port 5432.
 - Alembic: use `python -m alembic` (not bare `alembic`). Needs running PostgreSQL. `alembic.ini` has a hardcoded URL, but `env.py` overrides it with `settings.database_url_sync` from config — the `.env` file or Docker env vars control the real connection.
 - **Auto-migration**: `backend/entrypoint.sh` runs `alembic upgrade head` + `python seed.py` before starting uvicorn.
-- **Migrations (3, chained)**: `0b733fafb9a6` (initial, creates all tables from SQLModel metadata) → `3f2e134a5977` (caso grouping) → `bbf68836b0d8` (caso hardening: NOT NULL + composite FK, head). To add tables, update models and generate a new migration.
+- **Migrations (3, chained)**: `0b733fafb9a6` (initial — the pre-`Caso` schema as **frozen explicit DDL**; it must NOT use `SQLModel.metadata.create_all`, see `TESTING.md` defect B1) → `3f2e134a5977` (caso grouping) → `bbf68836b0d8` (caso hardening: NOT NULL + composite FK, head). To add tables, update models and generate a new migration. The chain builds a database from scratch, so a fresh deploy and a `pg_dump` restore into a clean database both work.
 - `.env` lives in `backend/`, not repo root. Run `uvicorn` from `backend/` so pydantic-settings finds it. Docker Compose sets env vars directly (DB_HOST=db, etc.) which override `.env`.
 - All PKs are UUID (`default_factory=uuid.uuid4`). Omit when creating.
 - `tiene_antecedentes_penales` on Familiar is **denormalized** — must update when adding/removing `AntecedentesPenales`.
@@ -181,9 +185,12 @@ docker exec sw-mejor-ninez-db psql -U postgres -d sw_mejor_ninez \
 - **Next.js 16 async params**: dynamic route params are `Promise<{ id: string }>`, consumed with `use(params)`.
 - **CORS**: restricted to `http://localhost:3000` only.
 - **pnpm `--ignore-scripts`** in Docker builds — skips postinstall hooks. If adding a dep needing postinstall, remove the flag.
-- **Tests**: 815 backend (pytest, inside Docker) + 201 frontend (Vitest). See `TESTING.md`. The
+- **Tests**: 817 backend (pytest, inside Docker) + 201 frontend (Vitest). See `TESTING.md`. The
   backend service is `backend-tests` under the Compose profile `test`; the frontend suite is
   `pnpm test`. Test files must not be placed under `frontend/src/app/` (Next's route scanner).
+  **Test databases must replicate the migrations' hardening** (`id_caso NOT NULL`): `create_all`
+  alone builds a *more permissive* schema than production, which is what once hid a seed bug that
+  broke fresh deploys. `conftest.py` and `test_seed.py` both apply the `ALTER TABLE`.
 - **Seed is idempotent**: checks `≥2 NNA` before inserting. Also creates default admin user (`admin@mejorninez.cl` / `admin123`) if none exists.
 - **Root cleanup done** (2026-09): removed stray root `src/` (empty better-auth dirs), `.env.local` (Sentry/Better Auth placeholders from an unrelated scaffold), `cleanup.bat`. `shared/` and `backend/app/instruments/` no longer exist.
 - **No separate typecheck** command in frontend. `pnpm build` includes TS type-checking as part of the Next.js build.

@@ -1,16 +1,16 @@
 """Pruebas de la cadena de migraciones de Alembic y del esquema resultante.
 
-**Hallazgo principal**: la cadena de migraciones **no es reproducible desde una
-base vacia**. ``0b733fafb9a6_initial.py`` ejecuta
-``SQLModel.metadata.create_all(...)``, que crea el esquema *actual* (incluida la
-tabla ``Caso`` y las columnas ``id_caso``), y a continuacion
-``3f2e134a5977_caso_grouping.py`` intenta ``op.create_table('Caso', ...)`` y
-falla con ``DuplicateTable``. Las dos pruebas de reproducibilidad estan marcadas
-``xfail(strict=True)``: si alguien arregla las migraciones, empezaran a fallar
-(y eso es la senal buscada).
+La cadena es **reproducible desde una base vacia**: ``0b733fafb9a6`` crea el
+esquema previo a la agrupacion por caso como DDL congelado (antes usaba
+``SQLModel.metadata.create_all``, que construia el esquema *actual* y hacia
+fallar a ``3f2e134a5977`` con ``DuplicateTable``), y las dos migraciones
+siguientes le agregan ``Caso`` y las columnas ``id_caso``. Eso es lo que hace
+posible un despliegue nuevo y la restauracion de un ``pg_dump`` en una base
+limpia.
 
-Las demas pruebas comprueban que el esquema del que depende la aplicacion si
-esta completo, comparandolo con ``SQLModel.metadata``.
+Las demas pruebas comprueban que el esquema del que depende la aplicacion esta
+completo, comparandolo con ``SQLModel.metadata``: tanto el que construye la
+cadena como el que construye ``conftest`` con ``create_all``.
 """
 
 from __future__ import annotations
@@ -20,7 +20,13 @@ from pathlib import Path
 
 import psycopg2
 import pytest
-from sqlalchemy import create_engine, inspect
+from sqlalchemy import (
+    CheckConstraint,
+    ForeignKeyConstraint,
+    UniqueConstraint,
+    create_engine,
+    inspect,
+)
 from sqlmodel import SQLModel
 
 import app.models  # noqa: F401  (registra las tablas)
@@ -83,8 +89,8 @@ def _recrear_scratch() -> None:
         conn.close()
 
 
-def _ejecutar_alembic(comando: str) -> None:
-    """Ejecuta ``upgrade head`` o ``downgrade base`` sobre la base scratch.
+def _ejecutar_alembic(accion: str, destino: str) -> None:
+    """Ejecuta ``upgrade``/``downgrade`` hasta ``destino`` sobre la base scratch.
 
     ``migrations/env.py`` calcula la URL desde ``settings.database_url_sync``,
     asi que hay que redirigir ``settings.DB_NAME`` mientras corre Alembic.
@@ -98,10 +104,10 @@ def _ejecutar_alembic(comando: str) -> None:
         cfg = Config(str(BACKEND_ROOT / "alembic.ini"))
         cfg.set_main_option("script_location", str(BACKEND_ROOT / "migrations"))
         cfg.set_main_option("sqlalchemy.url", settings.database_url_sync)
-        if comando == "upgrade":
-            alembic_command.upgrade(cfg, "head")
+        if accion == "upgrade":
+            alembic_command.upgrade(cfg, destino)
         else:
-            alembic_command.downgrade(cfg, "base")
+            alembic_command.downgrade(cfg, destino)
     finally:
         settings.DB_NAME = original
 
@@ -193,20 +199,12 @@ def test_los_nombres_de_tabla_de_las_migraciones_existen_en_los_modelos():
                 assert tabla in tablas_modelo, tabla
 
 
-# ── Reproducibilidad de la cadena (defecto conocido) ─────────────────────────
+# ── Reproducibilidad de la cadena ────────────────────────────────────────────
 
 
 @pytest.mark.slow
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Defecto conocido: 0b733fafb9a6 usa SQLModel.metadata.create_all (esquema "
-        "ACTUAL) y 3f2e134a5977 vuelve a crear la tabla Caso -> DuplicateTable. "
-        "Un despliegue nuevo con el volumen vacio no puede migrar."
-    ),
-)
 def test_upgrade_head_construye_el_esquema_desde_una_base_vacia(scratch: str):
-    _ejecutar_alembic("upgrade")
+    _ejecutar_alembic("upgrade", "head")
 
     tablas = _tablas_de(scratch)
     assert "alembic_version" in tablas
@@ -214,49 +212,113 @@ def test_upgrade_head_construye_el_esquema_desde_una_base_vacia(scratch: str):
 
 
 @pytest.mark.slow
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Defecto conocido: mismo origen que el upgrade. El downgrade de "
-        "3f2e134a5977 intenta borrar restricciones 'fk_<tabla>_id_caso' que el "
-        "create_all de la migracion inicial nunca creo."
-    ),
-)
 def test_downgrade_base_no_deja_tablas_de_la_aplicacion(scratch: str):
-    _ejecutar_alembic("upgrade")
-    _ejecutar_alembic("downgrade")
+    _ejecutar_alembic("upgrade", "head")
+    _ejecutar_alembic("downgrade", "base")
 
     tablas = _tablas_de(scratch)
     assert not (set(SQLModel.metadata.tables) & tablas)
 
 
 @pytest.mark.slow
-def test_el_upgrade_desde_cero_falla_en_la_migracion_de_agrupacion(scratch: str):
-    """Documenta el punto exacto del fallo, para que el arreglo sea dirigido."""
-    from sqlalchemy.exc import ProgrammingError
+def test_la_migracion_inicial_crea_el_esquema_previo_a_la_agrupacion(scratch: str):
+    """Fija el contrato de la migracion inicial: el mundo *antes* de ``Caso``.
 
-    with pytest.raises(ProgrammingError) as exc:
-        _ejecutar_alembic("upgrade")
+    Es lo que la distingue de un ``create_all`` del esquema actual. Si la inicial
+    volviera a crear ``Caso`` y las columnas ``id_caso``, la migracion de
+    agrupacion fallaria otra vez y con ella todo despliegue nuevo.
+    """
+    _ejecutar_alembic("upgrade", REVISION_INICIAL)
 
-    assert "Caso" in str(exc.value)
-    assert "already exists" in str(exc.value)
+    engine = create_engine(_url_sync(scratch))
+    try:
+        inspector = inspect(engine)
+        assert "Caso" not in set(inspector.get_table_names())
+
+        for tabla in TABLAS_AGRUPADAS:
+            columnas = {c["name"] for c in inspector.get_columns(tabla)}
+            assert "id_caso" not in columnas, tabla
+
+        # El unique historico que bbf68836b0d8 reemplaza por uq_despeje_nna_caso.
+        uniques = {
+            u["name"]
+            for u in inspector.get_unique_constraints("ProcesoDespejeFamiliar")
+        }
+        assert "ProcesoDespejeFamiliar_id_nna_key" in uniques
+    finally:
+        engine.dispose()
 
 
 @pytest.mark.slow
-def test_el_fallo_del_upgrade_no_deja_estado_parcial(scratch: str):
-    """PostgreSQL aplica DDL transaccional: el fallo revierte todo el upgrade.
+def test_el_ciclo_upgrade_downgrade_upgrade_es_estable(scratch: str):
+    """Ida y vuelta completa: la cadena se deshace y se rehace sin residuos."""
+    _ejecutar_alembic("upgrade", "head")
+    _ejecutar_alembic("downgrade", "base")
+    assert not (set(SQLModel.metadata.tables) & _tablas_de(scratch))
 
-    La base scratch queda vacia, sin tablas ni ``alembic_version``. Es un
-    consuelo: un despliegue nuevo falla ruidosamente al arrancar (entrypoint.sh
-    usa ``set -e``), pero no deja la base a medias.
+    _ejecutar_alembic("upgrade", "head")
+    assert set(SQLModel.metadata.tables) <= _tablas_de(scratch)
+
+
+@pytest.mark.slow
+def test_el_esquema_construido_por_la_cadena_coincide_con_los_modelos(scratch: str):
+    """Paridad fina entre lo que construye la cadena y lo que declaran los modelos.
+
+    No basta con que esten las tablas: la migracion inicial es DDL congelado, asi
+    que esta es la prueba que avisa si se desincroniza de los modelos. Compara
+    columnas, nulabilidad, PKs, FKs (por columnas locales) y las restricciones
+    con nombre.
+
+    Las restricciones que el modelo deja sin nombre no se comparan por nombre:
+    PostgreSQL les inventa uno al crearlas. Por eso se exige que las nombradas
+    esten, y no que los conjuntos de nombres sean iguales.
     """
-    from sqlalchemy.exc import ProgrammingError
+    _ejecutar_alembic("upgrade", "head")
 
-    with pytest.raises(ProgrammingError):
-        _ejecutar_alembic("upgrade")
+    engine = create_engine(_url_sync(scratch))
+    try:
+        inspector = inspect(engine)
+        for nombre, tabla in SQLModel.metadata.tables.items():
+            cols_db = {c["name"]: c for c in inspector.get_columns(nombre)}
 
-    tablas = _tablas_de(scratch)
-    assert tablas == set(), f"quedaron tablas tras el fallo: {tablas}"
+            assert {c.name for c in tabla.columns} == set(cols_db), (
+                f"{nombre}: columnas distintas entre modelo y cadena"
+            )
+
+            for col in tabla.columns:
+                if col.name == "id_caso":
+                    # Deriva conocida B2: el modelo lo declara Optional y la base
+                    # lo exige NOT NULL (lo impone bbf68836b0d8).
+                    assert cols_db["id_caso"]["nullable"] is False, nombre
+                    continue
+                assert bool(col.nullable) == bool(cols_db[col.name]["nullable"]), (
+                    f"{nombre}.{col.name}: nullable modelo={col.nullable} "
+                    f"cadena={cols_db[col.name]['nullable']}"
+                )
+
+            assert [c.name for c in tabla.primary_key.columns] == inspector.get_pk_constraint(
+                nombre
+            )["constrained_columns"], f"{nombre}: PK distinta"
+
+            esperadas = {
+                tuple(sorted(c.name for c in con.columns))
+                for con in tabla.constraints
+                if isinstance(con, ForeignKeyConstraint)
+            }
+            reales = {
+                tuple(sorted(f["constrained_columns"]))
+                for f in inspector.get_foreign_keys(nombre)
+            }
+            assert esperadas == reales, f"{nombre}: FKs distintas"
+
+            nombres_db = {
+                u["name"] for u in inspector.get_unique_constraints(nombre)
+            } | {c["name"] for c in inspector.get_check_constraints(nombre)}
+            for con in tabla.constraints:
+                if con.name and isinstance(con, (UniqueConstraint, CheckConstraint)):
+                    assert con.name in nombres_db, f"{nombre}: falta {con.name}"
+    finally:
+        engine.dispose()
 
 
 # ── Paridad entre los modelos y el esquema de pruebas ────────────────────────
