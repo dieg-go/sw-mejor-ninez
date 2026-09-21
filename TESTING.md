@@ -7,7 +7,7 @@ lógica pura del frontend.
 | Capa | Runner | Pruebas | Estado |
 |------|--------|---------|--------|
 | Backend | `pytest` dentro de Docker | 818 | verde |
-| Frontend | `vitest` | 223 (1 `expected fail`) | verde |
+| Frontend | `vitest` | 226 (1 `expected fail`) | verde |
 
 Ninguna prueba toca la base de datos de desarrollo.
 
@@ -65,14 +65,15 @@ entorno `node`.
 
 #### Tests de componente
 
-Existen desde 2026-09. Tres páginas cubiertas, elegidas por ser las que más
-patrones ejercitan:
+Existen desde 2026-09. Tres páginas cubiertas (las que más patrones ejercitan) más
+el componente compartido `FileUpload`:
 
 | Archivo | Página | Qué cubre |
 |---|---|---|
 | `componentes-discapacidades.test.tsx` | `nna/[id]/discapacidades` | Inputs, alta, edición en línea, errores de API |
 | `componentes-documentacion.test.tsx` | `nna/[id]/documentacion` | Input, **Select**, **date picker**, **FileUpload**, botón de icono |
 | `componentes-consumo.test.tsx` | `nna/[id]/consumo` | **Checkbox**, Select con `useId()` inline, y **dos formularios montados a la vez** |
+| `componentes-file-upload.test.tsx` | componente `FileUpload` | Que la etiqueta resuelva al `<input type="file">` real, **no** a la zona de dropzone |
 
 Corren con `@testing-library/react` + `jsdom`, mockeando `@/lib/api` (sin red ni
 backend).

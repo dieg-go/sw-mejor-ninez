@@ -17,11 +17,10 @@ Monorepo: Next.js 16 frontend + FastAPI backend + PostgreSQL 17.
 all 45 backend modules import (`python -c "import app.main"` inside the built image); `--frozen-lockfile`
 passes. So the checkpoint is a *buildable, importable* baseline.
 
-**Test suite (added after the checkpoint)**: 818 backend tests (pytest in Docker) + 223 frontend tests
+**Test suite (added after the checkpoint)**: 818 backend tests (pytest in Docker) + 226 frontend tests
 (Vitest), all green. The frontend has 1 deliberately-failing test that documents a known defect; the
 backend has none today. See `TESTING.md` for the full inventory, the isolation design, and the defect
-list. Since 2026-09 the frontend also has **component tests** (tres páginas: `discapacidades`,
-`documentacion` y `consumo`).
+list. Since 2026-09 the frontend also has **component tests** (3 páginas + el componente `FileUpload`).
 
 **Fresh deploys work**: the migration chain builds a database from scratch (defect B1, fixed — see
 `TESTING.md`). `alembic upgrade head` + `seed.py` on an empty database now produces a working
@@ -92,7 +91,7 @@ Context: real institution will use this app. Solo developer. Hosted on a self-co
 Deferred intentionally: CI (solo dev; not needed for the first live version). The **test suite is
 done** (see `TESTING.md`) — tests were pulled forward from this list precisely because the scoring
 code (E2P/PMF/NCFAS) is now covered and changes to it are safe. Component tests cover three pages
-(2026-09); extending them to the rest is the pending part. Still deferred:
+plus `FileUpload` (2026-09); extending them to the rest is the pending part. Still deferred:
 browser E2E, coverage gates.
 
 ## Tech Stack
@@ -196,13 +195,34 @@ docker exec sw-mejor-ninez-db psql -U postgres -d sw_mejor_ninez \
 - **Accesibilidad de formularios (regla, no sugerencia).** Todo `<Label>` va asociado a su control: `htmlFor` en la etiqueta + `id` en el control, o los componentes de `@/components/ui/form-field` (`TextField`, `TextareaField`, `DateField`, `SelectField`), que lo hacen con un id de `useId()`. **No uses ids estáticos en estos formularios**: el de alta y el de edición en línea conviven en la misma página y colisionarían. Para un `SelectTrigger` el `id` va en el trigger; para un date picker, en el `Button` del `Popover` (un `button` es etiquetable). Todo `<Button size="icon">` cuyo hijo sea solo un icono lleva `aria-label` (dentro de un `.map`, incluyendo el nombre del ítem). En 2026-09 se corrigieron ~100 etiquetas sin asociar y 22 botones sin nombre; los tests de componente consultan con `getByLabelText` justamente para que la regresión se detecte.
 - **`/nuevo-caso` wizard**: 6 steps, creates records sequentially (NNA first for `id_nna`). Only NNA is required.
 
+#### Deuda pendiente de accesibilidad (2026-09)
+
+La pasada de accesibilidad arregló la asociación de etiquetas, pero **no** cierra la
+accesibilidad. Lo que queda, para no creer que está resuelto:
+
+1. **`FileUpload` duplicado en la misma página.** El botón de quitar lleva
+   `aria-label="Quitar archivo"` fijo. Cuando el formulario de alta y el de edición
+   en línea están abiertos a la vez (`penales`, `documentacion`), hay dos botones con
+   el mismo nombre y un lector de pantalla no los distingue. Antes **no tenían nombre
+   alguno**, así que es una mejora, no una regresión. Arreglo: pasar el nombre del
+   campo al componente para desambiguar.
+2. **La verificación cubre asociación de etiquetas, no WCAG completo.** No mide
+   contraste, orden de foco, navegación por teclado, ni `aria-describedby` en los
+   mensajes de error (los `formError`/`editError` son `<p>` sueltos que un lector
+   puede no anunciar al aparecer). Si se quiere auditar en serio, hace falta una
+   herramienta externa (axe, Lighthouse) o browser tests, que hoy no están.
+3. **No hay test de accesibilidad automatizado.** Los tests de componente consultan
+   con `getByLabelText`, lo que protege la asociación de las páginas cubiertas
+   (3 de ~28, más el componente `FileUpload`), pero no es un chequeo de
+   accesibilidad. CI sigue diferido (ver Roadmap).
+
 ### Environment & tooling
 - **Tailwind CSS v4**: `@import "tailwindcss"` (NOT `@tailwind base`). Theme via `@theme inline {}` in CSS. No `tailwind.config.js`. PostCSS uses `@tailwindcss/postcss`.
 - **ESLint 9 flat config**: `eslint.config.mjs` with `defineConfig`. Extends via spread: `...nextVitals, ...nextTs`.
 - **Next.js 16 async params**: dynamic route params are `Promise<{ id: string }>`, consumed with `use(params)`.
 - **CORS**: restricted to `http://localhost:3000` only.
 - **pnpm `--ignore-scripts`** in Docker builds — skips postinstall hooks. If adding a dep needing postinstall, remove the flag.
-- **Tests**: 818 backend (pytest, inside Docker) + 223 frontend (Vitest). See `TESTING.md`. The
+- **Tests**: 818 backend (pytest, inside Docker) + 226 frontend (Vitest). See `TESTING.md`. The
   backend service is `backend-tests` under the Compose profile `test`; the frontend suite is
   `pnpm test`. Test files must not be placed under `frontend/src/app/` (Next's route scanner).
   The frontend suite defaults to the `node` environment; a component test opts into jsdom with a
